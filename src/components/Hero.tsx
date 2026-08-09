@@ -6,7 +6,9 @@ import {
   Crown, 
   Play, 
   X,
-  Sparkles
+  Sparkles,
+  ShieldCheck,
+  Award
 } from 'lucide-react';
 
 interface HeroProps {
@@ -17,17 +19,7 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, onOpenCalculator }) => {
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
-  const [isMobile, setIsMobile] = useState<boolean>(false);
   const heroRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   // Scroll-driven card exit on Desktop & Tablet
   const { scrollYProgress } = useScroll({
@@ -35,15 +27,15 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
     offset: ['start start', 'end start'],
   });
 
-  // Left card: slides further left and fades on Desktop & Tablet
+  // Left card: slides further left and fades as scroll progresses
   const leftX  = useTransform(scrollYProgress, [0, 0.5], ['0%',  '-120%']);
   const leftOp = useTransform(scrollYProgress, [0, 0.4],  [1,    0]);
 
-  // Right card: mirrors left on Desktop & Tablet
+  // Right card: mirrors left
   const rightX  = useTransform(scrollYProgress, [0, 0.5], ['0%', '120%']);
   const rightOp = useTransform(scrollYProgress, [0, 0.4], [1,    0]);
 
-  // Center card: translates into About grid slot on Desktop & Tablet
+  // Center card: translates down-left into the About section grid slot on Desktop
   const centerScale  = useTransform(scrollYProgress, [0, 1], [1.05, 1]);
   const centerOp     = useTransform(scrollYProgress, [0, 1], [1, 1]);
   const centerY      = useTransform(scrollYProgress, [0, 1], ['0vh', '110vh']);
@@ -71,7 +63,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
       </div>
 
       {/* CENTERED EDITORIAL HERO CONTENT */}
-      <div className="max-w-5xl mx-auto w-full text-center relative z-10 px-4 sm:px-8 space-y-6 mb-8 lg:mb-12 mt-12 lg:mt-0">
+      <div className="max-w-5xl mx-auto w-full text-center relative z-10 px-4 sm:px-8 space-y-6 mb-4 lg:mb-12 mt-12 lg:mt-0">
         
         {/* Crown Eyebrow Badge */}
         <motion.div
@@ -142,19 +134,63 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
           </motion.button>
         </motion.div>
 
+        {/* MOBILE-ONLY DEDICATED HERO SHOWCASE IMAGE (HIDDEN ON DESKTOP & TABLET) */}
+        <div className="md:hidden pt-4 pb-2">
+          <div className="relative w-full max-w-sm mx-auto aspect-[16/10] rounded-[28px] overflow-hidden border-2 border-white shadow-2xl bg-white">
+            <img
+              src="/ultra_hero_living_room.jpg"
+              alt="Deinterio Masterpiece Residence"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-5 text-left text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[9.5px] font-mono font-bold text-[#13362B] uppercase tracking-wider">
+                    Signature Residence
+                  </span>
+                  <h4 className="font-serif text-lg font-normal text-white mt-1.5">
+                    Italian Minimalist Villa
+                  </h4>
+                </div>
+                <button
+                  onClick={() => setIsPlayingVideo(true)}
+                  className="w-10 h-10 rounded-full bg-[#13362B] border border-[#C8AA7A] text-[#C8AA7A] flex items-center justify-center shadow-lg shrink-0"
+                >
+                  <Play className="w-4 h-4 fill-current ml-0.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 text-center p-3 rounded-2xl bg-white border border-[#E2DDD6] shadow-xs text-xs font-mono text-[#1A1917] mt-3 max-w-sm mx-auto">
+            <div>
+              <span className="font-bold text-[#13362B] block text-sm">420+</span>
+              <span className="text-[9px] text-[#6B6560]">Delivered</span>
+            </div>
+            <div className="border-x border-[#E2DDD6]">
+              <span className="font-bold text-[#13362B] block text-sm">100%</span>
+              <span className="text-[9px] text-[#6B6560]">Fixed BOQ</span>
+            </div>
+            <div>
+              <span className="font-bold text-[#13362B] block text-sm">10-Yr</span>
+              <span className="text-[9px] text-[#6B6560]">Warranty</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      {/* BOTTOM 3 OVERLAPPING ARCHITECTURAL CARD CLUSTER */}
-      <div className="max-w-6xl mx-auto w-full relative z-10 px-4 sm:px-8 mb-4 lg:mb-8 flex justify-center items-center">
+      {/* DESKTOP & TABLET OVERLAPPING ARCHITECTURAL CARD CLUSTER (HIDDEN ON MOBILE) */}
+      <div className="hidden md:flex max-w-6xl mx-auto w-full relative z-10 px-4 sm:px-8 mb-4 lg:mb-8 justify-center items-center">
         <div className="relative flex items-center justify-center w-full max-w-4xl min-h-[360px] sm:min-h-[400px]">
           
-          {/* LEFT OVERLAPPING CARD */}
+          {/* LEFT OVERLAPPING CARD (Tilted Left) */}
           <motion.div
             initial={{ opacity: 0, x: -80, rotate: -12 }}
             animate={{ opacity: 1, x: 0, rotate: -7 }}
             transition={{ duration: 1.0, delay: 0.4 }}
             whileHover={{ rotate: 0, scale: 1.05, zIndex: 40 }}
-            style={isMobile ? {} : { x: leftX, opacity: leftOp }}
+            style={{ x: leftX, opacity: leftOp }}
             className="absolute left-0 sm:left-12 w-[180px] sm:w-[260px] aspect-[3/4] rounded-[28px] overflow-hidden border border-[#1A1917]/10 bg-white shadow-xl z-10 cursor-pointer group"
           >
             <img
@@ -171,13 +207,13 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
             </div>
           </motion.div>
 
-          {/* RIGHT OVERLAPPING CARD */}
+          {/* RIGHT OVERLAPPING CARD (Tilted Right) */}
           <motion.div
             initial={{ opacity: 0, x: 80, rotate: 12 }}
             animate={{ opacity: 1, x: 0, rotate: 7 }}
             transition={{ duration: 1.0, delay: 0.4 }}
             whileHover={{ rotate: 0, scale: 1.05, zIndex: 40 }}
-            style={isMobile ? {} : { x: rightX, opacity: rightOp }}
+            style={{ x: rightX, opacity: rightOp }}
             className="absolute right-0 sm:right-12 w-[180px] sm:w-[260px] aspect-[3/4] rounded-[28px] overflow-hidden border border-[#1A1917]/10 bg-white shadow-xl z-10 cursor-pointer group"
           >
             <img
@@ -194,21 +230,17 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
             </div>
           </motion.div>
 
-          {/* CENTER FLYING CARD */}
+          {/* CENTER FLYING CARD (Masterpiece) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            style={
-              isMobile
-                ? {}
-                : { 
-                    scale: centerScale, 
-                    opacity: centerOp,
-                    y: centerY,
-                    x: centerRightX
-                  }
-            }
+            style={{ 
+              scale: centerScale, 
+              opacity: centerOp,
+              y: centerY,
+              x: centerRightX
+            }}
             className="absolute z-30 w-[240px] sm:w-[320px] aspect-[3/4] rounded-[32px] overflow-hidden border-4 border-white bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] origin-center"
           >
             <img
