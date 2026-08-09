@@ -241,7 +241,7 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({ 
           
           <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#EAE6DF] pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EAE6DF] pb-4">
               <div>
                 <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-[#13362B] font-bold font-mono">
                   <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
@@ -254,7 +254,7 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({ 
               
               <button
                 onClick={onOpenDashboard}
-                className="px-4 py-2 rounded-full bg-[#13362B] text-white text-[10px] font-mono uppercase tracking-wider font-semibold hover:bg-[#0D241D] transition-all flex items-center gap-1 shrink-0"
+                className="px-4 py-2 rounded-full bg-[#13362B] text-white text-[10px] font-mono uppercase tracking-wider font-semibold hover:bg-[#0D241D] transition-all flex items-center justify-center gap-1 shrink-0 w-full sm:w-auto"
               >
                 <span>VIEW ALL LIVE PROJECTS</span>
                 <ArrowRight className="w-3 h-3" />
@@ -330,20 +330,20 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({ 
           </div>
 
           {/* Bottom Dashboard Access Banner inside Left Box */}
-          <div className="p-3.5 rounded-xl bg-[#F9F6F0] border border-[#EBE5DA] flex items-center justify-between gap-3 mt-4">
+          <div className="p-4 rounded-2xl bg-[#F9F6F0] border border-[#EBE5DA] flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 mt-4 shadow-2xs">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-white border border-[#E0D8CB] flex items-center justify-center text-[#8C6D3B] shrink-0">
-                <UserCheck className="w-4 h-4" />
+              <div className="w-10 h-10 rounded-xl bg-white border border-[#E0D8CB] flex items-center justify-center text-[#8C6D3B] shrink-0 shadow-2xs">
+                <UserCheck className="w-5 h-5" />
               </div>
               <div className="text-xs">
-                <span className="font-semibold text-[#1A1917] block">Want full access to your project updates?</span>
-                <span className="text-[#6B6862] text-[11px]">Log in to your dashboard and track everything in real-time.</span>
+                <span className="font-semibold text-[#1A1917] block text-xs sm:text-sm">Want full access to your project updates?</span>
+                <span className="text-[#6B6862] text-[11px] block mt-0.5 leading-snug">Log in to your dashboard and track everything in real-time.</span>
               </div>
             </div>
 
             <button
               onClick={onOpenDashboard}
-              className="px-4 py-2 rounded-lg bg-[#13362B] text-white text-xs font-semibold hover:bg-[#0D241D] transition-all flex items-center gap-1 shrink-0"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#13362B] text-white text-xs font-semibold hover:bg-[#0D241D] transition-all flex items-center justify-center gap-1.5 shrink-0 shadow-sm cursor-pointer"
             >
               <span>ACCESS DASHBOARD</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -357,7 +357,7 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({ 
           
           <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#EAE6DF] pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EAE6DF] pb-4">
               <div>
                 <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-[#A88B57] font-bold font-mono">
                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -370,7 +370,7 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({ 
               
               <button
                 onClick={() => setActiveFilter('COMPLETED')}
-                className="px-4 py-2 rounded-full border border-[#E5E0D8] bg-white text-[#1A1917] text-[10px] font-mono uppercase tracking-wider font-semibold hover:bg-[#13362B] hover:text-white transition-all flex items-center gap-1 shrink-0"
+                className="px-4 py-2 rounded-full border border-[#E5E0D8] bg-white text-[#1A1917] text-[10px] font-mono uppercase tracking-wider font-semibold hover:bg-[#13362B] hover:text-white transition-all flex items-center justify-center gap-1 shrink-0 w-full sm:w-auto"
               >
                 <span>VIEW ALL COMPLETED</span>
                 <ArrowRight className="w-3 h-3" />
