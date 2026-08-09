@@ -28,7 +28,7 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({ showImage = fa
       <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[100vh] items-center">
 
         {/* ── CARD PANEL (LEFT) ─────────────────────────────────── */}
-        <div className="relative flex items-center justify-center p-6 sm:p-10 lg:p-14 order-first">
+        <div className={`relative flex items-center justify-center p-6 sm:p-10 lg:p-14 order-first ${!showImage ? 'hidden lg:flex' : ''}`}>
           {showImage ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -54,8 +54,8 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({ showImage = fa
               </div>
             </motion.div>
           ) : (
-            /* On Home Page: Keep left panel clear for clean seamless flow */
-            <div className="relative w-[240px] sm:w-[320px] aspect-[3/4]" />
+            /* On Home Page Desktop: Keep left panel clear for flying hero card */
+            <div className="relative w-[240px] sm:w-[320px] aspect-[3/4] hidden lg:block" />
           )}
         </div>
 

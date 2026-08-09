@@ -1,24 +1,13 @@
-import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { 
   ArrowRight, 
   Crown, 
-  Star, 
-  Award, 
-  Gem, 
-  Box, 
-  ShieldCheck, 
   Play, 
-  Compass, 
-  Home,
-  Store,
-  Building2,
-  Key,
   X,
   Sparkles
 } from 'lucide-react';
-import { AnimatedCounter } from './AnimatedCounter';
 
 interface HeroProps {
   onOpenBooking: () => void;
@@ -28,55 +17,43 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, onOpenCalculator }) => {
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   const heroRef = useRef<HTMLElement>(null);
 
-  // Scroll-driven card exit: as user scrolls out of hero, cards animate away
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Scroll-driven card exit on Desktop & Tablet
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ['start start', 'end start'],
   });
 
-  // Left card: slides further left and fades as scroll progresses
+  // Left card: slides further left and fades on Desktop & Tablet
   const leftX  = useTransform(scrollYProgress, [0, 0.5], ['0%',  '-120%']);
   const leftOp = useTransform(scrollYProgress, [0, 0.4],  [1,    0]);
 
-  // Right card: mirrors left
+  // Right card: mirrors left on Desktop & Tablet
   const rightX  = useTransform(scrollYProgress, [0, 0.5], ['0%', '120%']);
   const rightOp = useTransform(scrollYProgress, [0, 0.4], [1,    0]);
 
-  // Center card: never fades out, translates down-left perfectly into the About section grid slot
+  // Center card: translates into About grid slot on Desktop & Tablet
   const centerScale  = useTransform(scrollYProgress, [0, 1], [1.05, 1]);
   const centerOp     = useTransform(scrollYProgress, [0, 1], [1, 1]);
   const centerY      = useTransform(scrollYProgress, [0, 1], ['0vh', '110vh']);
   const centerRightX = useTransform(scrollYProgress, [0, 1], ['0vw', '-25vw']);
 
-  // Motion Variants
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.12,
-        delayChildren: 0.1,
-      },
-    },
-  };
-
-  const fadeUpVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
-    },
-  };
-
   return (
     <section ref={heroRef} id="hero" className="relative w-full pt-28 pb-12 lg:pt-32 lg:pb-16 bg-[#F8F6F0] text-[#1A1917] flex flex-col justify-center min-h-[100vh] lg:min-h-screen z-20">
       
-      {/* Background Subtle Contour Lines & Soft Ambient Warm Glow */}
+      {/* Background Graphic Elements */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        {/* Large logo watermark — far right, very low opacity */}
         <img
           src="/logo.png"
           alt=""
@@ -84,13 +61,11 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
           className="absolute right-[-60px] top-1/2 -translate-y-1/2 w-[520px] opacity-[0.07] select-none"
           style={{ filter: 'invert(1)', mixBlendMode: 'multiply' }}
         />
-        {/* Curved Architectural Contour SVG Lines */}
         <svg className="w-full h-full opacity-30" aria-hidden="true">
           <path d="M -100,200 Q 400,-100 900,400 T 1900,200" fill="none" stroke="rgba(168, 139, 87, 0.25)" strokeWidth="1.5" />
           <path d="M -100,400 Q 500,100 1100,600 T 2100,400" fill="none" stroke="rgba(168, 139, 87, 0.15)" strokeWidth="1.5" strokeDasharray="6 6" />
         </svg>
 
-        {/* Soft Sober Warm Gold Ambient Glow */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-radial from-[#A88B57]/10 via-[#F3EFE6]/50 to-transparent rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute inset-0 bg-noise opacity-20" />
       </div>
@@ -173,13 +148,13 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
       <div className="max-w-6xl mx-auto w-full relative z-10 px-4 sm:px-8 mb-4 lg:mb-8 flex justify-center items-center">
         <div className="relative flex items-center justify-center w-full max-w-4xl min-h-[360px] sm:min-h-[400px]">
           
-          {/* LEFT OVERLAPPING CARD (Tilted Left) */}
+          {/* LEFT OVERLAPPING CARD */}
           <motion.div
             initial={{ opacity: 0, x: -80, rotate: -12 }}
             animate={{ opacity: 1, x: 0, rotate: -7 }}
             transition={{ duration: 1.0, delay: 0.4 }}
             whileHover={{ rotate: 0, scale: 1.05, zIndex: 40 }}
-            style={{ x: leftX, opacity: leftOp }}
+            style={isMobile ? {} : { x: leftX, opacity: leftOp }}
             className="absolute left-0 sm:left-12 w-[180px] sm:w-[260px] aspect-[3/4] rounded-[28px] overflow-hidden border border-[#1A1917]/10 bg-white shadow-xl z-10 cursor-pointer group"
           >
             <img
@@ -196,13 +171,13 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
             </div>
           </motion.div>
 
-          {/* RIGHT OVERLAPPING CARD (Tilted Right) */}
+          {/* RIGHT OVERLAPPING CARD */}
           <motion.div
             initial={{ opacity: 0, x: 80, rotate: 12 }}
             animate={{ opacity: 1, x: 0, rotate: 7 }}
             transition={{ duration: 1.0, delay: 0.4 }}
             whileHover={{ rotate: 0, scale: 1.05, zIndex: 40 }}
-            style={{ x: rightX, opacity: rightOp }}
+            style={isMobile ? {} : { x: rightX, opacity: rightOp }}
             className="absolute right-0 sm:right-12 w-[180px] sm:w-[260px] aspect-[3/4] rounded-[28px] overflow-hidden border border-[#1A1917]/10 bg-white shadow-xl z-10 cursor-pointer group"
           >
             <img
@@ -219,17 +194,21 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
             </div>
           </motion.div>
 
-          {/* CENTER FLYING CARD (Masterpiece) */}
+          {/* CENTER FLYING CARD */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            style={{ 
-              scale: centerScale, 
-              opacity: centerOp,
-              y: centerY,
-              x: centerRightX
-            }}
+            style={
+              isMobile
+                ? {}
+                : { 
+                    scale: centerScale, 
+                    opacity: centerOp,
+                    y: centerY,
+                    x: centerRightX
+                  }
+            }
             className="absolute z-30 w-[240px] sm:w-[320px] aspect-[3/4] rounded-[32px] overflow-hidden border-4 border-white bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] origin-center"
           >
             <img
@@ -239,91 +218,52 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1A1917]/85 via-transparent to-transparent" />
 
-            {/* Video Walkthrough Floating Badge Overlay */}
             <div className="absolute bottom-6 left-6 right-6 z-40">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
+              <div
                 onClick={() => setIsPlayingVideo(true)}
-                className="p-4 rounded-2xl bg-[#1A1917]/90 text-white backdrop-blur-xl border border-white/20 shadow-2xl flex items-center gap-3.5 cursor-pointer group/btn"
+                className="p-3.5 rounded-2xl bg-[#1A1917]/90 text-white backdrop-blur-xl border border-white/20 shadow-2xl flex items-center gap-3 cursor-pointer group/btn"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#A88B57] text-white flex items-center justify-center shrink-0 shadow-md group-hover/btn:scale-110 transition-transform">
+                <div className="w-9 h-9 rounded-xl bg-[#A88B57] text-white flex items-center justify-center shrink-0 shadow-md group-hover/btn:scale-110 transition-transform">
                   <Play className="w-4 h-4 fill-current ml-0.5" />
                 </div>
-                <div className="text-left space-y-0.5">
-                  <span className="text-[10px] font-serif italic text-[#D4AF37] block font-light">Experience our work</span>
-                  <span className="text-xs font-serif text-white font-medium block leading-tight">Watch project walkthrough ↗</span>
+                <div>
+                  <div className="text-xs font-bold font-serif text-white">Deinterio Masterpiece</div>
+                  <div className="text-[10px] font-mono text-[#D4C3A3]">Tap for 360° Studio Tour</div>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
 
         </div>
       </div>
 
-      {/* TRUST BADGES FOOTER BAR */}
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-8 pt-8 border-t border-[#1A1917]/10 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-          {[
-            { value: '420+', desc: 'Projects Delivered', icon: Star },
-            { value: '98%', desc: 'On-Time Completion', icon: ShieldCheck },
-            { value: '₹185 Cr+', desc: 'Project Value Executed', icon: Gem },
-            { value: '4.9★', desc: 'Average Rating', icon: Crown },
-            { value: '12+', desc: 'Years Experience', icon: Award },
-            { value: '10 Years', desc: 'Warranty Guarantee', icon: Box },
-          ].map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={idx}
-                className="p-3.5 rounded-2xl bg-white border border-[#1A1917]/10 flex items-center gap-3 hover:border-[#A88B57] hover-lift shadow-xs transition-all duration-300 group"
-              >
-                <div className="w-9 h-9 rounded-xl bg-[#FAF8F3] border border-[#1A1917]/10 flex items-center justify-center text-[#8C6D3B] group-hover:bg-[#1A1917] group-hover:text-white icon-spin-hover transition-colors shrink-0">
-                  <Icon className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="text-xs font-mono font-bold text-[#1A1917] block tracking-wider">
-                    {item.value.includes('+') || item.value.includes('%') ? (
-                      <AnimatedCounter value={item.value} />
-                    ) : (
-                      item.value
-                    )}
-                  </span>
-                  <span className="text-[10px] font-mono text-[#5A5852] block opacity-80 leading-tight">{item.desc}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Project Video Walkthrough Modal */}
-      <AnimatePresence>
-        {isPlayingVideo && (
-          <div className="fixed inset-0 z-50 bg-[#1A1917]/90 backdrop-blur-2xl flex items-center justify-center p-4 sm:p-8">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/20 bg-black"
-            >
+      {/* Video Modal */}
+      {isPlayingVideo && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 animate-fade-in">
+          <div className="relative w-full max-w-4xl bg-black rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
+            <div className="flex items-center justify-between p-4 bg-[#13362B] text-white">
+              <span className="text-xs font-mono uppercase tracking-wider text-[#C8AA7A]">
+                Deinterio Studio 360° Walkthrough
+              </span>
               <button
                 onClick={() => setIsPlayingVideo(false)}
-                className="absolute top-4 right-4 z-30 p-3 rounded-full bg-white/20 text-white hover:bg-white/40 transition-colors backdrop-blur-md"
+                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </button>
-
+            </div>
+            <div className="aspect-video w-full">
               <iframe
+                title="Deinterio Video Story"
                 src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1"
-                title="Deinterio Project Walkthrough"
                 className="w-full h-full border-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
-            </motion.div>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
 
     </section>
   );
