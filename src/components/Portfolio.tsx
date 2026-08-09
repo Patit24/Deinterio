@@ -114,30 +114,30 @@ export const Portfolio: React.FC = () => {
     <section id="portfolio" ref={targetRef} className="relative h-[300vh] bg-[#F8F6F0]">
       
       {/* PINNED STICKY CONTAINER (Locks display in place while scrolling vertically) */}
-      <div className="sticky top-24 h-[calc(100vh-100px)] flex flex-col justify-between py-4 px-4 sm:px-8 max-w-[1440px] mx-auto overflow-hidden">
+      <div className="sticky top-20 lg:top-24 h-[calc(100vh-90px)] flex flex-col justify-between py-4 px-4 sm:px-8 max-w-[1440px] mx-auto overflow-hidden">
         
         {/* Header & Category Filters */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1A1917]/10 pb-3">
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#1A1917]/10 text-[10px] uppercase tracking-[0.22em] text-[#8C6D3B] font-mono font-semibold">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#1A1917]/10 text-[10px] uppercase tracking-[0.2em] text-[#8C6D3B] font-mono font-semibold">
               <Sparkles className="w-3.5 h-3.5 text-[#A88B57]" />
-              <span>Scroll Down Vertically to Reveal Masterpieces</span>
+              <span>FEATURED MASTERPIECES</span>
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl font-normal text-[#1A1917] mt-1">
               Featured <span className="italic text-gold-gradient">Masterpieces</span>
             </h2>
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap gap-1.5 p-1 rounded-full bg-white border border-[#1A1917]/10 shadow-xs">
+          {/* Category Filter Pills (Horizontal Scrollable on Mobile) */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 max-w-full">
             {['All', 'Villa', 'Penthouse', '3BHK', 'Corporate', 'Commercial'].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider transition-all ${
+                className={`px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? 'bg-[#1A1917] text-white font-bold shadow-md'
-                    : 'text-[#1A1917]/70 hover:text-[#1A1917]'
+                    ? 'bg-[#13362B] text-[#C8AA7A] font-bold shadow-md border border-[#C8AA7A]/40'
+                    : 'bg-white border border-[#E2DDD6] text-[#1A1917] hover:border-[#13362B]'
                 }`}
               >
                 {cat}
@@ -150,57 +150,57 @@ export const Portfolio: React.FC = () => {
         <div className="relative w-full overflow-hidden my-auto py-2">
           <motion.div
             style={{ x }}
-            className="flex gap-8 items-center"
+            className="flex gap-4 sm:gap-8 items-center"
           >
-            {filteredProjects.map((project, idx) => (
+            {filteredProjects.map((project) => (
               <div
                 key={project.id}
                 onClick={() => setActiveProject(project)}
-                className="group/card relative w-[88vw] max-w-4xl h-[420px] sm:h-[480px] shrink-0 rounded-[36px] overflow-hidden bg-[#1A1917] cursor-pointer shadow-2xl border border-[#1A1917]/20 hover:border-[#A88B57] transition-all duration-500"
+                className="group/card relative w-[88vw] max-w-4xl h-[400px] sm:h-[480px] shrink-0 rounded-[28px] sm:rounded-[36px] overflow-hidden bg-[#1A1917] cursor-pointer shadow-2xl border border-[#1A1917]/20 hover:border-[#A88B57] transition-all duration-500"
                 data-cursor="EXPLORE"
               >
                 {/* Background Image */}
                 <img
                   src={project.image}
                   alt={project.title}
-                  className="w-full h-full object-cover hover-rotate-img opacity-90 group-hover/card:opacity-100"
+                  className="w-full h-full object-cover hover-rotate-img opacity-95 group-hover/card:opacity-100"
                 />
 
-                {/* Gradient Vignette Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1917]/95 via-[#1A1917]/40 to-transparent" />
+                {/* High Contrast Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent" />
 
                 {/* Top Badges */}
-                <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-10">
-                  <span className="px-4 py-1.5 rounded-full bg-white/95 text-xs uppercase font-mono tracking-widest text-[#1A1917] font-semibold backdrop-blur-md shadow-md">
+                <div className="absolute top-4 left-4 right-4 sm:top-6 sm:left-6 sm:right-6 flex items-center justify-between z-10">
+                  <span className="px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-white/95 text-[10px] sm:text-xs uppercase font-mono tracking-widest text-[#13362B] font-bold backdrop-blur-md shadow-md max-w-[75%] truncate">
                     {project.badge}
                   </span>
 
-                  <div className="w-11 h-11 rounded-full bg-white/90 backdrop-blur-md border border-white/50 flex items-center justify-center text-[#1A1917] group-hover/card:scale-110 group-hover/card:bg-[#A88B57] group-hover/card:text-white transition-all shadow-md">
+                  <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/90 backdrop-blur-md border border-white/50 flex items-center justify-center text-[#1A1917] group-hover/card:scale-110 group-hover/card:bg-[#13362B] group-hover/card:text-[#C8AA7A] transition-all shadow-md shrink-0">
                     <ArrowUpRight className="w-4 h-4" />
                   </div>
                 </div>
 
                 {/* Bottom Content & Specs */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-10 space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-mono text-[#A88B57]">
-                    <MapPin className="w-3.5 h-3.5" />
+                <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8 z-10 space-y-2.5">
+                  <div className="flex items-center gap-1.5 text-xs font-mono text-[#C8AA7A] font-semibold">
+                    <MapPin className="w-3.5 h-3.5 text-[#C8AA7A]" />
                     <span>{project.location}</span>
                   </div>
 
-                  <h3 className="font-serif text-3xl sm:text-5xl text-white font-medium group-hover/card:text-[#F3EFE6] transition-colors leading-tight">
+                  <h3 className="font-serif text-2xl sm:text-5xl text-white font-medium group-hover/card:text-[#F3EFE6] transition-colors leading-tight">
                     {project.title}
                   </h3>
 
                   {/* Specs Bar */}
-                  <div className="flex flex-wrap items-center justify-between pt-3 border-t border-white/20 text-xs sm:text-sm font-mono text-white/90 gap-4">
-                    <div className="flex flex-wrap items-center gap-6">
-                      <span>Turnkey Investment: <strong className="text-[#A88B57] font-bold">{project.budget}</strong></span>
-                      <span>Carpet Area: <strong>{project.area}</strong></span>
-                      <span>Duration: <strong>{project.timeline}</strong></span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 border-t border-white/20 text-xs font-mono text-white/90 gap-2 sm:gap-4">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                      <span>Turnkey: <strong className="text-[#C8AA7A] font-bold">{project.budget}</strong></span>
+                      <span>Area: <strong className="text-white font-bold">{project.area}</strong></span>
+                      <span>Timeline: <strong className="text-white font-bold">{project.timeline}</strong></span>
                     </div>
 
-                    <span className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#A88B57] font-bold group-hover/card:translate-x-1 transition-transform">
-                      <SlidersHorizontal className="w-4 h-4" /> Interactive Before & After Slider ↗
+                    <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-mono uppercase tracking-wider text-[#C8AA7A] font-bold group-hover/card:translate-x-1 transition-transform pt-1 sm:pt-0">
+                      <SlidersHorizontal className="w-3.5 h-3.5" /> Before & After Slider ↗
                     </span>
                   </div>
                 </div>
@@ -210,13 +210,14 @@ export const Portfolio: React.FC = () => {
         </div>
 
         {/* BOTTOM HINT FOOTER */}
-        <div className="flex items-center justify-between text-xs font-mono text-[#5A5852] pt-2 border-t border-[#1A1917]/10">
+        <div className="flex items-center justify-between text-[11px] sm:text-xs font-mono text-[#5A5852] pt-2 border-t border-[#1A1917]/10">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#13362B] animate-ping" />
-            <span className="uppercase font-bold tracking-wider text-[#1A1917]">Display Pinned: Continue Scrolling Vertically to Slide Cards</span>
+            <span className="w-2 h-2 rounded-full bg-[#13362B] animate-ping" />
+            <span className="uppercase font-bold tracking-wider text-[#1A1917] hidden sm:inline">Display Pinned: Continue Scrolling Vertically to Slide Cards</span>
+            <span className="uppercase font-bold tracking-wider text-[#1A1917] sm:hidden">Scroll Vertically to Reveal</span>
           </div>
 
-          <span className="text-xs font-bold text-[#8C6D3B]">Click Card to Reveal Before/After Slider</span>
+          <span className="text-[11px] font-bold text-[#8C6D3B]">Tap Card for Details</span>
         </div>
 
       </div>
@@ -248,53 +249,61 @@ export const Portfolio: React.FC = () => {
             </div>
 
             {/* Modal Content */}
-            <div className="p-6 sm:p-8 space-y-8 max-h-[75vh] overflow-y-auto">
+            <div className="p-6 sm:p-8 space-y-6 max-h-[75vh] overflow-y-auto">
               
-              {/* Interactive Before & After Slider */}
+              {/* Interactive Before/After Slider */}
               <div className="space-y-2">
-                <div className="flex justify-between items-center text-xs font-mono text-[#5A5852]">
-                  <span>Drag Slider to Reveal Before & After Transformation</span>
-                  <span className="text-[#13362B] font-bold">100% Deinterio Turnkey Execution</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#8C6D3B]">
+                    Interactive Transformation View (Drag Slider Left / Right)
+                  </span>
                 </div>
-                <BeforeAfterSlider beforeImage={activeProject.beforeImg} afterImage={activeProject.afterImg} />
+                <BeforeAfterSlider
+                  beforeImage={activeProject.beforeImg}
+                  afterImage={activeProject.afterImg}
+                />
               </div>
 
               {/* Story & Specifications */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-                
-                <div className="md:col-span-8 space-y-4">
-                  <h4 className="text-xs uppercase font-mono tracking-widest text-[#8C6D3B] font-bold">Architectural Concept & Execution Story</h4>
-                  <p className="text-sm text-[#5A5852] font-light leading-relaxed">{activeProject.story}</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-[#1A1917]/10">
+                <div className="md:col-span-2 space-y-3">
+                  <h4 className="font-serif text-xl font-medium text-[#1A1917]">Architectural Design Narrative</h4>
+                  <p className="text-sm text-[#5A5852] font-light leading-relaxed">
+                    {activeProject.story}
+                  </p>
                 </div>
 
-                <div className="md:col-span-4 p-5 rounded-2xl bg-white border border-[#1A1917]/10 space-y-3 font-mono text-xs">
-                  <h5 className="text-xs uppercase tracking-wider text-[#1A1917] font-bold border-b border-[#1A1917]/10 pb-2">Key Project Specs</h5>
-                  <div className="flex justify-between">
-                    <span className="text-[#5A5852]">Turnkey Budget:</span>
-                    <span className="font-bold text-[#8C6D3B]">{activeProject.budget}</span>
+                <div className="space-y-4 bg-white p-5 rounded-2xl border border-[#1A1917]/10">
+                  <h4 className="font-serif text-lg font-medium text-[#13362B]">Project Telemetry</h4>
+                  
+                  <div className="space-y-2 text-xs font-mono text-[#5A5852]">
+                    <div className="flex justify-between border-b border-[#E2DDD6] pb-1.5">
+                      <span>Investment:</span>
+                      <strong className="text-[#13362B] font-bold">{activeProject.budget}</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-[#E2DDD6] pb-1.5">
+                      <span>Carpet Area:</span>
+                      <strong className="text-[#1A1917]">{activeProject.area}</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-[#E2DDD6] pb-1.5">
+                      <span>Execution Period:</span>
+                      <strong className="text-[#1A1917]">{activeProject.timeline}</strong>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#5A5852]">Carpet Area:</span>
-                    <span className="font-bold">{activeProject.area}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#5A5852]">Execution Time:</span>
-                    <span className="font-bold">{activeProject.timeline}</span>
-                  </div>
-                </div>
 
-              </div>
-
-              {/* Materials & Hardware Palette */}
-              <div>
-                <h4 className="text-xs uppercase font-mono tracking-widest text-[#8C6D3B] font-bold mb-3">Authentic Materials & Branded Hardware Used</h4>
-                <div className="flex flex-wrap gap-2">
-                  {activeProject.materials.map((mat: string, idx: number) => (
-                    <span key={idx} className="px-3.5 py-1.5 rounded-full bg-white border border-[#1A1917]/10 text-xs font-mono text-[#1A1917] flex items-center gap-1.5 shadow-sm">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#13362B]" />
-                      {mat}
+                  <div className="pt-2">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8C6D3B] block mb-2">
+                      Verified Material Grade
                     </span>
-                  ))}
+                    <div className="space-y-1.5">
+                      {activeProject.materials.map((mat: string, idx: number) => (
+                        <div key={idx} className="flex items-center gap-1.5 text-[11px] text-[#1A1917]">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#13362B] shrink-0" />
+                          <span>{mat}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
