@@ -23,7 +23,7 @@ export interface DesignIdeaItem {
   title: string;
   categorySlug: string;
   categoryName: string;
-  style: string; // e.g. Minimalist, Italian Luxury, Scandinavian, Classic Heritage
+  style: string;
   budgetRange: string;
   image: string;
   gallery: string[];
@@ -41,13 +41,13 @@ interface DesignIdeasPageProps {
 
 export const CATEGORIES_DATA = [
   { slug: 'modular-kitchen', name: 'Modular Kitchen Designs', count: 124, icon: '🍳', heroImage: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80', desc: 'Ergonomic L-shaped, Parallel, and Island modular kitchens with German hardware & waterproof marine plywood.' },
-  { slug: 'wardrobe', name: 'Wardrobe Designs', count: 98, icon: '🚪', heroImage: 'https://images.unsplash.com/photo-1558882224-dda166733046?auto=format&fit=crop&w=1200&q=80', desc: 'Floor-to-ceiling floor sliding wardrobes, walk-in closets, and lacquered glass finishes.' },
+  { slug: 'wardrobe', name: 'Wardrobe Designs', count: 98, icon: '🚪', heroImage: 'https://images.unsplash.com/photo-1558882224-dda166733046?auto=format&fit=crop&w=1200&q=80', desc: 'Floor-to-ceiling sliding wardrobes, walk-in closets, and lacquered glass finishes.' },
   { slug: 'bathroom', name: 'Bathroom Designs', count: 86, icon: '🚿', heroImage: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80', desc: 'Spa-inspired luxury vanities, frameless glass shower enclosures, and Italian marble wall claddings.' },
   { slug: 'master-bedroom', name: 'Master Bedroom Designs', count: 112, icon: '🛏️', heroImage: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80', desc: 'Acoustic headboards, warm cove ceiling lighting, integrated dressers, and serene color palettes.' },
   { slug: 'living-room', name: 'Living Room Designs', count: 145, icon: '🛋️', heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80', desc: 'Italian minimalist lounge layouts, fluted wall louvers, custom sofa seating, and media walls.' },
-  { slug: 'pooja-room', name: 'Pooja Room Designs', count: 54, icon: '🕉️', heroImage: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80', desc: 'Traditional Corian Mandirs with intricate CNC jaali work, warm LED backlighting, and brass bells.' },
+  { slug: 'pooja-room', name: 'Pooja Room Designs', count: 54, icon: '🕉️', heroImage: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80', desc: 'Traditional Corian Mandirs with intricate CNC jaali work, warm LED backlighting, and brass bells.' },
   { slug: 'tv-unit', name: 'TV Unit Designs', count: 76, icon: '📺', heroImage: 'https://images.unsplash.com/photo-1593696140826-c58b021acf8b?auto=format&fit=crop&w=1200&q=80', desc: 'Floating marble TV consoles, concealed cable management, integrated bookshelf & display ledges.' },
-  { slug: 'false-ceiling', name: 'False Ceiling Designs', count: 92, icon: '✨', heroImage: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80', desc: 'Cove ambient lighting, magnetic track lights, wooden rafter accents, and clean perimeter drop ceilings.' },
+  { slug: 'false-ceiling', name: 'False Ceiling Designs', count: 92, icon: '✨', heroImage: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80', desc: 'Cove ambient lighting, magnetic track lights, wooden rafter accents, and clean perimeter drop ceilings.' },
   { slug: 'kids-bedroom', name: 'Kids Bedroom Designs', count: 48, icon: '🎈', heroImage: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80', desc: 'Study units with magnetic whiteboards, bunk beds with storage drawers, and durable non-toxic finishes.' },
   { slug: 'balcony', name: 'Balcony Designs', count: 62, icon: '🌿', heroImage: 'https://images.unsplash.com/photo-1533779283484-839983806689?auto=format&fit=crop&w=1200&q=80', desc: 'Vertical green gardens, weather-proof deck tile flooring, bar counters, and cozy outdoor seating.' },
   { slug: 'dining-room', name: 'Dining Room Designs', count: 68, icon: '🍽️', heroImage: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1200&q=80', desc: '6-seater onyx marble dining tables, pendant chandeliers, and integrated cutlery buffets.' },
@@ -61,75 +61,16 @@ export const CATEGORIES_DATA = [
 ];
 
 export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
-  // Bathroom Designs
-  {
-    id: 'bath-1',
-    title: 'Statuario Marble Spa Bathroom with LED Mirror',
-    categorySlug: 'bathroom',
-    categoryName: 'Bathroom Designs',
-    style: 'Italian Minimalist',
-    budgetRange: '₹1.8L – ₹3.2L',
-    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1000&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=1200&q=80',
-    ],
-    description: 'A luxurious master bathroom clad in seamless Italian Statuario marble tile wall paneling. Features a wall-hung floating teak vanity, thermostatic matt black shower fixtures, and a frameless round LED smart mirror.',
-    keyFeatures: ['Wall-hung Floating Teak Vanity', 'Matt Black Grohe Sanitary Ware', 'Frameless LED Touch Mirror', 'Niche Recessed LED Lighting'],
-    materials: ['Statuario Italian Marble Tiles', 'Century Marine Plywood Vanity', 'Grohe Thermostatic Shower', 'Saint-Gobain Toughened Glass'],
-    dimensions: '8ft x 10ft (80 sq.ft)',
-    idealFor: 'Master Bedrooms & Luxury Apartments'
-  },
-  {
-    id: 'bath-2',
-    title: 'Terrazzo & Rose Gold Compact Powder Room',
-    categorySlug: 'bathroom',
-    categoryName: 'Bathroom Designs',
-    style: 'Modern Eclectic',
-    budgetRange: '₹1.2L – ₹2.4L',
-    image: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1000&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80',
-    ],
-    description: 'Compact yet striking powder room design featuring terrazzo wall accenting, brush rose gold brassware, vessel bowl basin, and warm ambient pendant lighting.',
-    keyFeatures: ['Custom Terrazzo Backsplash', 'Rose Gold Monobloc Tap', 'Wall-Mounted Geberit Tank', 'Concealed Exhaust System'],
-    materials: ['Custom Terrazzo Tiles', 'Kohler Sanitary Ware', 'Brass PVD Coated Fittings'],
-    dimensions: '5ft x 6ft (30 sq.ft)',
-    idealFor: 'Foyer Powder Rooms & Compact Flats'
-  },
-  {
-    id: 'bath-3',
-    title: 'Japanese Zen Bath with Teak Slats & Rain Shower',
-    categorySlug: 'bathroom',
-    categoryName: 'Bathroom Designs',
-    style: 'Japandi Luxury',
-    budgetRange: '₹2.5L – ₹4.8L',
-    image: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=1000&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=1200&q=80',
-    ],
-    description: 'Serene Japandi style bathroom incorporating anti-skid wooden teak slat flooring in shower enclosure, freestanding oval soaking tub, and ceiling recessed rain head shower.',
-    keyFeatures: ['Freestanding Acrylic Soaking Tub', 'Teak Wood Shower Decking', 'Ceiling Rain Shower Jet', 'Anti-Fog Smart Mirror'],
-    materials: ['Natural Burma Teak Decking', 'Villeroy & Boch Tub', 'Hansgrohe Raindance Shower'],
-    dimensions: '12ft x 10ft (120 sq.ft)',
-    idealFor: 'Villas, Penthouses & Bungalows'
-  },
-
-  // Modular Kitchen Designs
+  // 1. Modular Kitchen Designs
   {
     id: 'kit-1',
-    title: 'L-Shaped Handleless Acrylic Kitchen with Island',
+    title: 'L-Shaped Handleless Acrylic Kitchen with Quartz Island',
     categorySlug: 'modular-kitchen',
     categoryName: 'Modular Kitchen Designs',
     style: 'Modern Minimalist',
     budgetRange: '₹3.2L – ₹6.5L',
     image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1000&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80',
-    ],
+    gallery: ['https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80'],
     description: 'High-gloss champagne acrylic handleless kitchen with Gola profile channels, quartz stone island counter, built-in microwave oven tower, and Hafele tandem box drawers.',
     keyFeatures: ['Gola Profile Handleless Shutters', 'Quartz Anti-Stain Countertop', 'Built-in Appliance Tall Unit', 'Hafele Magic Corner Pullout'],
     materials: ['CenturyPly 710 BWP Plywood', 'Merino High Gloss Acrylic', 'Hafele Soft Close Fittings', 'Kaff Built-in Hob'],
@@ -144,17 +85,30 @@ export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
     style: 'Contemporary Industrial',
     budgetRange: '₹2.8L – ₹4.8L',
     image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1000&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80',
-    ],
+    gallery: ['https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80'],
     description: 'Sleek parallel layout optimized for maximum efficiency with anti-fingerprint matt charcoal shutters paired with warm natural oak upper cabinets.',
     keyFeatures: ['Anti-Fingerprint Super Matt Finish', 'Dual Counter Efficiency Layout', 'Under-Cabinet Profile Lights', 'Granite Double Bowl Sink'],
     materials: ['Fenix NTM Matt Laminate', 'Blum Servo-Drive Drawers', 'Franke Granite Sink'],
     dimensions: '10ft x 8ft (80 sq.ft)',
     idealFor: 'Urban Apartments & High-Rise Flats'
   },
+  {
+    id: 'kit-3',
+    title: 'Contemporary White & Brass Island Kitchen',
+    categorySlug: 'modular-kitchen',
+    categoryName: 'Modular Kitchen Designs',
+    style: 'Italian Minimalist',
+    budgetRange: '₹4.2L – ₹7.8L',
+    image: 'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Ultra-luxurious open kitchen with a waterfall marble counter, brass pendant lighting, and seamless built-in refrigerator wall paneling.',
+    keyFeatures: ['Waterfall Marble Island', 'Brass Pendant Lights', 'Soft-Touch Touchless Drawers', 'Integrated Wine Cooler'],
+    materials: ['Italian Carrara Marble', 'Burma Teak Cabinets', 'Bosch Built-in Appliances'],
+    dimensions: '16ft x 14ft (224 sq.ft)',
+    idealFor: 'Villas & Penthouses'
+  },
 
-  // Wardrobe Designs
+  // 2. Wardrobe Designs
   {
     id: 'ward-1',
     title: 'Lacquered Glass Floor-to-Ceiling Sliding Wardrobe',
@@ -163,17 +117,77 @@ export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
     style: 'Italian Modern',
     budgetRange: '₹1.9L – ₹3.4L',
     image: 'https://images.unsplash.com/photo-1558882224-dda166733046?auto=format&fit=crop&w=1000&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1558882224-dda166733046?auto=format&fit=crop&w=1200&q=80',
-    ],
+    gallery: ['https://images.unsplash.com/photo-1558882224-dda166733046?auto=format&fit=crop&w=1200&q=80'],
     description: 'Full-height 9ft sliding wardrobe with tinted black lacquered glass doors, internal sensor LED clothing rods, velvet accessory organizer drawers, and built-in tie racks.',
     keyFeatures: ['Top-Hung Soft-Closing Slider', 'Automatic Motion Sensor LEDs', 'Velvet Watch & Jewel Tray', 'Lacquered Glass Reflective Panel'],
     materials: ['Hettich InLine XL Sliding Track', 'Asahi Lacquered Glass', 'Century Plywood Core'],
     dimensions: '10ft Width x 9ft Height',
     idealFor: 'Master Bedrooms & Walk-in Closets'
   },
+  {
+    id: 'ward-2',
+    title: 'Glass-Door Walk-In Closet Suite with Island Unit',
+    categorySlug: 'wardrobe',
+    categoryName: 'Wardrobe Designs',
+    style: 'Warm Luxury',
+    budgetRange: '₹3.8L – ₹6.2L',
+    image: 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Dedicated dressing room featuring bronze aluminum glass doors, sensor-lit shoe display shelves, and a marble-top central accessory island.',
+    keyFeatures: ['Bronze Glass Aluminum Doors', 'Marble Top Accessory Island', 'Sensor Lighting Shelves', 'Full-Height Mirror Unit'],
+    materials: ['Toughened Tinted Glass', 'Century Plywood Core', 'Hafele Soft-Close Tracks'],
+    dimensions: '12ft x 10ft (120 sq.ft)',
+    idealFor: 'Master Bedroom Walk-in Dressing Rooms'
+  },
 
-  // Master Bedroom Designs
+  // 3. Bathroom Designs
+  {
+    id: 'bath-1',
+    title: 'Statuario Marble Spa Bathroom with LED Mirror',
+    categorySlug: 'bathroom',
+    categoryName: 'Bathroom Designs',
+    style: 'Italian Minimalist',
+    budgetRange: '₹1.8L – ₹3.2L',
+    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80'],
+    description: 'A luxurious master bathroom clad in seamless Italian Statuario marble tile wall paneling. Features a wall-hung floating teak vanity, thermostatic matt black shower fixtures, and a frameless round LED smart mirror.',
+    keyFeatures: ['Wall-hung Floating Teak Vanity', 'Matt Black Grohe Sanitary Ware', 'Frameless LED Touch Mirror', 'Niche Recessed LED Lighting'],
+    materials: ['Statuario Italian Marble Tiles', 'Century Marine Plywood Vanity', 'Grohe Thermostatic Shower', 'Saint-Gobain Toughened Glass'],
+    dimensions: '8ft x 10ft (80 sq.ft)',
+    idealFor: 'Master Bedrooms & Luxury Apartments'
+  },
+  {
+    id: 'bath-2',
+    title: 'Terrazzo & Rose Gold Compact Powder Room',
+    categorySlug: 'bathroom',
+    categoryName: 'Bathroom Designs',
+    style: 'Modern Eclectic',
+    budgetRange: '₹1.2L – ₹2.4L',
+    image: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Compact yet striking powder room design featuring terrazzo wall accenting, brush rose gold brassware, vessel bowl basin, and warm ambient pendant lighting.',
+    keyFeatures: ['Custom Terrazzo Backsplash', 'Rose Gold Monobloc Tap', 'Wall-Mounted Geberit Tank', 'Concealed Exhaust System'],
+    materials: ['Custom Terrazzo Tiles', 'Kohler Sanitary Ware', 'Brass PVD Coated Fittings'],
+    dimensions: '5ft x 6ft (30 sq.ft)',
+    idealFor: 'Foyer Powder Rooms & Compact Flats'
+  },
+  {
+    id: 'bath-3',
+    title: 'Japanese Zen Bath with Teak Slats & Rain Shower',
+    categorySlug: 'bathroom',
+    categoryName: 'Bathroom Designs',
+    style: 'Japandi Luxury',
+    budgetRange: '₹2.5L – ₹4.8L',
+    image: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Serene Japandi style bathroom incorporating anti-skid wooden teak slat flooring in shower enclosure, freestanding oval soaking tub, and ceiling recessed rain head shower.',
+    keyFeatures: ['Freestanding Acrylic Soaking Tub', 'Teak Wood Shower Decking', 'Ceiling Rain Shower Jet', 'Anti-Fog Smart Mirror'],
+    materials: ['Natural Burma Teak Decking', 'Villeroy & Boch Tub', 'Hansgrohe Raindance Shower'],
+    dimensions: '12ft x 10ft (120 sq.ft)',
+    idealFor: 'Villas, Penthouses & Bungalows'
+  },
+
+  // 4. Master Bedroom Designs
   {
     id: 'bed-1',
     title: 'Warm Velvet Upholstered Panel Bedroom with Fluted Louvers',
@@ -182,17 +196,30 @@ export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
     style: 'Warm Luxury',
     budgetRange: '₹3.5L – ₹6.2L',
     image: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1000&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80',
-    ],
+    gallery: ['https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80'],
     description: 'Opulent master bedroom with full-wall floor-to-ceiling plush velvet cushioned headboard, fluted wooden louver side panels, brass bedside sconce lights, and floating side tables.',
     keyFeatures: ['Full-Wall Acoustic Velvet Headboard', 'Charcoal & Gold Fluted Louvers', 'Warm Cove Drop Ceiling', 'Floating Bedside Nightstands'],
     materials: ['Plush Velvet Upholstery', 'CenturyPly Core', 'Warm 3000K Strip Lights'],
     dimensions: '16ft x 14ft (224 sq.ft)',
     idealFor: 'Master Bedroom Suites'
   },
+  {
+    id: 'bed-2',
+    title: 'Italian Minimalist Suite with Concealed Wardrobe & Cove Lighting',
+    categorySlug: 'master-bedroom',
+    categoryName: 'Master Bedroom Designs',
+    style: 'Italian Minimalist',
+    budgetRange: '₹2.9L – ₹5.4L',
+    image: 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Sleek master suite featuring a low-profile platform bed, veneered wall paneling with integrated warm ambient cove LEDs, and a concealed flush wardrobe wall.',
+    keyFeatures: ['Platform Bed Frame', 'Concealed Wardrobe Wall', 'Peripheral Drop Ceiling', 'Wooden Floor Tiles'],
+    materials: ['Teak Veneer Paneling', 'Century Plywood', 'Saint-Gobain Gypsum Ceiling'],
+    dimensions: '14ft x 12ft (168 sq.ft)',
+    idealFor: 'Contemporary Apartments'
+  },
 
-  // Living Room Designs
+  // 5. Living Room Designs
   {
     id: 'liv-1',
     title: 'Italian Marble Living Room with Floating Console & Louvers',
@@ -201,17 +228,30 @@ export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
     style: 'Contemporary Classic',
     budgetRange: '₹4.5L – ₹8.5L',
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
-    ],
+    gallery: ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'],
     description: 'Expansive living room design featuring an Italian Botticino marble wall backdrop, custom L-shaped suede sofa, brass ring chandelier, and floating veneer media console.',
     keyFeatures: ['Book-matched Italian Marble Backdrop', 'L-Shaped Custom Sectional Sofa', 'Brass Ring LED Chandelier', 'Concealed Audio Cable Raceway'],
     materials: ['Italian Botticino Marble', 'Natural Walnut Veneer', 'Teak Wood Framework'],
     dimensions: '22ft x 16ft (352 sq.ft)',
     idealFor: 'Living Rooms & Grand Lounges'
   },
+  {
+    id: 'liv-2',
+    title: 'Skyline High-Rise Living Room with Panoramic Floor Windows',
+    categorySlug: 'living-room',
+    categoryName: 'Living Room Designs',
+    style: 'Modern Minimalist',
+    budgetRange: '₹3.8L – ₹7.2L',
+    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Airy high-rise living area with neutral linen upholstery, double-height ceiling curtains, motorized smart shade automation, and accent lounge armchairs.',
+    keyFeatures: ['Motorized Smart Curtain Track', 'Linen Upholstered Sectional', 'Ambient Magnetic Track Lights', 'Low-Profile Coffee Table'],
+    materials: ['Imported Linen Fabric', 'Century Plywood', 'Somfy Curtain Motors'],
+    dimensions: '20ft x 15ft (300 sq.ft)',
+    idealFor: 'Penthouses & High-Rise Apartments'
+  },
 
-  // Pooja Room Designs
+  // 6. Pooja Room Designs
   {
     id: 'pooja-1',
     title: 'Corian CNC Jaali Mandir with Brass Bells & LED Backlight',
@@ -219,10 +259,8 @@ export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
     categoryName: 'Pooja Room Designs',
     style: 'Traditional Modern',
     budgetRange: '₹1.5L – ₹3.2L',
-    image: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1000&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80',
-    ],
+    image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80'],
     description: 'Sanctuary Mandir with white DuPont Corian CNC carved Om lattice jaali wall, warm ambient backlight, solid teak wood altar drawers, and hanging brass bells.',
     keyFeatures: ['DuPont Corian CNC Carved Jaali', 'Soft Warm LED Backdrop Illumination', 'Teak Wood Storage Drawers', 'Brass Hanging Bells'],
     materials: ['DuPont White Corian', 'Solid Teak Wood', 'Brass Fixtures'],
@@ -230,26 +268,39 @@ export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
     idealFor: 'Dedicated Pooja Rooms & Nook Corners'
   },
 
-  // TV Unit Designs
+  // 7. TV Unit Designs
   {
     id: 'tv-1',
-    title: 'Floating Marble TV Unit with Charcoal Louvers & Display Ledges',
+    title: 'Floating Marble TV Console with Charcoal Louvers & Display Ledges',
     categorySlug: 'tv-unit',
     categoryName: 'TV Unit Designs',
     style: 'Modern Minimalist',
     budgetRange: '₹1.2L – ₹2.5L',
     image: 'https://images.unsplash.com/photo-1593696140826-c58b021acf8b?auto=format&fit=crop&w=1000&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1593696140826-c58b021acf8b?auto=format&fit=crop&w=1200&q=80',
-    ],
+    gallery: ['https://images.unsplash.com/photo-1593696140826-c58b021acf8b?auto=format&fit=crop&w=1200&q=80'],
     description: 'Wall-mounted media center featuring a white quartz tile backdrop panel, vertical charcoal louvers, floating drawer unit, and ambient glass artifact display ledges.',
     keyFeatures: ['Floating Handleless Drawer Unit', 'Charcoal Fluted Paneling', 'Concealed Cable Raceway', 'Warm Under-Shelf LED Strips'],
     materials: ['Quartz Tile Backdrop', 'Charcoal Polymer Louvers', 'Century Plywood Core'],
     dimensions: '9ft Width x 7ft Height',
     idealFor: 'Living Rooms & Bedroom TV Walls'
   },
+  {
+    id: 'tv-2',
+    title: 'Walnut Wood & Black Slate Media Wall with Fireplace Insert',
+    categorySlug: 'tv-unit',
+    categoryName: 'TV Unit Designs',
+    style: 'Warm Luxury',
+    budgetRange: '₹1.8L – ₹3.5L',
+    image: 'https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Bespoke walnut veneer media wall incorporating an electric flame fireplace insert, concealed soundbar slot, and soft warm ambient strip lights.',
+    keyFeatures: ['Electric Fireplace Insert Unit', 'Concealed Soundbar Slot', 'Natural Walnut Veneer', 'Push-to-Open Storage Drawers'],
+    materials: ['American Walnut Veneer', 'Black Slate Stone Tile', 'Century Plywood'],
+    dimensions: '11ft Width x 8ft Height',
+    idealFor: 'Spacious Living Rooms'
+  },
 
-  // False Ceiling Designs
+  // 8. False Ceiling Designs
   {
     id: 'ceiling-1',
     title: 'Dual-Tier Perimeter Drop Cove Ceiling with Magnetic Track Light',
@@ -257,15 +308,198 @@ export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
     categoryName: 'False Ceiling Designs',
     style: 'Modern Architectural',
     budgetRange: '₹120 – ₹220 / sq.ft',
-    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
-    ],
+    image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80'],
     description: 'Architectural false ceiling featuring a recessed central cove with warm COB strip lights, black magnetic track spotlights, and crisp Saint-Gobain gypsum finishing.',
     keyFeatures: ['Saint-Gobain Gypsum Board Finish', 'Black Magnetic Track Spotlights', 'Concealed Curtain Channel Cove', 'Zero Cracking Guarantee'],
     materials: ['Saint-Gobain Gypsum Boards', 'Gypsteel Framing', 'Philips LED Strip & Tracks'],
     dimensions: 'Customized per Room Size',
     idealFor: 'Living Rooms, Dining & Bedrooms'
+  },
+  {
+    id: 'ceiling-2',
+    title: 'Wooden Rafter Accent Ceiling with Recessed Warm LED Slots',
+    categorySlug: 'false-ceiling',
+    categoryName: 'False Ceiling Designs',
+    style: 'Warm Japandi',
+    budgetRange: '₹150 – ₹260 / sq.ft',
+    image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Warm natural oak wooden rafter ceiling design over dining and living areas, adding architectural warmth and concealing HVAC vents.',
+    keyFeatures: ['Burma Teak Wooden Rafters', 'Recessed Diffused LED Strips', 'AC Duct Concealment', 'Acoustic Sound Dampening'],
+    materials: ['Teak Wood Rafters', 'Saint-Gobain Gypsum', 'Warm 3000K Lighting'],
+    dimensions: 'Customized per Room Size',
+    idealFor: 'Dining Rooms & Foyer Areas'
+  },
+
+  // 9. Kids Bedroom Designs
+  {
+    id: 'kids-1',
+    title: 'Playful Loft Bunk Bed with Storage Stairs & Integrated Study',
+    categorySlug: 'kids-bedroom',
+    categoryName: 'Kids Bedroom Designs',
+    style: 'Playful Modern',
+    budgetRange: '₹2.2L – ₹3.8L',
+    image: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Custom dual kids bedroom featuring a safe wooden loft bunk bed with built-in storage step drawers, ergonomic study desk, pinboard wall, and non-toxic pastel laminates.',
+    keyFeatures: ['Storage Drawer Step Stairs', 'Ergonomic Dual Study Desk', 'Magnetic Whiteboard Panel', 'Rounded Soft Edges for Safety'],
+    materials: ['Non-Toxic Laminates', 'Century Plywood Core', 'Soft-Close Safety Hinges'],
+    dimensions: '12ft x 11ft (132 sq.ft)',
+    idealFor: 'Shared Kids Bedrooms & Youth Rooms'
+  },
+
+  // 10. Balcony Designs
+  {
+    id: 'balc-1',
+    title: 'Vertical Green Garden Balcony with Decking Tiles & Bar Unit',
+    categorySlug: 'balcony',
+    categoryName: 'Balcony Designs',
+    style: 'Urban Oasis',
+    budgetRange: '₹85,000 – ₹1.8L',
+    image: 'https://images.unsplash.com/photo-1533779283484-839983806689?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1533779283484-839983806689?auto=format&fit=crop&w=1200&q=80'],
+    description: 'High-rise balcony transformation featuring weather-proof Composite WPC wooden deck tiles, lush artificial green wall paneling, fold-down coffee bar counter, and warm bistro lights.',
+    keyFeatures: ['Interlocking WPC Decking Tiles', 'Lush Vertical Green Wall', 'Fold-down Granite Bar Counter', 'Weather-proof LED String Lighting'],
+    materials: ['WPC Composite Decking', 'Artificial Turf Wall', 'Black Powder-Coated Metal Railing'],
+    dimensions: '12ft x 5ft (60 sq.ft)',
+    idealFor: 'Apartment Balconies & Sit-Out Decks'
+  },
+
+  // 11. Dining Room Designs
+  {
+    id: 'dine-1',
+    title: '6-Seater Onyx Marble Dining Table with Chandelier & Glass Buffet',
+    categorySlug: 'dining-room',
+    categoryName: 'Dining Room Designs',
+    style: 'Contemporary Luxury',
+    budgetRange: '₹3.2L – ₹5.8L',
+    image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Elegant dining space centered around an onyx marble top 6-seater dining table with brass accent legs, upholstered velvet chairs, floating glass crockery console, and pendant chandelier.',
+    keyFeatures: ['6-Seater Onyx Marble Table Top', 'Plush Upholstered Dining Chairs', 'Brass Ring Chandelier Unit', 'Tinted Glass Buffet Console'],
+    materials: ['Onyx Italian Marble', 'PVD Brass Coated Stainless Steel', 'Century Plywood'],
+    dimensions: '14ft x 12ft (168 sq.ft)',
+    idealFor: 'Dining Rooms & Open Living Spaces'
+  },
+
+  // 12. Foyer Designs
+  {
+    id: 'foyer-1',
+    title: 'Statement Entryway Foyer with Shoe Console & Full Mirror',
+    categorySlug: 'foyer',
+    categoryName: 'Foyer Designs',
+    style: 'Modern Luxury',
+    budgetRange: '₹95,000 – ₹1.9L',
+    image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Welcoming entryway foyer design featuring a floating shoe console with louvers, full-height bronze tinted mirror paneling, key drop ledge, and warm accent wall sconce lighting.',
+    keyFeatures: ['Floating Shoe Console with Ventilation', 'Full-Height Tinted Mirror Panel', 'Key Drop Drawer Tray', 'Warm Wall Sconce Illumination'],
+    materials: ['Bronze Tinted Mirror', 'Teak Wood Veneer', 'PVD Brass Handles'],
+    dimensions: '7ft x 5ft (35 sq.ft)',
+    idealFor: 'Apartment Entryways & Villa Foyers'
+  },
+
+  // 13. Guest Bedroom Designs
+  {
+    id: 'guest-1',
+    title: 'Compact Guest Room with Foldable Murphy Wall Bed & Study Desk',
+    categorySlug: 'guest-bedroom',
+    categoryName: 'Guest Bedroom Designs',
+    style: 'Space Saving Modern',
+    budgetRange: '₹1.8L – ₹3.2L',
+    image: 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Multi-functional guest bedroom designed with a hydraulic foldable Murphy queen wall bed that seamlessly transforms the room into a home office study space during daytime.',
+    keyFeatures: ['Hydraulic Foldable Murphy Bed', 'Integrated Study Desk Panel', '2-Door Sliding Wardrobe', 'Soft Ambient Headboard LED'],
+    materials: ['German Hydraulic Wall Bed Hardware', 'Century Plywood Core', 'Laminate Finish'],
+    dimensions: '11ft x 10ft (110 sq.ft)',
+    idealFor: 'Guest Rooms & Multi-purpose Spaces'
+  },
+
+  // 14. Wall Decor & Paint Designs
+  {
+    id: 'wall-1',
+    title: 'Asian Paints Royale Metallic Texture with Fluted Louver Panel',
+    categorySlug: 'wall-decor',
+    categoryName: 'Wall Decor & Paint',
+    style: 'Contemporary Art',
+    budgetRange: '₹45 – ₹110 / sq.ft',
+    image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Feature accent wall featuring Asian Paints Royale Play metallic texture finish flanked by charcoal gray polymer fluted louver strips and brass inlay profiles.',
+    keyFeatures: ['Asian Paints Royale Metallic Finish', 'Charcoal Polymer Fluted Louvers', 'PVD Brass Inlay Strips', 'Wipeable & Scratch Resistant'],
+    materials: ['Asian Paints Royale Play', 'Polymer Louvers', 'Brass Inlay Profiles'],
+    dimensions: 'Customized per Wall Dimensions',
+    idealFor: 'Living Room Feature Walls & Headboards'
+  },
+
+  // 15. Tile & Flooring Designs
+  {
+    id: 'floor-1',
+    title: 'Italian Statuario Marble & Chevron SPC Hardwood Flooring',
+    categorySlug: 'flooring-tiles',
+    categoryName: 'Tile & Flooring Designs',
+    style: 'Luxury Classic',
+    budgetRange: '₹140 – ₹380 / sq.ft',
+    image: 'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Premium floor layout combining mirror-polished Italian Statuario marble slabs in the living hall with warm chevron SPC hardwood flooring in private bedrooms.',
+    keyFeatures: ['Mirror-Polished Italian Marble Finish', '100% Waterproof SPC Hardwood Planks', 'Chevron Patterned Precision Jointing', 'Stain Resistant Sealing'],
+    materials: ['Italian Statuario Marble', 'German SPC Hardwood Planks', 'Epoxy Grout Filling'],
+    dimensions: 'Customized per Floor Plan',
+    idealFor: 'Luxury Residences, Villas & Penthouses'
+  },
+
+  // 16. Study Room & Home Bar Designs
+  {
+    id: 'study-1',
+    title: 'Ergonomic Executive Dual-Monitor Desk with Floating Bookshelves',
+    categorySlug: 'study-room',
+    categoryName: 'Study Room & Home Bar',
+    style: 'Executive Modern',
+    budgetRange: '₹1.6L – ₹3.2L',
+    image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Dedicated executive home office study featuring a custom walnut desk with concealed wire management, dual-monitor arm mounts, floating bookshelf ledges, and warm task lighting.',
+    keyFeatures: ['Concealed Power & Data Wire Raceway', 'Floating LED Bookshelf Ledges', 'Acoustic Wall Paneling', 'Leather Executive Chair'],
+    materials: ['American Walnut Veneer', 'Century Plywood Core', 'Acoustic Felt Paneling'],
+    dimensions: '10ft x 9ft (90 sq.ft)',
+    idealFor: 'Home Offices & Executive Workspaces'
+  },
+
+  // 17. Crockery Unit Designs
+  {
+    id: 'crock-1',
+    title: 'Tinted Glass LED Showcase Cabinet with Push-to-Open Drawers',
+    categorySlug: 'crockery-unit',
+    categoryName: 'Crockery Unit Designs',
+    style: 'Modern Luxury',
+    budgetRange: '₹1.1L – ₹2.4L',
+    image: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Sophisticated dining wall crockery showcase cabinet featuring dark bronze aluminum framed glass doors, warm 3000K LED shelf lighting, and cutlery organizer drawers.',
+    keyFeatures: ['Bronze Aluminum Glass Doors', 'Vertical LED Strip Shelf Lighting', 'Push-to-Open Soft Close Drawers', 'Velvet Cutlery Organizers'],
+    materials: ['Toughened Tinted Glass', 'Hettich Push Hardware', 'Century Plywood Core'],
+    dimensions: '7ft Width x 8ft Height',
+    idealFor: 'Dining Rooms & Kitchen Alcoves'
+  },
+
+  // 18. Space Saving Furniture Designs
+  {
+    id: 'space-1',
+    title: 'Multi-Functional Convertible Pullout Table & Hidden Storage Unit',
+    categorySlug: 'space-saving',
+    categoryName: 'Space Saving Furniture',
+    style: 'Smart Ergonomic',
+    budgetRange: '₹75,000 – ₹1.6L',
+    image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1000&q=80',
+    gallery: ['https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80'],
+    description: 'Smart space-saving furniture solution featuring a pull-out dining table that slides flush into living room cabinetry, combined with hidden storage ottoman seating.',
+    keyFeatures: ['Flush Pull-Out Extension Mechanism', 'Hidden Under-Seat Storage Ottomans', 'Scratch Resistant Acrylic Top', 'German Sliding Hardware'],
+    materials: ['German Transformable Hardware', 'Century Ply 710', 'Scratch-Proof Laminate'],
+    dimensions: 'Custom Convertible Sizing',
+    idealFor: 'Compact 1BHK, 2BHK & Studio Flats'
   },
 ];
 
@@ -291,7 +525,6 @@ export const DesignIdeasPage: React.FC<DesignIdeasPageProps> = ({ categorySlug, 
     return matchesCategory && matchesStyle;
   });
 
-  // Unique styles list for filter
   const availableStyles = ['all', 'Italian Minimalist', 'Modern Minimalist', 'Japandi Luxury', 'Contemporary Classic', 'Warm Luxury', 'Traditional Modern'];
 
   return (
@@ -311,6 +544,45 @@ export const DesignIdeasPage: React.FC<DesignIdeasPageProps> = ({ categorySlug, 
         title={activeCategoryObj ? activeCategoryObj.name : 'Curated Luxury Interior Design Ideas'}
         subtitle={activeCategoryObj ? activeCategoryObj.desc : 'Browse hand-crafted architectural room concepts engineered with 100% itemized pricing, German hardware, and 10-year warranties.'}
       />
+
+      {/* Hero Category Showcase Banner when a category is selected */}
+      {activeCategoryObj && (
+        <section className="bg-[#FAF8F4] border-b border-[#E2DDD6] py-8 px-4 sm:px-8">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-7 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#D4C3A3] text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#8C6D3B]">
+                <span>{activeCategoryObj.icon}</span>
+                <span>{activeCategoryObj.count}+ DESIGN CONCEPTS AVAILABLE</span>
+              </div>
+              <h1 className="font-serif text-3xl sm:text-5xl font-normal text-[#1A1917]">
+                {activeCategoryObj.name}
+              </h1>
+              <p className="text-sm sm:text-base text-[#5A5852] font-light leading-relaxed max-w-2xl">
+                {activeCategoryObj.desc}
+              </p>
+              <div className="pt-2 flex flex-wrap gap-3">
+                <button
+                  onClick={() => onOpenBooking(activeCategoryObj.name)}
+                  className="px-6 py-3 rounded-xl bg-[#13362B] text-[#C8AA7A] hover:text-white text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 text-[#C8AA7A]" />
+                  <span>Get Free Consultation for {activeCategoryObj.name}</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 relative">
+              <div className="aspect-[16/10] rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+                <img
+                  src={activeCategoryObj.heroImage}
+                  alt={activeCategoryObj.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Main Container */}
       <section className="py-12 px-4 sm:px-8 max-w-7xl mx-auto space-y-10">
