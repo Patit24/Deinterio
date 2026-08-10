@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Menu, X, ChevronDown, KeyRound, Shield, Phone, ArrowUpRight } from 'lucide-react';
+import { Sparkles, Menu, X, ChevronDown, KeyRound, Shield, Phone, ArrowUpRight, Compass } from 'lucide-react';
 
 interface NavbarProps {
   onOpenBooking: () => void;
@@ -16,6 +16,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [currentHash, setCurrentHash] = useState(window.location.hash || '#/');
+  const [mobileDesignIdeasOpen, setMobileDesignIdeasOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,6 +43,35 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navLinks = [
     { label: 'Home', href: '#/' },
+    {
+      label: 'Design Ideas',
+      href: '#/design-ideas',
+      isMega: true,
+      megaColumns: [
+        [
+          { label: 'Modular Kitchen Designs', href: '#/design-ideas/modular-kitchen' },
+          { label: 'Wardrobe Designs', href: '#/design-ideas/wardrobe' },
+          { label: 'Bathroom Designs', href: '#/design-ideas/bathroom' },
+          { label: 'Master Bedroom Designs', href: '#/design-ideas/master-bedroom' },
+          { label: 'Living Room Designs', href: '#/design-ideas/living-room' },
+          { label: 'Pooja Room Designs', href: '#/design-ideas/pooja-room' },
+          { label: 'TV Unit Designs', href: '#/design-ideas/tv-unit' },
+          { label: 'False Ceiling Designs', href: '#/design-ideas/false-ceiling' },
+          { label: 'Kids Bedroom Designs', href: '#/design-ideas/kids-bedroom' },
+        ],
+        [
+          { label: 'Balcony Designs', href: '#/design-ideas/balcony' },
+          { label: 'Dining Room Designs', href: '#/design-ideas/dining-room' },
+          { label: 'Foyer & Entryway Designs', href: '#/design-ideas/foyer' },
+          { label: 'Guest Bedroom Designs', href: '#/design-ideas/guest-bedroom' },
+          { label: 'Wall Decor & Paint Designs', href: '#/design-ideas/wall-decor' },
+          { label: 'Tile & Flooring Designs', href: '#/design-ideas/flooring-tiles' },
+          { label: 'Study Room & Home Bar', href: '#/design-ideas/study-room' },
+          { label: 'Crockery Unit Designs', href: '#/design-ideas/crockery-unit' },
+          { label: 'Space Saving Furniture', href: '#/design-ideas/space-saving' },
+        ]
+      ]
+    },
     { label: 'About', href: '#/about' },
     {
       label: 'Services',
@@ -172,10 +202,40 @@ export const Navbar: React.FC<NavbarProps> = ({
                   }`}
                 >
                   <span>{link.label}</span>
-                  {link.dropdown && <ChevronDown className="w-3.5 h-3.5 opacity-50" />}
+                  {(link.dropdown || link.isMega) && <ChevronDown className="w-3.5 h-3.5 opacity-50" />}
                 </a>
 
-                {/* Dropdown Menu */}
+                {/* MEGA DROPDOWN MENU FOR DESIGN IDEAS */}
+                {link.isMega && activeDropdown === link.label && (
+                  <div className="absolute top-full left-0 mt-2 w-[580px] rounded-3xl bg-white border border-[#E2DDD6] shadow-2xl p-6 z-50 animate-fade-in grid grid-cols-2 gap-6">
+                    {link.megaColumns?.map((col, cIdx) => (
+                      <div key={cIdx} className="space-y-1">
+                        {col.map((subItem) => (
+                          <a
+                            key={subItem.label}
+                            href={subItem.href}
+                            className="group/sub flex items-center justify-between py-2 px-3 rounded-xl hover:bg-[#FAF8F4] text-xs font-sans font-medium text-[#1A1917] hover:text-[#13362B] transition-all"
+                          >
+                            <span>{subItem.label}</span>
+                            <ArrowUpRight className="w-3.5 h-3.5 text-[#C8AA7A] opacity-0 group-hover/sub:opacity-100 transition-opacity" />
+                          </a>
+                        ))}
+                      </div>
+                    ))}
+                    
+                    <div className="col-span-2 pt-3 border-t border-[#E2DDD6] flex items-center justify-between text-xs font-mono text-[#8C6D3B]">
+                      <span className="flex items-center gap-1.5 font-bold">
+                        <Compass className="w-3.5 h-3.5 text-[#13362B]" />
+                        <span>500+ Curated Architectural Concepts</span>
+                      </span>
+                      <a href="#/design-ideas" className="text-[#13362B] hover:text-[#8C6D3B] font-bold underline underline-offset-4">
+                        View All Categories →
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* STANDARD DROPDOWN MENU */}
                 {link.dropdown && activeDropdown === link.label && (
                   <div className="absolute top-full left-0 mt-2 w-72 rounded-2xl bg-white border border-[#E2DDD6] shadow-2xl p-2.5 z-50 animate-fade-in space-y-1">
                     {link.dropdown.map((subItem) => (
@@ -206,7 +266,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right Action CTA */}
           <div className="hidden lg:flex items-center gap-3 shrink-0">
             <button
-              onClick={onOpenBooking}
+              onClick={() => onOpenBooking()}
               className="px-5 py-2.5 rounded-xl bg-[#13362B] hover:bg-[#0E271F] text-white text-xs font-sans font-semibold uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center gap-2 group whitespace-nowrap"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#C8AA7A] group-hover:rotate-12 transition-transform" />
@@ -250,20 +310,68 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
 
               <div className="space-y-1">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`block px-4 py-3 rounded-xl text-sm font-sans transition-all ${
-                      isActive(link.href)
-                        ? 'bg-[#13362B] text-white font-semibold'
-                        : 'text-[#1A1917] hover:bg-white'
-                    }`}
-                  >
-                    {link.label}
-                  </a>
-                ))}
+                {navLinks.map((link) => {
+                  if (link.isMega) {
+                    return (
+                      <div key={link.label} className="space-y-1">
+                        <button
+                          onClick={() => setMobileDesignIdeasOpen(!mobileDesignIdeasOpen)}
+                          className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-sans font-semibold text-[#1A1917] hover:bg-white transition-all"
+                        >
+                          <span>Design Ideas</span>
+                          <ChevronDown className={`w-4 h-4 transition-transform ${mobileDesignIdeasOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {mobileDesignIdeasOpen && (
+                          <div className="pl-4 space-y-1 bg-white p-2 rounded-xl border border-[#E2DDD6]">
+                            <a
+                              href="#/design-ideas"
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="block px-3 py-2 text-xs font-mono font-bold text-[#13362B]"
+                            >
+                              Explore All Design Ideas →
+                            </a>
+                            {link.megaColumns?.[0].map((sub) => (
+                              <a
+                                key={sub.label}
+                                href={sub.href}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block px-3 py-1.5 text-xs text-[#5A5852] hover:text-[#13362B]"
+                              >
+                                {sub.label}
+                              </a>
+                            ))}
+                            {link.megaColumns?.[1].map((sub) => (
+                              <a
+                                key={sub.label}
+                                href={sub.href}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block px-3 py-1.5 text-xs text-[#5A5852] hover:text-[#13362B]"
+                              >
+                                {sub.label}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`block px-4 py-3 rounded-xl text-sm font-sans transition-all ${
+                        isActive(link.href)
+                          ? 'bg-[#13362B] text-white font-semibold'
+                          : 'text-[#1A1917] hover:bg-white'
+                      }`}
+                    >
+                      {link.label}
+                    </a>
+                  );
+                })}
               </div>
             </div>
 

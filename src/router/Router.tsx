@@ -14,6 +14,7 @@ import { FAQPage } from '../pages/FAQPage';
 import { BlogPage } from '../pages/BlogPage';
 import { ArticleDetailPage } from '../pages/ArticleDetailPage';
 import { LegalPage } from '../pages/LegalPage';
+import { DesignIdeasPage } from '../pages/DesignIdeasPage';
 
 interface RouterProps {
   onOpenBooking: () => void;
@@ -66,6 +67,9 @@ export const Router: React.FC<RouterProps> = ({ onOpenBooking, onOpenDashboard }
 
     case 'materials':
       return <MaterialsPage onOpenBooking={onOpenBooking} />;
+
+    case 'design-ideas':
+      return <DesignIdeasPage categorySlug={param} onOpenBooking={onOpenBooking} />;
 
     case 'calculator':
       return <CalculatorPage onOpenBooking={onOpenBooking} />;
