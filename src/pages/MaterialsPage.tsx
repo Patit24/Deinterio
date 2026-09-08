@@ -13,14 +13,15 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({ onOpenBooking }) =
     <>
       <SEOHead
         title="Bespoke Materials Vault & Swatches"
-        description="Inspect CenturyPly marine plywood, Hettich German soft-close fittings, Italian Botticino marble, and acrylic laminates."
+        description="Inspect CenturyPly marine plywood, Hafele & Hettich soft-close fittings, Italian Botticino marble, and acrylic laminates."
       />
 
+      {/* Header Breadcrumb */}
       <Breadcrumbs
-        items={[{ label: 'Materials' }]}
-        categoryBadge="BESPOKE MATERIAL VAULT"
-        title="Authentic Architectural Materials & Sample Swatches"
-        subtitle="We reject sub-standard commercial ply and unbranded fittings. All wood, marble, hardware, and fabrics are hologram verified with direct factory warranties."
+        items={[{ label: 'Material Vault & Transparency' }]}
+        categoryBadge="MATERIAL TRANSPARENCY & VERIFIED SPECIFICATIONS"
+        title="Zero Substitution. Guaranteed BWP Grade Marine Plywood."
+        subtitle="Every dispatched crate includes digital QR codes linking directly to CenturyPly Club Prime BWP 710 plywood holograms and Hafele / Hettich laser-etched serial numbers."
       />
 
       {/* Materials Library & Swatches Explorer */}

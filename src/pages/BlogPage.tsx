@@ -23,8 +23,8 @@ export const ARTICLES = [
       ### 1. Fluted Teak & Integrated Lighting Slots
       Ceiling slots with concealed 3000K warm LED channels are replacing bulky dropped false ceilings. When combined with vertical fluted teak wood paneling, spaces achieve visually expansive vertical proportion.
 
-      ### 2. German Soft-Close & Acrylic Kitchen Architecture
-      Indian cooking involves heavy spice roasting and heat. German-engineered soft-close hardware from Hafele combined with quartz countertops ensures zero stain absorption and lifetime smooth door motion.
+      ### 2. Precision Soft-Close & Acrylic Kitchen Architecture
+      Indian cooking involves heavy spice roasting and heat. Precision soft-close hardware from Hafele and Hettich combined with quartz countertops ensures zero stain absorption and lifetime smooth door motion.
     `,
   },
   {

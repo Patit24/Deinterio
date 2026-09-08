@@ -42,7 +42,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenBooking }) => {
               In 2014, Deinterio was established in South Kolkata with a simple yet ambitious vision: to eliminate the anxiety, cost overruns, and material substitution that plaguing the Indian interior design market.
             </p>
             <p className="text-sm sm:text-base text-[#5A5852] font-light leading-relaxed">
-              Today, with over 420+ delivered residences across Ballygunge, Alipore, New Town, Rajarhat, and NCR, we combine classical Italian aesthetic proportion with German factory woodworking, Sub-Zero IoT smart home automation, and live PM tracking.
+              Today, with over 420+ delivered residences across Ballygunge, Alipore, New Town, Rajarhat, and NCR, we combine classical Italian aesthetic proportion with precision factory woodworking, smart home automation, and live PM tracking.
             </p>
 
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[#E2DDD6]">
@@ -111,9 +111,9 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenBooking }) => {
               {
                 name: 'Siddharth Banerjee',
                 role: 'Master Craftsman & Joinery Director',
-                exp: '18+ Yrs Experience • German CNC Joinery',
+                exp: '18+ Yrs Experience • Precision CNC Joinery',
                 image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80',
-                bio: 'Oversees our 14,000 sq.ft precision German woodworking facility in Rajarhat, ensuring 0.5mm tolerances.',
+                bio: 'Oversees our 14,000 sq.ft precision factory woodworking facility in Rajarhat, ensuring 0.5mm tolerances.',
               },
             ].map((member, idx) => (
               <div key={idx} className="bg-white rounded-3xl overflow-hidden border border-[#E2DDD6] shadow-xs group hover-lift transition-all">

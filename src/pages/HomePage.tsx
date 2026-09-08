@@ -65,7 +65,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           {[
             {
               id: 'modular-kitchens',
-              title: 'German Modular Kitchens',
+              title: 'Turnkey Modular Kitchens',
               desc: 'High-gloss acrylic cabinetry, Hafele soft-close hardware, and quartz island counters engineered for Indian cooking.',
               image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80',
               tag: 'Kitchen Architecture',

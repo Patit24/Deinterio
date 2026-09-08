@@ -85,13 +85,13 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
 
           {/* Column 3: Services */}
-          <div className="space-y-4">
-            <span className="text-xs font-mono font-bold text-[#C8AA7A] uppercase tracking-wider block">
-              SERVICES BLUEPRINTS
-            </span>
-            <ul className="space-y-2.5 text-xs text-gray-300 font-light">
-              <li><a href="#/services/modular-kitchens" className="hover:text-white transition-colors">German Modular Kitchens</a></li>
-              <li><a href="#/services/turnkey-luxury-interiors" className="hover:text-white transition-colors">Turnkey Villa Interiors</a></li>
+          <div>
+            <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-[#C8AA7A] mb-4">
+              Architectural Services
+            </h4>
+            <ul className="space-y-2.5 text-xs text-[#D4C3A3]/80 font-light">
+              <li><a href="#/services/turnkey-luxury-interiors" className="hover:text-white transition-colors">Turnkey Residential Interiors</a></li>
+              <li><a href="#/services/modular-kitchens" className="hover:text-white transition-colors">Modular Kitchen Architecture</a></li>
               <li><a href="#/services/smart-home-automation" className="hover:text-white transition-colors">Sub-Zero IoT Smart Homes</a></li>
               <li><a href="#/services/master-bedroom-suites" className="hover:text-white transition-colors">Master Bedroom Suites</a></li>
               <li><a href="#/services/heritage-restoration" className="hover:text-white transition-colors">Heritage Bungalow Restoration</a></li>
