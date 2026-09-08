@@ -33,14 +33,14 @@ export const ProcessPage: React.FC<ProcessPageProps> = ({ onOpenBooking }) => {
     },
     {
       num: '04',
-      title: '4K VR Spatial Walkthrough & Itemized BOQ',
-      desc: 'Walk through your future home in 4K VR. Every item is locked in a fixed, itemized BOQ contract backed by our zero-cost-surprise guarantee.',
-      deliverable: 'Fixed Contract & VR Render Deck',
+      title: '4K 3D Spatial Walkthrough & Itemized BOQ',
+      desc: 'Walk through your future home in 4K 3D. Every item is locked in a fixed, itemized BOQ contract backed by our zero-cost-surprise guarantee.',
+      deliverable: 'Fixed Contract & 3D Render Deck',
       duration: '3 Days',
     },
     {
       num: '05',
-      title: 'German Factory Woodworking & Joinery',
+      title: 'Precision Factory Woodworking & Joinery',
       desc: 'All modular kitchen cabinets, wardrobes, and panelling are CNC-machined at our 14,000 sq.ft Rajarhat facility with 0.5mm edge-banding tolerances.',
       deliverable: 'Hologram Barcoded Cabinet Modules',
       duration: '14–21 Days',

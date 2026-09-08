@@ -41,8 +41,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
   const [adminPassword, setAdminPassword] = useState('admin123');
   const [adminLoginError, setAdminLoginError] = useState('');
 
-  // Active Tab: dashboard, clients, projects, work_progress, leads, pricing, blogs, documents, messages
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'clients' | 'projects' | 'work_progress' | 'leads' | 'pricing' | 'blogs'>('dashboard');
+  // Active Tab: dashboard, clients, projects, portfolio, work_progress, leads, pricing, blogs
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'clients' | 'projects' | 'portfolio' | 'work_progress' | 'leads' | 'pricing' | 'blogs'>('dashboard');
 
   // Re-render tick
   const [, setTick] = useState(0);
@@ -59,6 +59,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
   const [completionPhotoUrl, setCompletionPhotoUrl] = useState('');
   const [editingService, setEditingService] = useState<Partial<ServiceItem> | null>(null);
   const [editingProject, setEditingProject] = useState<Partial<ProjectItem> | null>(null);
+  const [materialsInput, setMaterialsInput] = useState('');
   const [editingPricing, setEditingPricing] = useState<Partial<PricingTierItem> | null>(null);
 
   // Blog Management State
@@ -346,7 +347,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
               <h3>TOTAL ESTIMATED INVESTMENT</h3>
-              <p style="font-size: 11px; color: #D4C3A3; margin: 0;">Includes 3D VR simulation, material delivery, installation & site supervision.</p>
+              <p style="font-size: 11px; color: #D4C3A3; margin: 0;">Includes 3D spatial simulation, material delivery, installation & site supervision.</p>
             </div>
             <div style="font-size: 28px; font-weight: bold; color: #C8AA7A;">
               ${lead.estimatedAmount || lead.budget}
@@ -366,6 +367,48 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
 
     printWindow.document.write(pdfHtml);
     printWindow.document.close();
+  };
+
+  // --- SAVE PORTFOLIO PROJECT ---
+  const handleSaveProject = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProject?.title) {
+      alert('Please enter a project title');
+      return;
+    }
+
+    const materialsArr = materialsInput
+      ? materialsInput.split(',').map((m) => m.trim()).filter(Boolean)
+      : (editingProject.materials || []);
+
+    const fullProject: ProjectItem = {
+      id: editingProject.id || `proj-${Date.now()}`,
+      title: editingProject.title,
+      category: editingProject.category || 'Villa & Bungalow',
+      location: editingProject.location || 'Kolkata, West Bengal',
+      budget: editingProject.budget || '₹25 Lakhs',
+      timeline: editingProject.timeline || '12 Weeks',
+      area: editingProject.area || '2,500 sq.ft',
+      rating: editingProject.rating || '5.0 ★★★★★',
+      image: editingProject.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+      beforeImg: editingProject.beforeImg || editingProject.image || 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=1200&q=80',
+      afterImg: editingProject.afterImg || editingProject.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+      story: editingProject.story || '',
+      materials: materialsArr.length > 0 ? materialsArr : ['CenturyPly Marine Plywood', 'Hafele Fittings'],
+      badge: editingProject.badge || `${editingProject.category || 'Luxury'} • Deinterio Signature`,
+    };
+
+    dataStore.saveProject(fullProject);
+    setEditingProject(null);
+    setMaterialsInput('');
+    refresh();
+  };
+
+  const handleDeleteProject = (id: string, title: string) => {
+    if (window.confirm(`Are you sure you want to delete portfolio project "${title}"?`)) {
+      dataStore.deleteProject(id);
+      refresh();
+    }
   };
 
   // --- SAVE BLOG (#16) ---
@@ -496,7 +539,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
               {[
                 { key: 'dashboard', label: 'Executive Dashboard', icon: TrendingUp },
                 { key: 'clients', label: `Clients (${clients.length})`, icon: UserCheck },
-                { key: 'projects', label: `Projects & Work Items (${clients.length})`, icon: Clock },
+                { key: 'projects', label: `Work Items (${clients.length})`, icon: Clock },
+                { key: 'portfolio', label: `Portfolio Works (${projects.length})`, icon: Sparkles },
                 { key: 'leads', label: `Quotation Leads (${leads.length})`, icon: FileSpreadsheet },
                 { key: 'pricing', label: `Pricing Engine (${pricing.length})`, icon: DollarSign },
                 { key: 'blogs', label: `Blogs & SEO (${blogs.length})`, icon: Globe },
@@ -586,6 +630,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
                       >
                         <UserPlus className="w-4 h-4" />
                         <span>+ Add New Client Account</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setEditingProject({
+                            rating: '5.0 ★★★★★',
+                            category: 'Villa & Bungalow',
+                            location: 'Kolkata, West Bengal',
+                            timeline: '12 Weeks',
+                            budget: '₹30 Lakhs',
+                            area: '2,800 sq.ft',
+                            badge: 'Residential Villa • Deinterio Signature'
+                          });
+                          setMaterialsInput('CenturyPly Marine Plywood, Hafele German Fittings, Italian Marble');
+                        }}
+                        className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-[#C8AA7A] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer border border-[#C8AA7A]/30"
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        <span>+ Add Portfolio Work</span>
                       </button>
 
                       <button
@@ -778,6 +841,130 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
                           <div className="p-3 rounded-xl bg-slate-50 text-slate-700 border border-slate-200">
                             ○ Pending: <strong>{c.workItems?.filter((w) => w.status === 'PENDING').length || 0}</strong>
                           </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* =================================================================== */}
+              {/* TAB: PORTFOLIO WORKS MANAGEMENT                                     */}
+              {/* =================================================================== */}
+              {activeTab === 'portfolio' && (
+                <div className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h4 className="font-serif text-2xl font-normal text-[#1A1917]">Portfolio Masterpieces ({projects.length})</h4>
+                      <p className="text-xs font-mono text-[#6B6560]">Manage public portfolio projects, Before & After transformation images, architectural stories & material specs</p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setEditingProject({
+                          rating: '5.0 ★★★★★',
+                          category: 'Villa & Bungalow',
+                          location: 'Kolkata, West Bengal',
+                          timeline: '12 Weeks',
+                          budget: '₹30 Lakhs',
+                          area: '2,800 sq.ft',
+                          badge: 'Residential Villa • Deinterio Signature'
+                        });
+                        setMaterialsInput('CenturyPly Marine Plywood, Hafele German Fittings, Italian Marble');
+                      }}
+                      className="px-5 py-2.5 rounded-xl bg-[#13362B] hover:bg-[#1b483a] text-[#C8AA7A] text-xs font-mono font-bold uppercase flex items-center gap-2 cursor-pointer shadow-md transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>+ Add Portfolio Work</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {projects.map((proj) => (
+                      <div key={proj.id} className="p-6 rounded-3xl bg-white border border-[#E2DDD6] space-y-4 shadow-xs flex flex-col justify-between">
+                        <div className="space-y-3">
+                          {/* Image preview */}
+                          <div className="relative h-48 rounded-2xl overflow-hidden bg-gray-100 border border-[#E2DDD6]">
+                            <img src={proj.image} alt={proj.title} className="w-full h-full object-cover" />
+                            <div className="absolute top-3 left-3">
+                              <span className="px-3 py-1 rounded-full bg-white/95 text-[10px] font-mono text-[#13362B] font-bold uppercase tracking-wider shadow-sm">
+                                {proj.badge || proj.category}
+                              </span>
+                            </div>
+                            <div className="absolute bottom-3 right-3 bg-black/75 px-2.5 py-1 rounded-lg text-[10px] font-mono text-[#C8AA7A] font-bold">
+                              {proj.rating}
+                            </div>
+                          </div>
+
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-mono text-[#8C6D3B] font-bold uppercase">{proj.category}</span>
+                              <span className="text-xs font-mono text-[#13362B] font-bold">{proj.budget}</span>
+                            </div>
+                            <h5 className="font-serif text-xl font-bold text-[#1A1917] mt-0.5">{proj.title}</h5>
+                            <p className="text-xs font-mono text-[#6B6560] mt-0.5">{proj.location}</p>
+                          </div>
+
+                          <p className="text-xs text-[#5A5852] line-clamp-2 leading-relaxed">
+                            {proj.story}
+                          </p>
+
+                          {/* Telemetry info */}
+                          <div className="grid grid-cols-2 gap-2 text-[11px] font-mono bg-[#FAF8F4] p-3 rounded-xl border border-[#E2DDD6]">
+                            <div>
+                              <span className="text-gray-400 block text-[10px] uppercase">Carpet Area</span>
+                              <span className="font-bold text-[#1A1917]">{proj.area}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400 block text-[10px] uppercase">Timeline</span>
+                              <span className="font-bold text-[#1A1917]">{proj.timeline}</span>
+                            </div>
+                          </div>
+
+                          {/* Before / After status */}
+                          <div className="flex items-center justify-between text-[11px] font-mono text-[#13362B]">
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                              <span>Before & After Active</span>
+                            </span>
+                            <span className="text-gray-400">ID: #{proj.id}</span>
+                          </div>
+
+                          {/* Materials tags */}
+                          {proj.materials && proj.materials.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {proj.materials.slice(0, 3).map((mat, i) => (
+                                <span key={i} className="px-2 py-0.5 rounded-md bg-[#FAF8F4] border border-[#E2DDD6] text-[10px] font-mono text-[#1A1917]">
+                                  {mat}
+                                </span>
+                              ))}
+                              {proj.materials.length > 3 && (
+                                <span className="px-2 py-0.5 rounded-md bg-[#FAF8F4] text-[10px] font-mono text-gray-500">
+                                  +{proj.materials.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E2DDD6]">
+                          <button
+                            onClick={() => {
+                              setEditingProject(proj);
+                              setMaterialsInput((proj.materials || []).join(', '));
+                            }}
+                            className="px-4 py-2 rounded-xl bg-white border border-[#E2DDD6] hover:bg-gray-50 text-xs font-mono font-bold text-[#1A1917] flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>Edit Details</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProject(proj.id, proj.title)}
+                            className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 cursor-pointer transition-colors"
+                            title="Delete Project"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -1205,6 +1392,191 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
             >
               Save & Publish Article
             </button>
+          </form>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* EDIT PORTFOLIO PROJECT MODAL                                              */}
+      {/* ========================================================================= */}
+      {editingProject && (
+        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <form onSubmit={handleSaveProject} className="relative w-full max-w-2xl rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 p-6 sm:p-8 space-y-5 text-[#1A1917] max-h-[90vh] overflow-y-auto shadow-2xl my-auto">
+            <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-4">
+              <div>
+                <span className="text-xs font-mono font-bold text-[#8C6D3B] uppercase">PORTFOLIO CMS</span>
+                <h4 className="font-serif text-2xl font-bold text-[#1A1917]">
+                  {editingProject.id ? 'Edit Portfolio Masterpiece' : 'Add New Portfolio Masterpiece'}
+                </h4>
+              </div>
+              <button type="button" onClick={() => setEditingProject(null)} className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Project Title *</label>
+                <input
+                  type="text"
+                  value={editingProject.title || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, title: e.target.value })}
+                  placeholder="e.g. Ballygunge Heritage Villa"
+                  required
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Category</label>
+                <input
+                  type="text"
+                  value={editingProject.category || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, category: e.target.value })}
+                  placeholder="e.g. Villa & Bungalow, 4BHK Penthouse, 3BHK Apartment, Corporate & Bank, Commercial"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Badge Tag</label>
+                <input
+                  type="text"
+                  value={editingProject.badge || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, badge: e.target.value })}
+                  placeholder="e.g. Residential Villa • Deinterio Signature"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Location</label>
+                <input
+                  type="text"
+                  value={editingProject.location || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, location: e.target.value })}
+                  placeholder="e.g. Ballygunge Circular Road, South Kolkata"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Turnkey Investment / Budget</label>
+                <input
+                  type="text"
+                  value={editingProject.budget || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, budget: e.target.value })}
+                  placeholder="e.g. ₹48 Lakhs"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Execution Timeline</label>
+                <input
+                  type="text"
+                  value={editingProject.timeline || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, timeline: e.target.value })}
+                  placeholder="e.g. 16 Weeks"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Carpet Area</label>
+                <input
+                  type="text"
+                  value={editingProject.area || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, area: e.target.value })}
+                  placeholder="e.g. 5,200 sq.ft"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Client Rating</label>
+                <input
+                  type="text"
+                  value={editingProject.rating || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, rating: e.target.value })}
+                  placeholder="e.g. 5.0 ★★★★★"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Cover / Main Image URL</label>
+                <input
+                  type="url"
+                  value={editingProject.image || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, image: e.target.value })}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Before Image URL (Slider)</label>
+                <input
+                  type="url"
+                  value={editingProject.beforeImg || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, beforeImg: e.target.value })}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">After Image URL (Slider)</label>
+                <input
+                  type="url"
+                  value={editingProject.afterImg || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, afterImg: e.target.value })}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Architectural Story & Design Narrative</label>
+                <textarea
+                  value={editingProject.story || ''}
+                  onChange={(e) => setEditingProject({ ...editingProject, story: e.target.value })}
+                  rows={3}
+                  placeholder="Describe the architectural transformation, aesthetic concept, spatial changes..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Materials & Hardware (Comma separated)</label>
+                <input
+                  type="text"
+                  value={materialsInput}
+                  onChange={(e) => setMaterialsInput(e.target.value)}
+                  placeholder="e.g. CenturyPly Marine Plywood, Hettich German Fittings, Italian Botticino Marble, Saint-Gobain Gypsum"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                />
+                <span className="text-[10px] text-gray-500 font-mono">Separate multiple verified materials with commas.</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2DDD6]">
+              <button
+                type="button"
+                onClick={() => setEditingProject(null)}
+                className="px-5 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono font-bold text-[#1A1917] hover:bg-gray-100 cursor-pointer"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="px-6 py-2.5 rounded-xl bg-[#13362B] text-[#C8AA7A] font-mono font-bold text-xs uppercase tracking-wider cursor-pointer shadow-md hover:bg-[#1c483a] transition-colors"
+              >
+                Save Portfolio Project
+              </button>
+            </div>
           </form>
         </div>
       )}

@@ -72,7 +72,7 @@ export const ContactSection: React.FC = () => {
                   Deinterio Interior Group Studio HQ
                 </h3>
                 <p className="text-xs text-[#D4C3A3] font-light leading-relaxed">
-                  Step inside our 14,000 sq.ft material vault. Experience German soft-close cabinetry, 200+ imported quartz & veneer swatches, and 4K VR spatial walkthroughs.
+                  Step inside our 14,000 sq.ft material vault. Experience soft-close cabinetry, 200+ imported quartz & veneer swatches, and 4K 3D spatial walkthroughs.
                 </p>
               </div>
 
@@ -381,7 +381,7 @@ export const ContactSection: React.FC = () => {
               </div>
             </div>
 
-            {/* Partition 2: 360° Studio VR Experience */}
+            {/* Partition 2: 360° Studio 3D Experience */}
             <div className="pt-8 lg:pt-0 lg:px-8 flex flex-col xl:flex-row items-start xl:items-center gap-6 justify-between">
               <div className="space-y-3 flex-1">
                 <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#8C6D3B] font-bold">
@@ -389,13 +389,13 @@ export const ContactSection: React.FC = () => {
                   <span>Tactile Material Vault</span>
                 </div>
                 <p className="text-xs text-[#5A5852] leading-relaxed font-light">
-                  Touch and feel imported Italian veneers, Hettich German soft-close mechanisms, and quartz island slabs in person.
+                  Touch and feel imported Italian veneers, Hettich certified soft-close mechanisms, and quartz island slabs in person.
                 </p>
                 <button
                   onClick={() => setActiveModal('tour')}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#E2DDD6] bg-[#FAF8F4] hover:bg-white text-xs font-mono uppercase tracking-wider text-[#13362B] font-bold shadow-2xs transition-all cursor-pointer"
                 >
-                  <span>VR 3D Walkthrough</span>
+                  <span>360° 3D Walkthrough</span>
                   <Play className="w-3 h-3 text-[#8C6D3B] fill-[#8C6D3B]" />
                 </button>
               </div>
@@ -487,13 +487,13 @@ export const ContactSection: React.FC = () => {
 
       </div>
 
-      {/* VR Walkthrough & Visit Modal */}
+      {/* 3D Walkthrough & Visit Modal */}
       {activeModal && (
         <div className="fixed inset-0 z-50 bg-[#1A1917]/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-[#E2DDD6] shadow-2xl space-y-6 text-[#1A1917] relative">
             <div className="flex justify-between items-center border-b border-[#E2DDD6] pb-4">
               <h3 className="font-serif text-2xl font-normal text-[#13362B]">
-                {activeModal === 'tour' ? 'Studio VR Experience' : 'Schedule Studio Appointment'}
+                {activeModal === 'tour' ? 'Studio 3D Experience' : 'Schedule Studio Appointment'}
               </h3>
               <button
                 onClick={() => setActiveModal(null)}
@@ -504,7 +504,7 @@ export const ContactSection: React.FC = () => {
             </div>
             <p className="text-xs text-[#5A5852] leading-relaxed">
               {activeModal === 'tour' 
-                ? 'Our 360° VR spatial walkthrough allows you to inspect completed Ballygunge and New Town penthouses in immersive detail. Submit your contact details below to receive a direct VR session link.'
+                ? 'Our 360° 3D spatial walkthrough allows you to inspect completed Ballygunge and New Town penthouses in immersive detail. Submit your contact details below to receive a direct 3D session link.'
                 : 'Select your preferred appointment date. Enjoy dedicated studio parking, complimentary Italian espresso, and hands-on material testing with our Senior Architects.'}
             </p>
             <div className="space-y-3">

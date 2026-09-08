@@ -160,7 +160,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenBooking }) => {
             Ready to Build Your <span className="italic text-[#C8AA7A]">Dream Sanctuary</span>?
           </h2>
           <p className="text-sm sm:text-base text-[#D4C3A3] font-light max-w-2xl mx-auto leading-relaxed">
-            Schedule a free 1-on-1 discovery consultation with our principal architects at our North Kolkata studio or via 4K VR live session.
+            Schedule a free 1-on-1 discovery consultation with our principal architects at our North Kolkata studio or via 4K 3D interactive session.
           </p>
           <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
             <button

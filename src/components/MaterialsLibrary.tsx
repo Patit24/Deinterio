@@ -27,7 +27,7 @@ const CARDS = [
     widgets: [
       { label: 'Families', val: '500+', icon: Users, hi: true },
       { label: 'On-Time', val: '100%', icon: ShieldCheck, hi: false },
-      { label: 'VR Tour', val: '3D', icon: Box, hi: false },
+      { label: '3D Tour', val: 'Active', icon: Box, hi: false },
       { label: 'Warranty', val: '10 Yrs', icon: Trophy, hi: false },
     ],
   },

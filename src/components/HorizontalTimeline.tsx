@@ -18,8 +18,8 @@ export const HorizontalTimeline: React.FC = () => {
     },
     {
       num: '03',
-      title: '3D Design & VR',
-      desc: 'Immersive 4K 3D renders and VR walkthrough before a single brick is touched.',
+      title: '3D Design & Visualization',
+      desc: 'Immersive 4K 3D renders and detailed spatial walkthrough before a single brick is touched.',
       icon: Box,
     },
     {
@@ -31,7 +31,7 @@ export const HorizontalTimeline: React.FC = () => {
     {
       num: '05',
       title: 'Factory Production',
-      desc: 'German machinery woodworking & precision modular furniture manufacturing.',
+      desc: 'Precision automated woodworking & factory modular furniture manufacturing.',
       icon: Sparkles,
     },
     {

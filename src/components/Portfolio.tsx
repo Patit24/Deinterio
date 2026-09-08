@@ -2,95 +2,15 @@ import React, { useState, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowUpRight, Sparkles, X, SlidersHorizontal, MapPin, CheckCircle2 } from 'lucide-react';
 import { BeforeAfterSlider } from './BeforeAfterSlider';
+import { dataStore, type ProjectItem } from '../services/dataStore';
 
 export const Portfolio: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [activeProject, setActiveProject] = useState<any | null>(null);
+  const [activeProject, setActiveProject] = useState<ProjectItem | null>(null);
 
   const targetRef = useRef<HTMLDivElement>(null);
 
-  const projects = [
-    {
-      id: 1,
-      title: 'Ballygunge Heritage Villa',
-      category: 'Villa & Bungalow',
-      location: 'Ballygunge Circular Road, South Kolkata',
-      budget: '₹48 Lakhs',
-      timeline: '16 Weeks',
-      area: '5,200 sq.ft',
-      rating: '5.0 ★★★★★',
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
-      beforeImg: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=1200&q=80',
-      afterImg: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
-      story: 'A complete architectural interior transformation of an independent South Kolkata bungalow into a modern sanctuary. Features floor-to-ceiling Italian marble wall paneling, fluted teak wood accents, and warm concealed LED ceiling slots.',
-      materials: ['CenturyPly Marine Plywood', 'Hettich German Fittings', 'Italian Botticino Marble', 'Saint-Gobain Gypsum'],
-      badge: 'Residential Villa • Deinterio Signature',
-    },
-    {
-      id: 2,
-      title: 'Uniworld City Sky Penthouse',
-      category: '4BHK Penthouse',
-      location: 'Action Area III, New Town, Kolkata',
-      budget: '₹34 Lakhs',
-      timeline: '14 Weeks',
-      area: '3,800 sq.ft',
-      rating: '5.0 ★★★★★',
-      image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
-      beforeImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80',
-      afterImg: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
-      story: 'High-rise luxury penthouse overlooking the New Town skyline. Designed with a custom island modular kitchen, acrylic high-gloss cabinetry, and automated smart lounge lighting.',
-      materials: ['Hafele Kitchen Hardware', 'Merino High Gloss Laminate', 'Quartz Countertops', 'Warm 3000K Lighting'],
-      badge: '4BHK Penthouse • New Town',
-    },
-    {
-      id: 3,
-      title: 'Park Street Luxury Residence',
-      category: '3BHK Apartment',
-      location: 'Park Street, Central Kolkata',
-      budget: '₹26 Lakhs',
-      timeline: '12 Weeks',
-      area: '2,600 sq.ft',
-      rating: '5.0 ★★★★★',
-      image: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80',
-      beforeImg: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=1200&q=80',
-      afterImg: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80',
-      story: 'Contemporary 3BHK residence combining warm neutral color palettes, plush velvet sofa seating, concealed wardrobe storage, and acoustic ceiling treatment.',
-      materials: ['Asian Paints Royale', 'Century Ply 710', 'Hafele Soft Close', 'Upholstered Fabric'],
-      badge: '3BHK Turnkey • Central Kolkata',
-    },
-    {
-      id: 4,
-      title: 'Salt Lake Corporate Headquarters',
-      category: 'Corporate & Bank',
-      location: 'Sector V, Salt Lake, Kolkata',
-      budget: '₹42 Lakhs',
-      timeline: '10 Weeks',
-      area: '6,000 sq.ft',
-      rating: '5.0 ★★★★★',
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80',
-      beforeImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80',
-      afterImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80',
-      story: 'High-security corporate banking workspace featuring executive glass cabins, acoustic ceiling tiles, modular workstation clusters, and ergonomic seating.',
-      materials: ['Toughened Glass Partitions', 'Acoustic Ceiling Tiles', 'Modular Workstations', 'Branded Carpet Tiles'],
-      badge: 'Corporate Office • Salt Lake',
-    },
-    {
-      id: 5,
-      title: 'Rajarhat Gourmet Café & Lounge',
-      category: 'Commercial',
-      location: 'Chinar Park, Rajarhat, Kolkata',
-      budget: '₹22 Lakhs',
-      timeline: '8 Weeks',
-      area: '2,400 sq.ft',
-      rating: '5.0 ★★★★★',
-      image: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1200&q=80',
-      beforeImg: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=1200&q=80',
-      afterImg: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1200&q=80',
-      story: 'Bespoke commercial café interior with warm brass ceiling lighting, fluted wooden service bar counter, and customized booth seating.',
-      materials: ['Warm Brass Fixtures', 'Fluted Teak Paneling', 'Terrazzo Flooring', 'Custom Upholstery'],
-      badge: 'Commercial Café • Rajarhat',
-    },
-  ];
+  const [projects] = useState<ProjectItem[]>(() => dataStore.getProjects());
 
   const filteredProjects = selectedCategory === 'All'
     ? projects
