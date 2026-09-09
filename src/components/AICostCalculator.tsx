@@ -1012,13 +1012,13 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
               </div>
 
               {/* Next Button */}
-              <div className="flex justify-end pt-2">
+              <div className="flex justify-end pt-4 border-t border-[#1A1917]/10">
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="px-8 py-3.5 rounded-full bg-[#13362B] text-[#C8AA7A] text-xs font-mono font-bold uppercase tracking-widest hover:bg-[#1b483a] transition-all flex items-center gap-2 shadow-lg cursor-pointer"
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#13362B] hover:bg-[#1b483a] text-[#C8AA7A] text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer whitespace-nowrap"
                 >
-                  <span>NEXT: CHOOSE INTERIOR TRADES & RATES</span>
+                  <span>Next: Choose Trades & Rates</span>
                   <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
                 </button>
               </div>
@@ -1379,21 +1379,21 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
               </div>
 
               {/* Navigation Footer */}
-              <div className="flex items-center justify-between pt-4 border-t border-[#1A1917]/10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-6 border-t border-[#1A1917]/10">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="px-6 py-3 rounded-full bg-white border border-[#1A1917]/15 text-[#1A1917] text-xs font-mono font-bold uppercase tracking-wider hover:border-[#A88B57] transition-all flex items-center gap-2 cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white border border-[#E2DDD6] hover:border-[#8C6D3B] text-[#1A1917] text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs whitespace-nowrap order-2 sm:order-1"
                 >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>BACK TO MEASUREMENTS</span>
+                  <ArrowLeft className="w-4 h-4 text-[#8C6D3B]" />
+                  <span>Back to Measurements</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(3)}
-                  className="px-8 py-3.5 rounded-full bg-[#13362B] text-[#C8AA7A] text-xs font-mono font-bold uppercase tracking-widest hover:bg-[#1b483a] transition-all flex items-center gap-2 shadow-lg cursor-pointer"
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#13362B] hover:bg-[#1b483a] text-[#C8AA7A] text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer whitespace-nowrap order-1 sm:order-2"
                 >
-                  <span>NEXT: REVIEW ITEMIZED BOQ</span>
+                  <span>Review Itemized BOQ</span>
                   <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
                 </button>
               </div>
@@ -1481,21 +1481,21 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
               </div>
 
               {/* Navigation Footer */}
-              <div className="flex items-center justify-between pt-4 border-t border-[#1A1917]/10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-6 border-t border-[#1A1917]/10">
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="px-6 py-3 rounded-full bg-white border border-[#1A1917]/15 text-[#1A1917] text-xs font-mono font-bold uppercase tracking-wider hover:border-[#A88B57] transition-all flex items-center gap-2 cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white border border-[#E2DDD6] hover:border-[#8C6D3B] text-[#1A1917] text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs whitespace-nowrap order-2 sm:order-1"
                 >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>BACK TO TRADES</span>
+                  <ArrowLeft className="w-4 h-4 text-[#8C6D3B]" />
+                  <span>Back to Trades</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(4)}
-                  className="px-8 py-3.5 rounded-full bg-[#13362B] text-[#C8AA7A] text-xs font-mono font-bold uppercase tracking-widest hover:bg-[#1b483a] transition-all flex items-center gap-2 shadow-lg cursor-pointer"
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#13362B] hover:bg-[#1b483a] text-[#C8AA7A] text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer whitespace-nowrap order-1 sm:order-2"
                 >
-                  <span>GET OFFICIAL QUOTATION & PDF</span>
+                  <span>Get Official Quotation</span>
                   <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
                 </button>
               </div>
@@ -1609,14 +1609,14 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
                     </button>
                   </form>
 
-                  <div className="flex justify-start pt-2 border-t border-[#1A1917]/10">
+                  <div className="flex justify-start pt-6 border-t border-[#1A1917]/10">
                     <button
                       type="button"
                       onClick={() => setStep(3)}
-                      className="px-6 py-3 rounded-full bg-white border border-[#1A1917]/15 text-[#1A1917] text-xs font-mono font-bold uppercase tracking-wider hover:border-[#A88B57] transition-all flex items-center gap-2 cursor-pointer"
+                      className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white border border-[#E2DDD6] hover:border-[#8C6D3B] text-[#1A1917] text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs whitespace-nowrap"
                     >
-                      <ArrowLeft className="w-4 h-4" />
-                      <span>BACK TO BOQ</span>
+                      <ArrowLeft className="w-4 h-4 text-[#8C6D3B]" />
+                      <span>Back to BOQ</span>
                     </button>
                   </div>
                 </>
