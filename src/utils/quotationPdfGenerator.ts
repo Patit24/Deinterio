@@ -14,6 +14,24 @@ export interface ServiceScopeData {
   falseCeiling: boolean;
 }
 
+export interface ElectricalPointsPrintData {
+  lights: number;
+  fans: number;
+  acPoints: number;
+  geyserPoints: number;
+  microwavePoints: number;
+  fridgePoints: number;
+  chimneyPoints: number;
+  totalPoints?: number;
+}
+
+export interface TradeItemPrintData {
+  trade: string;
+  selection: string;
+  rateInfo: string;
+  cost: number;
+}
+
 export interface QuotationPrintData {
   quotationId: string;
   date: string;
@@ -30,14 +48,18 @@ export interface QuotationPrintData {
   falseCeilingSqft?: number;
   falseCeilingCost?: number;
   rooms?: {
-    livingRoom: number;
-    kitchen: number;
-    bedroom: number;
-    bathroom: number;
-    dining: number;
+    livingRoom?: number;
+    kitchen?: number;
+    bedroom?: number;
+    bathroom?: number;
+    dining?: number;
+    roomCount?: number;
   };
   roomDimensions?: RoomDimensionData[];
   serviceScope?: ServiceScopeData;
+  electricalPoints?: ElectricalPointsPrintData;
+  tradeBreakdown?: TradeItemPrintData[];
+  staircaseIncluded?: boolean;
   estimatedWeeks?: number;
   totalAmountFormatted: string;
   notes?: string;
@@ -46,11 +68,13 @@ export interface QuotationPrintData {
 export const generateQuotationHTML = (data: QuotationPrintData): string => {
   const roomPills = data.rooms
     ? [
-        data.rooms.livingRoom > 0 ? `${data.rooms.livingRoom} Living Room` : null,
-        data.rooms.kitchen > 0 ? `${data.rooms.kitchen} Modular Kitchen` : null,
-        data.rooms.bedroom > 0 ? `${data.rooms.bedroom} Bedroom(s)` : null,
-        data.rooms.bathroom > 0 ? `${data.rooms.bathroom} Bathroom(s)` : null,
-        data.rooms.dining > 0 ? `${data.rooms.dining} Dining Area` : null,
+        (data.rooms.roomCount && data.rooms.roomCount > 0) ? `${data.rooms.roomCount} Rooms` : null,
+        (data.rooms.livingRoom && data.rooms.livingRoom > 0) ? `${data.rooms.livingRoom} Living & Hall` : null,
+        (data.rooms.kitchen && data.rooms.kitchen > 0) ? `${data.rooms.kitchen} Modular Kitchen` : null,
+        (data.rooms.bedroom && data.rooms.bedroom > 0 && !data.rooms.roomCount) ? `${data.rooms.bedroom} Bedroom(s)` : null,
+        (data.rooms.bathroom && data.rooms.bathroom > 0) ? `${data.rooms.bathroom} Bathroom(s)` : null,
+        (data.rooms.dining && data.rooms.dining > 0) ? `${data.rooms.dining} Dining Area` : null,
+        data.staircaseIncluded ? 'Staircase / Internal Stairs' : null,
       ].filter(Boolean).join(' • ')
     : 'Complete Turnkey Residential Interior';
 
@@ -583,20 +607,39 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td><strong>Interior Execution (${tierSpecs.name} Tier)</strong><br /><span style="font-size: 8.5px; color: #666;">Furniture, woodwork, finishes & standard fittings</span></td>
-        <td>${data.totalAreaSqft || 0} sq.ft</td>
-        <td>₹${tierSpecs.rate} / sq.ft</td>
-        <td style="text-align: right; font-weight: 600; font-family: monospace;">₹${((data.totalAreaSqft || 0) * tierSpecs.rate).toLocaleString('en-IN')}</td>
-      </tr>
-      ${scope.falseCeiling ? `
-        <tr>
-          <td><strong>Designer False Ceiling (Gyproc / Saint-Gobain)</strong><br /><span style="font-size: 8.5px; color: #666;">Cove lighting channels, perimeter design & primer finish</span></td>
-          <td>${data.falseCeilingSqft || data.totalAreaSqft || 0} sq.ft</td>
-          <td>₹120 / sq.ft</td>
-          <td style="text-align: right; font-weight: 600; font-family: monospace;">₹${(data.falseCeilingCost || ((data.falseCeilingSqft || data.totalAreaSqft || 0) * 120)).toLocaleString('en-IN')}</td>
-        </tr>
-      ` : ''}
+      ${(data.tradeBreakdown && data.tradeBreakdown.length > 0)
+        ? data.tradeBreakdown.map(item => `
+          <tr>
+            <td>
+              <strong>${item.trade}</strong><br />
+              <span style="font-size: 8.5px; color: #666;">${item.selection}</span>
+              ${item.trade === 'Electrical Work' && data.electricalPoints ? `
+                <br /><span style="font-size: 8px; font-family: monospace; color: #8C6D3B;">
+                  Points: Lights: ${data.electricalPoints.lights}, Fans: ${data.electricalPoints.fans}, AC: ${data.electricalPoints.acPoints}, Geyser: ${data.electricalPoints.geyserPoints}, Microwave: ${data.electricalPoints.microwavePoints}, Fridge: ${data.electricalPoints.fridgePoints}, Chimney: ${data.electricalPoints.chimneyPoints}
+                </span>
+              ` : ''}
+            </td>
+            <td>${item.rateInfo || 'Custom'}</td>
+            <td>${item.trade}</td>
+            <td style="text-align: right; font-weight: 600; font-family: monospace;">₹${item.cost.toLocaleString('en-IN')}</td>
+          </tr>
+        `).join('')
+        : `
+          <tr>
+            <td><strong>Interior Execution (${tierSpecs.name} Tier)</strong><br /><span style="font-size: 8.5px; color: #666;">Furniture, woodwork, finishes & standard fittings</span></td>
+            <td>${data.totalAreaSqft || 0} sq.ft</td>
+            <td>₹${tierSpecs.rate} / sq.ft</td>
+            <td style="text-align: right; font-weight: 600; font-family: monospace;">₹${((data.totalAreaSqft || 0) * tierSpecs.rate).toLocaleString('en-IN')}</td>
+          </tr>
+          ${scope.falseCeiling ? `
+            <tr>
+              <td><strong>Designer False Ceiling (Gyproc / Saint-Gobain)</strong><br /><span style="font-size: 8.5px; color: #666;">Cove lighting channels, perimeter design & primer finish</span></td>
+              <td>${data.falseCeilingSqft || data.totalAreaSqft || 0} sq.ft</td>
+              <td>₹120 / sq.ft</td>
+              <td style="text-align: right; font-weight: 600; font-family: monospace;">₹${(data.falseCeilingCost || ((data.falseCeilingSqft || data.totalAreaSqft || 0) * 120)).toLocaleString('en-IN')}</td>
+            </tr>
+          ` : ''}
+        `}
     </tbody>
   </table>
 

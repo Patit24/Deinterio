@@ -101,6 +101,24 @@ export interface ServiceScopeItem {
   falseCeiling: boolean;
 }
 
+export interface ElectricalPointsConfig {
+  lights: number;
+  fans: number;
+  acPoints: number;
+  geyserPoints: number;
+  microwavePoints: number;
+  fridgePoints: number;
+  chimneyPoints: number;
+  totalPoints?: number;
+}
+
+export interface TradeBreakdownItem {
+  trade: string;
+  selection: string;
+  rateInfo: string;
+  cost: number;
+}
+
 export interface LeadItem {
   id: string;
   quotationId?: string;
@@ -117,11 +135,12 @@ export interface LeadItem {
   carpetArea?: string;
   packageTier?: string;
   rooms?: {
-    livingRoom: number;
-    kitchen: number;
-    bedroom: number;
-    bathroom: number;
-    dining: number;
+    livingRoom?: number;
+    kitchen?: number;
+    bedroom?: number;
+    bathroom?: number;
+    dining?: number;
+    roomCount?: number;
   };
   roomDimensions?: RoomDimensionItem[];
   serviceScope?: ServiceScopeItem;
@@ -129,6 +148,9 @@ export interface LeadItem {
   ratePerSqft?: number;
   falseCeilingSqft?: number;
   falseCeilingCost?: number;
+  electricalPoints?: ElectricalPointsConfig;
+  tradeBreakdown?: TradeBreakdownItem[];
+  staircaseIncluded?: boolean;
   notes?: string;
   estimatedAmount?: string;
 }

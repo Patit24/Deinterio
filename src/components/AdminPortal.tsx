@@ -1321,13 +1321,49 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                               ))}
                             </div>
 
-                            {lead.serviceScope && (
+                            {/* Electrical Points breakdown */}
+                            {lead.electricalPoints && (
+                              <div className="pt-2 border-t border-[#E2DDD6]/60">
+                                <span className="text-[10px] font-mono font-bold uppercase text-[#8C6D3B] block mb-1">
+                                  Electrical Points ({lead.electricalPoints.totalPoints || (
+                                    lead.electricalPoints.lights + lead.electricalPoints.fans + lead.electricalPoints.acPoints +
+                                    lead.electricalPoints.geyserPoints + lead.electricalPoints.microwavePoints + lead.electricalPoints.fridgePoints + lead.electricalPoints.chimneyPoints
+                                  )} Total):
+                                </span>
+                                <div className="flex flex-wrap gap-1.5 text-[10px] font-mono text-gray-700">
+                                  <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200">💡 Lights: {lead.electricalPoints.lights}</span>
+                                  <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200">🌀 Fans: {lead.electricalPoints.fans}</span>
+                                  <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200">❄️ AC: {lead.electricalPoints.acPoints}</span>
+                                  <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200">♨️ Geyser: {lead.electricalPoints.geyserPoints}</span>
+                                  <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200">🍲 Microwave: {lead.electricalPoints.microwavePoints}</span>
+                                  <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200">🧊 Fridge: {lead.electricalPoints.fridgePoints}</span>
+                                  <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200">💨 Chimney: {lead.electricalPoints.chimneyPoints}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Trade breakdown items */}
+                            {lead.tradeBreakdown && lead.tradeBreakdown.length > 0 ? (
+                              <div className="pt-2 border-t border-[#E2DDD6]/60 space-y-1">
+                                <span className="text-[10px] font-mono font-bold uppercase text-[#8C6D3B] block">
+                                  Selected Trades & Materials ({lead.tradeBreakdown.length}):
+                                </span>
+                                <div className="space-y-1">
+                                  {lead.tradeBreakdown.map((tr, idx) => (
+                                    <div key={idx} className="flex items-center justify-between text-[11px] font-mono bg-white px-2.5 py-1 rounded-lg border border-[#E2DDD6]">
+                                      <span className="text-[#1A1917]"><strong>{tr.trade}:</strong> {tr.selection}</span>
+                                      <span className="font-bold text-[#13362B] ml-2 shrink-0">₹{tr.cost.toLocaleString('en-IN')}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : lead.serviceScope && (
                               <div className="pt-2 border-t border-[#E2DDD6]/60 flex flex-wrap gap-1.5 text-[10px] font-mono">
                                 <span className="text-gray-400 py-0.5">Scope:</span>
                                 {lead.serviceScope.furniture && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ Furniture</span>}
                                 {lead.serviceScope.painting && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ Painting</span>}
                                 {lead.serviceScope.electrical && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ Electrical</span>}
-                                {lead.serviceScope.falseCeiling && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ False Ceiling (@ ₹120/sq.ft)</span>}
+                                {lead.serviceScope.falseCeiling && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ False Ceiling</span>}
                               </div>
                             )}
                           </div>
