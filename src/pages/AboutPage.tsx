@@ -69,7 +69,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenBooking }) => {
               <ShieldCheck className="w-8 h-8 text-[#C8AA7A]" />
               <h4 className="font-serif text-lg font-medium">10-Year Warranty Guaranteed</h4>
               <p className="text-xs text-[#D4C3A3] font-light">
-                Backed directly by CenturyPly Marine Plywood and Hettich Germany certified hardware.
+                Backed directly by CenturyPly Marine Plywood and Hettich certified precision hardware.
               </p>
             </div>
           </div>

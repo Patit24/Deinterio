@@ -6,6 +6,7 @@ import {
   ShieldCheck, RefreshCw, Layers, Home, Armchair, Utensils, Bed, Bath
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { dataStore } from '../services/dataStore';
 
 interface AICostCalculatorProps {
   onOpenBooking: () => void;
@@ -130,6 +131,23 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
     setFormErrors({});
     setIsSubmitted(true);
     setStep(5);
+
+    try {
+      dataStore.addLead({
+        name: userDetails.name.trim(),
+        email: userDetails.email.trim() || `${userDetails.phone}@client.deinterio.com`,
+        phone: userDetails.phone.trim(),
+        type: `${selectedBHK} (${packageTier} Tier)`,
+        budget: `₹${(calculateTotal() / 100000).toFixed(2)} Lakhs`,
+        city: userDetails.city || 'Kolkata',
+        status: 'NEW',
+        details: `${selectedSize} layout with ${rooms.bedroom} Bed, ${rooms.livingRoom} Living, ${rooms.kitchen} Kitchen, ${rooms.bathroom} Bath`,
+        carpetArea: `${getEstimatedArea()} sq.ft`,
+        estimatedAmount: `₹${calculateTotal().toLocaleString('en-IN')}`,
+      });
+    } catch (err) {
+      console.warn('Could not record lead:', err);
+    }
 
     confetti({
       particleCount: 90,
@@ -436,7 +454,7 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
                     tier: 'Premium' as PackageTier,
                     priceTag: '₹₹₹',
                     desc: 'Superior home interior solutions that take your interiors to the next level.',
-                    features: ['Mid-range luxury pricing', 'Customized space planning', 'Hettich German Hardware'],
+                    features: ['Mid-range luxury pricing', 'Customized space planning', 'Hettich Precision Hardware'],
                     imgUrl: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=400',
                   },
                   {

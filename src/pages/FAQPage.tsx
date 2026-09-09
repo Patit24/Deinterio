@@ -22,7 +22,7 @@ export const FAQPage: React.FC<FAQPageProps> = ({ onOpenBooking }) => {
     {
       cat: 'Materials & Warranties',
       q: 'What brand warranties are included with my home interior?',
-      a: 'All CenturyPly Club Prime marine plywood comes with a 25-year manufacturer warranty. Hettich German soft-close hinges come with 10-year direct replacements. Deinterio backs the entire handover with a digital 10-year warranty certificate.',
+      a: 'All CenturyPly Club Prime marine plywood comes with a 25-year manufacturer warranty. Hettich soft-close hinges come with 10-year direct replacements. Deinterio backs the entire handover with a digital 10-year warranty certificate.',
     },
     {
       cat: 'Process & Timelines',

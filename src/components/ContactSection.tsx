@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, Sparkles, Lock, Home, User, DollarSign, Calendar, ShieldCheck, Award, Users, ChevronDown, ExternalLink, Play, MessageSquare } from 'lucide-react';
+import { dataStore } from '../services/dataStore';
 
 export const ContactSection: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -18,6 +19,22 @@ export const ContactSection: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormSubmitted(true);
+
+    try {
+      dataStore.addLead({
+        name: formData.fullName.trim() || 'Inquiry Contact',
+        email: formData.email.trim() || `${formData.phone}@client.deinterio.com`,
+        phone: formData.phone.trim(),
+        type: formData.propertyType,
+        budget: formData.budget,
+        city: 'Kolkata',
+        status: 'NEW',
+        details: formData.details || `Direct website inquiry for ${formData.propertyType}`,
+      });
+    } catch (err) {
+      console.warn('Could not record contact lead:', err);
+    }
+
     setTimeout(() => setFormSubmitted(false), 6000);
   };
 
@@ -336,7 +353,7 @@ export const ContactSection: React.FC = () => {
         </div>
 
 
-        {/* ==================== TIER 2: INTERACTIVE STUDIO MAP & VR EXPERIENCE DECK ==================== */}
+        {/* ==================== TIER 2: INTERACTIVE STUDIO MAP & 3D STUDIO EXPERIENCE ==================== */}
         <div className="rounded-3xl bg-white border border-[#E2DDD6] p-6 sm:p-8 shadow-md">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 divide-y lg:divide-y-0 lg:divide-x divide-[#E2DDD6]">
             

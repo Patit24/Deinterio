@@ -381,6 +381,19 @@ const INITIAL_SERVICES: ServiceItem[] = [
     deliverables: ['Fluted Brass Counter Bars', 'Acoustic Ceilings', 'Custom Commercial Joinery', 'High-Traffic Flooring'],
     highlights: 'Turnkey fast-track execution designed for rapid commercial launch.',
   },
+  {
+    id: 'heritage-restoration',
+    title: 'Heritage Bungalow & Colonial Restoration',
+    tagline: 'Preserving Kolkata heritage architecture with Burma teak, vintage brass, and modern climate retrofits.',
+    category: 'Heritage Architecture',
+    image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=80',
+    deliverables: ['Original Teak Structural Restoration', 'Lime Plaster & Heritage Masonry', 'Antique Brass Hardware Retrofitting', 'Concealed Modern Ducted Climate Control'],
+    highlights: 'Restoring historic residences across Ballygunge, Alipore, and North Kolkata with authentic craftsmanship.',
+    problem: 'Heritage properties suffer from dampness, deteriorating lime mortar, decaying woodwork, and outdated electrical wiring that clashes with traditional aesthetics.',
+    solution: 'Deinterio deploys structural preservation specialists, authentic chemical damp-proofing, handcrafted Burma teak joinery, and concealed IoT climate systems that preserve colonial heritage.',
+    materials: ['Reclaimed Burma Teak', 'Antique Solid Brass Fittings', 'Sika Chemical Damp Proofing', 'Breathable Lime Plaster', 'Belgian Stained Glass'],
+    process: ['Heritage Structural & Damp Audit', '3D Laser Architectural Documentation', 'Craftsman Joinery Restoration', 'Concealed Modern Infrastructure', 'Handover & Heritage Preservation Dossier'],
+  },
 ];
 
 const INITIAL_PROJECTS: ProjectItem[] = [
@@ -580,11 +593,16 @@ class DataStoreService {
     this.setStorage('deinterio_clients', clients);
   }
 
-  authenticateClient(username: string, pass: string): ClientAccount | null {
+  authenticateClient(usernameOrEmail: string, pass: string): ClientAccount | null {
     const clients = this.getClients();
-    const cleanUser = username.trim().toLowerCase();
+    const cleanUser = usernameOrEmail.trim().toLowerCase();
     const cleanPass = pass.trim();
-    return clients.find(c => c.username.toLowerCase() === cleanUser && c.password === cleanPass) || null;
+    return clients.find(c => 
+      (c.username.toLowerCase() === cleanUser || 
+       c.clientEmail?.toLowerCase() === cleanUser ||
+       (cleanUser.length > 5 && c.clientPhone && c.clientPhone.replace(/\D/g, '').includes(cleanUser.replace(/\D/g, '')))) &&
+      c.password === cleanPass
+    ) || null;
   }
 
   saveClient(client: ClientAccount): void {

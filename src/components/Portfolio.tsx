@@ -4,7 +4,11 @@ import { ArrowUpRight, Sparkles, X, SlidersHorizontal, MapPin, CheckCircle2 } fr
 import { BeforeAfterSlider } from './BeforeAfterSlider';
 import { dataStore, type ProjectItem } from '../services/dataStore';
 
-export const Portfolio: React.FC = () => {
+interface PortfolioProps {
+  onOpenBooking?: () => void;
+}
+
+export const Portfolio: React.FC<PortfolioProps> = ({ onOpenBooking }) => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeProject, setActiveProject] = useState<ProjectItem | null>(null);
 
@@ -225,6 +229,33 @@ export const Portfolio: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[#1A1917]/10 bg-white p-4 rounded-2xl">
+                <a
+                  href={`#/projects/${activeProject.id}`}
+                  onClick={() => setActiveProject(null)}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-[#D4C3A3] bg-[#FAF8F4] hover:bg-[#13362B] text-[#13362B] hover:text-white text-xs font-mono font-bold uppercase tracking-wider transition-all"
+                >
+                  <span>Open Dedicated Case Study</span>
+                  <ArrowUpRight className="w-4 h-4" />
+                </a>
+
+                <button
+                  onClick={() => {
+                    const cat = activeProject.category;
+                    setActiveProject(null);
+                    if (onOpenBooking) {
+                      onOpenBooking();
+                    } else {
+                      window.location.hash = '#/contact';
+                    }
+                  }}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#13362B] hover:bg-[#0E271F] text-[#C8AA7A] hover:text-white text-xs font-mono font-bold uppercase tracking-wider shadow-md transition-all cursor-pointer"
+                >
+                  <span>Book Consultation for This Type of Project</span>
+                </button>
               </div>
 
             </div>

@@ -125,7 +125,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({
       </section>
 
       {/* Pinpinned Masterpieces Portfolio */}
-      <Portfolio />
+      <Portfolio onOpenBooking={onOpenBooking} />
 
       {/* Kolkata Live Projects Tracker Map */}
       <ProjectsTrackerSection

@@ -15,7 +15,14 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   onOpenBooking,
 }) => {
   const caseStudies = dataStore.getProjects();
-  const project = caseStudies.find((p) => p.id === slug) || caseStudies[0];
+  const projectAliases: Record<string, string> = {
+    'new-town-penthouse': 'uniworld-penthouse',
+    'uniworld-city-penthouse': 'uniworld-penthouse',
+  };
+  const resolvedSlug = projectAliases[slug] || slug;
+  const project = caseStudies.find((p) => p.id === resolvedSlug || p.id === slug) || 
+                  caseStudies.find((p) => p.id.includes(slug) || slug.includes(p.id)) || 
+                  caseStudies[0];
 
   return (
     <>
@@ -74,7 +81,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           </span>
           <h3 className="font-serif text-2xl font-normal text-[#13362B]">Sanctuary Engineering</h3>
           <p className="text-sm text-[#13362B]/80 font-light leading-relaxed">
-            We deployed 3D laser scanners to create a sub-millimeter BIM model. Moisture barriers were applied using Sika chemical injection. All cabinetry was pre-manufactured at our Rajarhat German facility and assembled on-site.
+            We deployed 3D laser scanners to create a sub-millimeter BIM model. Moisture barriers were applied using Sika chemical injection. All cabinetry was pre-manufactured at our Rajarhat Advanced CNC Joinery Facility and assembled on-site.
           </p>
         </div>
       </section>

@@ -14,10 +14,20 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
   onOpenBooking,
 }) => {
   const servicesList = dataStore.getServices();
-  const service = servicesList.find((s) => s.id === slug) || servicesList[1] || servicesList[0];
+  const aliasMap: Record<string, string> = {
+    'turnkey-luxury-interiors': 'interior-architecture',
+    'master-bedroom-suites': 'master-bedrooms',
+    'smart-home-automation': 'smart-automation',
+    'heritage-restoration': 'heritage-restoration',
+    'commercial-corporate': 'commercial-cafes',
+  };
+  const resolvedSlug = aliasMap[slug] || slug;
+  const service = servicesList.find((s) => s.id === resolvedSlug || s.id === slug) || 
+                  servicesList.find((s) => s.id.includes(slug) || slug.includes(s.id)) || 
+                  servicesList[0];
 
   const problemText = service.problem || 'Traditional interior contractors suffer from material substitution, unorganized storage, and unverified fittings.';
-  const solutionText = service.solution || 'Deinterio features 100% CenturyPly Club Prime BWP Marine Plywood, 0.5mm PUR edge-banding, and Hafele German hardware.';
+  const solutionText = service.solution || 'Deinterio features 100% CenturyPly Club Prime BWP Marine Plywood, 0.5mm PUR edge-banding, and Hafele certified hardware.';
   const materialsList = service.materials || ['CenturyPly Club Prime BWP Plywood', 'Hafele Soft-Close Hinges', 'Quartz Countertop'];
   const processList = service.process || ['3D Spatial Scan', 'Factory CNC Woodworking', 'Sub-Zero IoT Telemetry Dispatch', 'On-Site Installation', '45-Point Audit'];
 

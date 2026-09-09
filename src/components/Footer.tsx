@@ -42,7 +42,7 @@ export const Footer: React.FC<FooterProps> = ({
             </a>
 
             <p className="text-xs text-[#D4C3A3] font-light max-w-sm leading-relaxed">
-              Designing Kolkata's finest residences with 100% material transparency, German precision woodworking, fixed BOQ pricing, and live PM project telemetry.
+              Designing Kolkata's finest residences with 100% material transparency, factory-precision CNC joinery, fixed BOQ pricing, and live PM project telemetry.
             </p>
 
             <div className="space-y-2 text-xs font-mono text-gray-300 pt-2">
@@ -104,22 +104,18 @@ export const Footer: React.FC<FooterProps> = ({
               PORTALS & HELP
             </span>
             <ul className="space-y-2.5 text-xs text-gray-300 font-light">
-              {onOpenDashboard && (
-                <li>
-                  <button onClick={onOpenDashboard} className="text-[#C8AA7A] hover:text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer">
-                    <KeyRound className="w-3.5 h-3.5" />
-                    <span>Client Dashboard</span>
-                  </button>
-                </li>
-              )}
-              {onOpenAdmin && (
-                <li>
-                  <button onClick={onOpenAdmin} className="hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer">
-                    <Shield className="w-3.5 h-3.5 text-[#C8AA7A]" />
-                    <span>Admin CMS Panel</span>
-                  </button>
-                </li>
-              )}
+              <li>
+                <a href="#/client-portal" className="text-[#C8AA7A] hover:text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer">
+                  <KeyRound className="w-3.5 h-3.5" />
+                  <span>Client Portal & Login</span>
+                </a>
+              </li>
+              <li>
+                <a href="#/admin" className="hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer">
+                  <Shield className="w-3.5 h-3.5 text-[#C8AA7A]" />
+                  <span>Admin CMS Panel</span>
+                </a>
+              </li>
               <li><a href="#/contact" className="hover:text-white transition-colors">Contact HQ & Studio Map</a></li>
               <li><a href="#/faq" className="hover:text-white transition-colors">FAQ & Support Center</a></li>
               <li><a href="#/blog" className="hover:text-white transition-colors">Architectural Insights</a></li>

@@ -32,12 +32,15 @@ import { dataStore } from '../services/dataStore';
 import type { ClientAccount, ServiceItem, ProjectItem, PricingTierItem, LeadItem, WorkItem } from '../services/dataStore';
 
 interface AdminPortalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+  isStandalonePage?: boolean;
 }
 
-export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => {
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(true);
+export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose, isStandalonePage = false }) => {
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    return localStorage.getItem('deinterio_admin_authenticated') === 'true';
+  });
   const [adminPassword, setAdminPassword] = useState('admin123');
   const [adminLoginError, setAdminLoginError] = useState('');
 
@@ -112,6 +115,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
     setAdminLoginError('');
     if (adminPassword === 'admin' || adminPassword === 'admin123') {
       setIsAdminAuthenticated(true);
+      localStorage.setItem('deinterio_admin_authenticated', 'true');
     } else {
       setAdminLoginError('Invalid admin password. Default password is admin123');
     }
@@ -445,8 +449,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#1A1917]/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in text-[#1A1917]">
-      <div className="relative w-full max-w-6xl rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+    <div className={isStandalonePage 
+      ? "min-h-screen bg-[#F8F6F0] pt-20 pb-16 px-4 sm:px-6 lg:px-8 text-[#1A1917]"
+      : "fixed inset-0 z-50 bg-[#1A1917]/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in text-[#1A1917]"
+    }>
+      <div className={isStandalonePage
+        ? "max-w-7xl mx-auto rounded-3xl bg-[#FAF8F4] border border-[#E2DDD6] shadow-xl overflow-hidden flex flex-col min-h-[85vh] w-full"
+        : "relative w-full max-w-6xl rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col"
+      }>
         
         {/* ========================================================================= */}
         {/* STEP 1: ADMIN LOGIN FORM                                                 */}
@@ -464,9 +474,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
                 </div>
               </div>
 
-              <button onClick={onClose} className="p-2 rounded-full bg-[#1A1917]/5 text-[#1A1917]">
-                <X className="w-5 h-5" />
-              </button>
+              {isStandalonePage ? (
+                <a
+                  href="#/"
+                  className="px-3.5 py-2 rounded-xl bg-[#1A1917]/5 hover:bg-[#1A1917]/10 text-[#1A1917] text-xs font-mono font-bold transition-colors cursor-pointer"
+                >
+                  ← Back to Website
+                </a>
+              ) : (
+                <button onClick={onClose} className="p-2 rounded-full bg-[#1A1917]/5 text-[#1A1917]">
+                  <X className="w-5 h-5" />
+                </button>
+              )}
             </div>
 
             <form onSubmit={handleAdminLogin} className="space-y-5">
@@ -522,15 +541,28 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
               </div>
 
               <div className="flex items-center gap-3">
+                {isStandalonePage && (
+                  <a
+                    href="#/"
+                    className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#FAF8F4] text-xs font-mono font-bold transition-colors cursor-pointer"
+                  >
+                    ← Back to Website
+                  </a>
+                )}
                 <button
-                  onClick={() => setIsAdminAuthenticated(false)}
+                  onClick={() => {
+                    setIsAdminAuthenticated(false);
+                    localStorage.removeItem('deinterio_admin_authenticated');
+                  }}
                   className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#C8AA7A] text-xs font-mono font-bold transition-colors cursor-pointer"
                 >
                   Sign Out Admin
                 </button>
-                <button onClick={onClose} className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white cursor-pointer">
-                  <X className="w-5 h-5" />
-                </button>
+                {!isStandalonePage && (
+                  <button onClick={onClose} className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white cursor-pointer">
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -643,7 +675,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
                             area: '2,800 sq.ft',
                             badge: 'Residential Villa • Deinterio Signature'
                           });
-                          setMaterialsInput('CenturyPly Marine Plywood, Hafele German Fittings, Italian Marble');
+                          setMaterialsInput('CenturyPly Marine Plywood, Hafele Precision Fittings, Italian Marble');
                         }}
                         className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-[#C8AA7A] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer border border-[#C8AA7A]/30"
                       >
@@ -870,7 +902,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
                           area: '2,800 sq.ft',
                           badge: 'Residential Villa • Deinterio Signature'
                         });
-                        setMaterialsInput('CenturyPly Marine Plywood, Hafele German Fittings, Italian Marble');
+                        setMaterialsInput('CenturyPly Marine Plywood, Hafele Precision Fittings, Italian Marble');
                       }}
                       className="px-5 py-2.5 rounded-xl bg-[#13362B] hover:bg-[#1b483a] text-[#C8AA7A] text-xs font-mono font-bold uppercase flex items-center gap-2 cursor-pointer shadow-md transition-colors"
                     >
@@ -1554,7 +1586,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
                   type="text"
                   value={materialsInput}
                   onChange={(e) => setMaterialsInput(e.target.value)}
-                  placeholder="e.g. CenturyPly Marine Plywood, Hettich German Fittings, Italian Botticino Marble, Saint-Gobain Gypsum"
+                  placeholder="e.g. CenturyPly Marine Plywood, Hettich Precision Fittings, Italian Botticino Marble, Saint-Gobain Gypsum"
                   className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
                 />
                 <span className="text-[10px] text-gray-500 font-mono">Separate multiple verified materials with commas.</span>

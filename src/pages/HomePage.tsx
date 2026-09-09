@@ -120,7 +120,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       </section>
 
       {/* 4. Featured Masterpiece Portfolio */}
-      <Portfolio />
+      <Portfolio onOpenBooking={onOpenBooking} />
 
       {/* 5. Live Projects Tracker */}
       <ProjectsTrackerSection

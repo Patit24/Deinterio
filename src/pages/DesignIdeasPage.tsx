@@ -40,7 +40,7 @@ interface DesignIdeasPageProps {
 }
 
 export const CATEGORIES_DATA = [
-  { slug: 'modular-kitchen', name: 'Modular Kitchen Designs', count: 124, icon: '🍳', heroImage: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80', desc: 'Ergonomic L-shaped, Parallel, and Island modular kitchens with German hardware & waterproof marine plywood.' },
+  { slug: 'modular-kitchen', name: 'Modular Kitchen Designs', count: 124, icon: '🍳', heroImage: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80', desc: 'Ergonomic L-shaped, Parallel, and Island modular kitchens with Hafele & Hettich precision hardware & waterproof marine plywood.' },
   { slug: 'wardrobe', name: 'Wardrobe Designs', count: 98, icon: '🚪', heroImage: 'https://images.unsplash.com/photo-1558882224-dda166733046?auto=format&fit=crop&w=1200&q=80', desc: 'Floor-to-ceiling sliding wardrobes, walk-in closets, and lacquered glass finishes.' },
   { slug: 'bathroom', name: 'Bathroom Designs', count: 86, icon: '🚿', heroImage: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80', desc: 'Spa-inspired luxury vanities, frameless glass shower enclosures, and Italian marble wall claddings.' },
   { slug: 'master-bedroom', name: 'Master Bedroom Designs', count: 112, icon: '🛏️', heroImage: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80', desc: 'Acoustic headboards, warm cove ceiling lighting, integrated dressers, and serene color palettes.' },
@@ -79,7 +79,7 @@ export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
   },
   {
     id: 'kit-2',
-    title: 'Parallel German Kitchen in Matt Charcoal & Oak',
+    title: 'Parallel Modular Kitchen in Matt Charcoal & Oak',
     categorySlug: 'modular-kitchen',
     categoryName: 'Modular Kitchen Designs',
     style: 'Contemporary Industrial',
@@ -412,7 +412,7 @@ export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
     gallery: ['https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1200&q=80'],
     description: 'Multi-functional guest bedroom designed with a hydraulic foldable Murphy queen wall bed that seamlessly transforms the room into a home office study space during daytime.',
     keyFeatures: ['Hydraulic Foldable Murphy Bed', 'Integrated Study Desk Panel', '2-Door Sliding Wardrobe', 'Soft Ambient Headboard LED'],
-    materials: ['German Hydraulic Wall Bed Hardware', 'Century Plywood Core', 'Laminate Finish'],
+    materials: ['Heavy-Duty Hydraulic Wall Bed Hardware', 'Century Plywood Core', 'Laminate Finish'],
     dimensions: '11ft x 10ft (110 sq.ft)',
     idealFor: 'Guest Rooms & Multi-purpose Spaces'
   },
@@ -446,7 +446,7 @@ export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
     gallery: ['https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?auto=format&fit=crop&w=1200&q=80'],
     description: 'Premium floor layout combining mirror-polished Italian Statuario marble slabs in the living hall with warm chevron SPC hardwood flooring in private bedrooms.',
     keyFeatures: ['Mirror-Polished Italian Marble Finish', '100% Waterproof SPC Hardwood Planks', 'Chevron Patterned Precision Jointing', 'Stain Resistant Sealing'],
-    materials: ['Italian Statuario Marble', 'German SPC Hardwood Planks', 'Epoxy Grout Filling'],
+    materials: ['Italian Statuario Marble', 'Heavy-Duty Waterproof SPC Hardwood Planks', 'Epoxy Grout Filling'],
     dimensions: 'Customized per Floor Plan',
     idealFor: 'Luxury Residences, Villas & Penthouses'
   },
@@ -496,8 +496,8 @@ export const DESIGN_IDEAS_ITEMS: DesignIdeaItem[] = [
     image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1000&q=80',
     gallery: ['https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80'],
     description: 'Smart space-saving furniture solution featuring a pull-out dining table that slides flush into living room cabinetry, combined with hidden storage ottoman seating.',
-    keyFeatures: ['Flush Pull-Out Extension Mechanism', 'Hidden Under-Seat Storage Ottomans', 'Scratch Resistant Acrylic Top', 'German Sliding Hardware'],
-    materials: ['German Transformable Hardware', 'Century Ply 710', 'Scratch-Proof Laminate'],
+    keyFeatures: ['Flush Pull-Out Extension Mechanism', 'Hidden Under-Seat Storage Ottomans', 'Scratch Resistant Acrylic Top', 'Precision Sliding Hardware'],
+    materials: ['Transformable Precision Hardware', 'Century Ply 710', 'Scratch-Proof Laminate'],
     dimensions: 'Custom Convertible Sizing',
     idealFor: 'Compact 1BHK, 2BHK & Studio Flats'
   },
@@ -542,7 +542,7 @@ export const DesignIdeasPage: React.FC<DesignIdeasPageProps> = ({ categorySlug, 
         ]}
         categoryBadge="DEINTERIO DESIGN GALLERY & CATALOG"
         title={activeCategoryObj ? activeCategoryObj.name : 'Curated Luxury Interior Design Ideas'}
-        subtitle={activeCategoryObj ? activeCategoryObj.desc : 'Browse hand-crafted architectural room concepts engineered with 100% itemized pricing, German hardware, and 10-year warranties.'}
+        subtitle={activeCategoryObj ? activeCategoryObj.desc : 'Browse hand-crafted architectural room concepts engineered with 100% itemized pricing, precision hardware, and 10-year warranties.'}
       />
 
       {/* Hero Category Showcase Banner when a category is selected */}

@@ -22,11 +22,14 @@ import {
 import { BeforeAfterSlider } from './BeforeAfterSlider';
 
 interface ProjectsTrackerSectionProps {
-  onOpenDashboard: () => void;
-  onOpenBooking: () => void;
+  onOpenDashboard?: () => void;
+  onOpenBooking?: () => void;
 }
 
-export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({ onOpenDashboard, onOpenBooking }) => {
+export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({ 
+  onOpenDashboard = () => { window.location.hash = '#/client-portal'; }, 
+  onOpenBooking = () => { window.location.hash = '#/calculator'; }
+}) => {
   const [activeFilter, setActiveFilter] = useState('ALL PROJECTS');
   const [selectedLiveProject, setSelectedLiveProject] = useState<any | null>(null);
   const [selectedCompletedProject, setSelectedCompletedProject] = useState<any | null>(null);

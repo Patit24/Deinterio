@@ -49,7 +49,7 @@ export const ComparisonTable: React.FC<ComparisonTableProps> = ({ showImage = fa
                 </div>
                 <h3 className="font-serif text-2xl font-normal">Action Area I Villa — New Town</h3>
                 <p className="text-xs text-gray-200 font-light">
-                  CenturyPly Club Prime 710 BWP Marine Plywood & Hafele German fittings throughout.
+                  CenturyPly Club Prime 710 BWP Marine Plywood & Hafele certified fittings throughout.
                 </p>
               </div>
             </motion.div>

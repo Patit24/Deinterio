@@ -10,14 +10,24 @@ import { Footer } from './components/Footer';
 
 // Modals
 import { ConsultationBooking } from './components/ConsultationBooking';
-import { ClientDashboard } from './components/ClientDashboard';
-import { AdminPortal } from './components/AdminPortal';
 
 export function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [bookingCategory, setBookingCategory] = useState<string | undefined>(undefined);
+
+  const handleOpenBooking = (category?: string) => {
+    setBookingCategory(category);
+    setIsBookingOpen(true);
+  };
+
+  const handleOpenDashboard = () => {
+    window.location.hash = '#/client-portal';
+  };
+
+  const handleOpenAdmin = () => {
+    window.location.hash = '#/admin';
+  };
 
   // Initialize Lenis Smooth Scroll Engine
   useEffect(() => {
@@ -93,40 +103,31 @@ export function App() {
 
       {/* 4. Multi-Page Navigation Header */}
       <Navbar
-        onOpenBooking={() => setIsBookingOpen(true)}
-        onOpenDashboard={() => setIsDashboardOpen(true)}
-        onOpenAdmin={() => setIsAdminOpen(true)}
+        onOpenBooking={() => handleOpenBooking()}
+        onOpenDashboard={handleOpenDashboard}
+        onOpenAdmin={handleOpenAdmin}
       />
 
       {/* 5. Main Content Route Container */}
       <main className={isLoading ? 'opacity-0' : 'opacity-100 transition-opacity duration-700'}>
         <Router
-          onOpenBooking={() => setIsBookingOpen(true)}
-          onOpenDashboard={() => setIsDashboardOpen(true)}
+          onOpenBooking={handleOpenBooking}
+          onOpenDashboard={handleOpenDashboard}
         />
       </main>
 
       {/* 6. Global Multi-Page Footer */}
       <Footer
-        onOpenBooking={() => setIsBookingOpen(true)}
-        onOpenDashboard={() => setIsDashboardOpen(true)}
-        onOpenAdmin={() => setIsAdminOpen(true)}
+        onOpenBooking={() => handleOpenBooking()}
+        onOpenDashboard={handleOpenDashboard}
+        onOpenAdmin={handleOpenAdmin}
       />
 
       {/* Modals & Portals */}
       <ConsultationBooking
         isOpen={isBookingOpen}
         onClose={() => setIsBookingOpen(false)}
-      />
-
-      <ClientDashboard
-        isOpen={isDashboardOpen}
-        onClose={() => setIsDashboardOpen(false)}
-      />
-
-      <AdminPortal
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
+        initialCategory={bookingCategory}
       />
 
     </div>

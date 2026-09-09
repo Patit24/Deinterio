@@ -15,9 +15,11 @@ import { BlogPage } from '../pages/BlogPage';
 import { ArticleDetailPage } from '../pages/ArticleDetailPage';
 import { LegalPage } from '../pages/LegalPage';
 import { DesignIdeasPage } from '../pages/DesignIdeasPage';
+import { ClientPortalPage } from '../pages/ClientPortalPage';
+import { AdminPortalPage } from '../pages/AdminPortalPage';
 
 interface RouterProps {
-  onOpenBooking: () => void;
+  onOpenBooking: (category?: string) => void;
   onOpenDashboard?: () => void;
 }
 
@@ -94,6 +96,18 @@ export const Router: React.FC<RouterProps> = ({ onOpenBooking, onOpenDashboard }
 
     case 'terms':
       return <LegalPage type="terms" />;
+
+    case 'client-portal':
+    case 'portal':
+    case 'login':
+    case 'client-login':
+    case 'signup':
+      return <ClientPortalPage onOpenBooking={onOpenBooking} />;
+
+    case 'admin':
+    case 'admin-portal':
+    case 'admin-cms':
+      return <AdminPortalPage />;
 
     default:
       return <HomePage onOpenBooking={onOpenBooking} onOpenDashboard={handleOpenDashboard} />;

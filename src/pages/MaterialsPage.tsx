@@ -39,7 +39,7 @@ export const MaterialsPage: React.FC<MaterialsPageProps> = ({ onOpenBooking }) =
               100% CenturyPly & Hettich <span className="italic text-[#C8AA7A]">Authenticity</span>
             </h3>
             <p className="text-xs sm:text-sm text-[#D4C3A3] font-light leading-relaxed">
-              Every dispatched crate includes digital QR codes linking directly to CenturyPly Club Prime BWP 710 plywood holograms and Hettich Germany laser-etched serial numbers.
+              Every dispatched crate includes digital QR codes linking directly to CenturyPly Club Prime BWP 710 plywood holograms and Hettich laser-etched serial numbers.
             </p>
           </div>
 

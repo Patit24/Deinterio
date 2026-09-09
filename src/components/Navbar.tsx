@@ -79,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       dropdown: [
         { label: 'All Services Directory', desc: 'Complete architectural interior verticals', href: '#/services' },
         { label: 'Turnkey Luxury Interiors', desc: 'End-to-end residential transformations', href: '#/services/turnkey-luxury-interiors' },
-        { label: 'German Modular Kitchens', desc: 'Hafele hardware & acrylic cabinetry', href: '#/services/modular-kitchens' },
+        { label: 'Modular Kitchen Architecture', desc: 'Hafele & Hettich fittings, acrylic cabinetry', href: '#/services/modular-kitchens' },
         { label: 'Master Bedroom Suites', desc: 'Custom wardrobes & acoustic acoustics', href: '#/services/master-bedroom-suites' },
         { label: 'Smart Home Automation', desc: 'IoT climate, lighting & shade control', href: '#/services/smart-home-automation' },
         { label: 'Heritage Restoration', desc: 'Colonial & heritage home preservation', href: '#/services/heritage-restoration' },
@@ -92,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         { label: 'Curated Residences', desc: 'Ballygunge villas & New Town penthouses', href: '#/projects' },
         { label: 'Kolkata Live Tracker Map', desc: 'Inspect live ongoing site telemetry', href: '#/projects' },
         { label: 'Ballygunge Villa (#D-108)', desc: '100% completed heritage transformation', href: '#/projects/ballygunge-villa' },
-        { label: 'New Town Penthouse (#D-402)', desc: 'Active 72% milestone progress project', href: '#/projects/new-town-penthouse' },
+        { label: 'New Town Penthouse (#D-402)', desc: 'Active 72% milestone progress project', href: '#/projects/uniworld-penthouse' },
       ],
     },
     {
@@ -137,21 +137,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="hidden xs:inline">+91 98300 00000</span>
             </a>
 
-            <button
-              onClick={onOpenDashboard}
+            <a
+              href="#/client-portal"
               className="text-[#C8AA7A] hover:text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <KeyRound className="w-3 h-3 text-[#C8AA7A]" />
-              <span>Client Dashboard</span>
-            </button>
+              <span>Login / Client Portal</span>
+            </a>
 
-            <button
-              onClick={onOpenAdmin}
+            <a
+              href="#/admin"
               className="text-[#D4C3A3]/60 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer hidden md:flex"
             >
               <Shield className="w-3 h-3 text-[#D4C3A3]/60" />
               <span>Admin Panel</span>
-            </button>
+            </a>
           </div>
         </div>
       </div>
@@ -376,27 +376,23 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <div className="space-y-3 pt-6 border-t border-[#E2DDD6]">
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenDashboard();
-                }}
+              <a
+                href="#/client-portal"
+                onClick={() => setMobileMenuOpen(false)}
                 className="w-full py-3.5 rounded-xl bg-white border border-[#D4C3A3] text-center text-xs font-sans font-bold text-[#13362B] flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
                 <KeyRound className="w-4 h-4 text-[#8C6D3B]" />
-                <span>Client Dashboard</span>
-              </button>
+                <span>Client Portal (Login & Register)</span>
+              </a>
 
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenAdmin();
-                }}
+              <a
+                href="#/admin"
+                onClick={() => setMobileMenuOpen(false)}
                 className="w-full py-3 rounded-xl border border-[#E2DDD6] bg-white text-center text-xs font-sans text-[#6B6560] flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Shield className="w-4 h-4" />
                 <span>Admin CMS Panel</span>
-              </button>
+              </a>
 
               <button
                 onClick={() => {

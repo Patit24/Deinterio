@@ -72,7 +72,7 @@ export const ProcessPage: React.FC<ProcessPageProps> = ({ onOpenBooking }) => {
     <>
       <SEOHead
         title="Our 8-Step Turnkey Execution Process"
-        description="From discovery consultation and 3D laser scan to German woodworking, 45-point QA audit, and 10-year warranty handover."
+        description="From discovery consultation and 3D laser scan to precision factory joinery, 45-point QA audit, and 10-year warranty handover."
       />
 
       <Breadcrumbs

@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { User, Video, MapPin, CheckCircle2, X, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { dataStore } from '../services/dataStore';
 
 interface ConsultationBookingProps {
   isOpen: boolean;
   onClose: () => void;
+  initialCategory?: string;
 }
 
-export const ConsultationBooking: React.FC<ConsultationBookingProps> = ({ isOpen, onClose }) => {
+export const ConsultationBooking: React.FC<ConsultationBookingProps> = ({ isOpen, onClose, initialCategory }) => {
   const [selectedFormat, setSelectedFormat] = useState('In-Person Site Visit');
   const [selectedDate, setSelectedDate] = useState('2026-08-10');
   const [name, setName] = useState('');
@@ -20,11 +22,33 @@ export const ConsultationBooking: React.FC<ConsultationBookingProps> = ({ isOpen
   const [message, setMessage] = useState('');
   const [isConfirmed, setIsConfirmed] = useState(false);
 
+  React.useEffect(() => {
+    if (initialCategory) {
+      setMessage(`Inquiry regarding: ${initialCategory}`);
+    }
+  }, [initialCategory, isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsConfirmed(true);
+
+    try {
+      dataStore.addLead({
+        name: name.trim() || 'Consultation Client',
+        email: email.trim() || `${phone}@client.deinterio.com`,
+        phone: phone.trim(),
+        type: `${propertyCategory} - ${propertyType}`,
+        budget: budget,
+        city: location,
+        status: 'NEW',
+        details: `${selectedFormat} scheduled for ${selectedDate}. Message: ${message || 'Consultation booking'}`,
+      });
+    } catch (err) {
+      console.warn('Could not record booking lead:', err);
+    }
+
     confetti({
       particleCount: 100,
       spread: 70,
