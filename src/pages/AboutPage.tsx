@@ -103,10 +103,10 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenBooking }) => {
               },
               {
                 name: 'Vikramaditya Roy',
-                role: 'Head of Spatial Computing & IoT',
+                role: 'Head of Site Telemetry & Engineering',
                 exp: '12+ Yrs Experience • IIT Kharagpur',
                 image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80',
-                bio: 'Pioneered our live Sub-Zero IoT PM telemetry app and automated climate and lighting integrations.',
+                bio: 'Pioneered our live site PM telemetry app and precision factory joinery quality control systems.',
               },
               {
                 name: 'Siddharth Banerjee',

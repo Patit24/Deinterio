@@ -199,7 +199,7 @@ export const TechStackSection: React.FC = () => {
     },
     {
       question: 'Which spatial feature is most important to you?',
-      options: ['Open Layout & Daylight', 'Acoustic Privacy & Study', 'Custom Modular Kitchen', 'Integrated IoT Telemetry'],
+      options: ['Open Layout & Daylight', 'Acoustic Privacy & Study', 'Custom Modular Kitchen', 'Factory Joinery & Paneling'],
     },
     {
       question: 'What material finish aligns with your aesthetic?',
@@ -263,11 +263,11 @@ export const TechStackSection: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-sm sm:text-base text-[#6B6862] font-light max-w-xl leading-relaxed tracking-wide"
           >
-            Fusing classical Italian design principles with cutting-edge spatial computing and smart home telemetry.
+            Fusing classical Italian design principles with factory-precision CNC joinery and live site project telemetry.
           </motion.p>
         </motion.div>
 
-        {/* Right 3D Villa Render + Floating IoT Sensor Nodes + Live Telemetry Panel (6 Cols) */}
+        {/* Right 3D Villa Render + Floating Sensor Nodes + Live Telemetry Panel (6 Cols) */}
         <motion.div 
           style={{ y: houseY }}
           className="lg:col-span-6 relative flex items-center justify-center min-h-[380px]"
@@ -301,12 +301,12 @@ export const TechStackSection: React.FC = () => {
               className="w-full h-full object-contain filter drop-shadow-2xl group-hover:scale-105 transition-transform duration-700"
             />
 
-            {/* Floating IoT Nodes around Villa */}
+            {/* Floating Architectural Nodes around Villa */}
             {[
-              { top: '15%', left: '20%', label: 'Smart Air' },
-              { top: '25%', left: '78%', label: 'IoT Sensor' },
-              { top: '65%', left: '15%', label: 'Audio Node' },
-              { top: '75%', left: '82%', label: 'Security' },
+              { top: '15%', left: '20%', label: 'Airflow Scan' },
+              { top: '25%', left: '78%', label: 'CNC Joinery' },
+              { top: '65%', left: '15%', label: 'Acoustic Wall' },
+              { top: '75%', left: '82%', label: 'Vastu Grid' },
             ].map((node, idx) => (
               <motion.div
                 key={idx}
@@ -341,7 +341,7 @@ export const TechStackSection: React.FC = () => {
                 <span className="font-bold text-white">98.4%</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/60">IoT Telemetry:</span>
+                <span className="text-white/60">Site Telemetry:</span>
                 <span className="font-bold text-[#A88B57]">0.04ms</span>
               </div>
             </div>

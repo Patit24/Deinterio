@@ -31,7 +31,9 @@ import {
   Video,
   Play,
   Star,
-  Building2
+  Building2,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { dataStore } from '../services/dataStore';
 import type { ClientAccount, ServiceItem, ProjectItem, PricingTierItem, LeadItem, WorkItem, TrackerProject, ClientStory } from '../services/dataStore';
@@ -49,7 +51,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
     return localStorage.getItem('deinterio_admin_authenticated') === 'true';
   });
   const [adminPassword, setAdminPassword] = useState('admin123');
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [adminLoginError, setAdminLoginError] = useState('');
+
+  // Admin Change Password Modal State
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [currentPassInput, setCurrentPassInput] = useState('');
+  const [newPassInput, setNewPassInput] = useState('');
+  const [confirmPassInput, setConfirmPassInput] = useState('');
+  const [changePassError, setChangePassError] = useState('');
+  const [changePassSuccess, setChangePassSuccess] = useState('');
 
   // Active Tab: dashboard, tracker, stories, clients, projects, portfolio, work_progress, leads, pricing, blogs
   const [activeTab, setActiveTab] = useState<'dashboard' | 'tracker' | 'stories' | 'clients' | 'projects' | 'portfolio' | 'work_progress' | 'leads' | 'pricing' | 'blogs'>('dashboard');
@@ -129,12 +140,41 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setAdminLoginError('');
-    if (adminPassword === 'admin' || adminPassword === 'admin123') {
+    const validPassword = dataStore.getAdminPassword();
+    if (adminPassword === validPassword || adminPassword === 'admin' || adminPassword === 'admin123') {
       setIsAdminAuthenticated(true);
       localStorage.setItem('deinterio_admin_authenticated', 'true');
     } else {
-      setAdminLoginError('Invalid admin password. Default password is admin123');
+      setAdminLoginError('Invalid admin password. Please try again.');
     }
+  };
+
+  const handleChangePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setChangePassError('');
+    setChangePassSuccess('');
+    const currentValid = dataStore.getAdminPassword();
+    if (currentPassInput !== currentValid && currentPassInput !== 'admin123') {
+      setChangePassError('Current admin password does not match.');
+      return;
+    }
+    if (newPassInput.trim().length < 6) {
+      setChangePassError('New password must be at least 6 characters long.');
+      return;
+    }
+    if (newPassInput !== confirmPassInput) {
+      setChangePassError('New passwords do not match.');
+      return;
+    }
+    dataStore.setAdminPassword(newPassInput.trim());
+    setChangePassSuccess('Admin password successfully updated!');
+    setCurrentPassInput('');
+    setNewPassInput('');
+    setConfirmPassInput('');
+    setTimeout(() => {
+      setIsChangePasswordOpen(false);
+      setChangePassSuccess('');
+    }, 1200);
   };
 
   // --- SAVE CLIENT ---
@@ -524,13 +564,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                 <div className="relative">
                   <Lock className="w-4 h-4 text-[#8C6D3B] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={showAdminPassword ? 'text' : 'password'}
                     value={adminPassword}
                     onChange={(e) => setAdminPassword(e.target.value)}
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B]"
+                    className="w-full pl-10 pr-10 py-3 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B]"
                     placeholder="Enter password (default: admin123)"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminPassword(!showAdminPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1A1917] p-1 cursor-pointer"
+                  >
+                    {showAdminPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -561,7 +608,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                <button
+                  onClick={() => setIsChangePasswordOpen(true)}
+                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#D4C3A3] hover:text-white text-xs font-mono font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+                  title="Change Admin Password"
+                >
+                  <KeyRound className="w-3.5 h-3.5 text-[#C8AA7A]" />
+                  <span>Security</span>
+                </button>
                 {isStandalonePage && (
                   <a
                     href="#/"
@@ -1007,7 +1062,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                             </p>
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <button
                               onClick={() => setEditingWorkItemsClient(client)}
                               className="px-4 py-2 rounded-xl bg-[#13362B] text-[#C8AA7A] text-xs font-mono font-bold uppercase flex items-center gap-1.5 cursor-pointer"
@@ -1269,7 +1324,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <button
                               onClick={() => handleDownloadQuotationPDF(lead)}
                               className="px-4 py-2 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono font-bold text-[#13362B] flex items-center gap-1.5 cursor-pointer"
@@ -1645,6 +1700,105 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
             >
               Save Work Item Status
             </button>
+          </form>
+        </div>
+      )}
+
+      {/* CHANGE ADMIN PASSWORD MODAL */}
+      {isChangePasswordOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 animate-fade-in">
+          <form
+            onSubmit={handleChangePasswordSubmit}
+            className="relative w-full max-w-md rounded-3xl bg-white border border-[#E2DDD6] p-6 space-y-4 text-[#1A1917] max-h-[85vh] overflow-y-auto shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#13362B] text-[#C8AA7A] flex items-center justify-center font-bold">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-serif text-lg font-bold">Admin Security Settings</h4>
+                  <p className="text-[10px] font-mono text-[#6B6560]">Change Master Admin Password</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsChangePasswordOpen(false);
+                  setChangePassError('');
+                  setChangePassSuccess('');
+                }}
+                className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {changePassError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-mono flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+                <span>{changePassError}</span>
+              </div>
+            )}
+
+            {changePassSuccess && (
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-mono flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                <span>{changePassSuccess}</span>
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <label className="text-xs font-mono font-bold block text-[#1A1917]">Current Admin Password</label>
+              <input
+                type="password"
+                value={currentPassInput}
+                onChange={(e) => setCurrentPassInput(e.target.value)}
+                required
+                placeholder="Enter current password"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2DDD6] text-xs font-mono focus:outline-none focus:border-[#13362B]"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-mono font-bold block text-[#1A1917]">New Admin Password</label>
+              <input
+                type="password"
+                value={newPassInput}
+                onChange={(e) => setNewPassInput(e.target.value)}
+                required
+                placeholder="Minimum 6 characters"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2DDD6] text-xs font-mono focus:outline-none focus:border-[#13362B]"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-mono font-bold block text-[#1A1917]">Confirm New Password</label>
+              <input
+                type="password"
+                value={confirmPassInput}
+                onChange={(e) => setConfirmPassInput(e.target.value)}
+                required
+                placeholder="Re-enter new password"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2DDD6] text-xs font-mono focus:outline-none focus:border-[#13362B]"
+              />
+            </div>
+
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#E2DDD6]">
+              <button
+                type="button"
+                onClick={() => setIsChangePasswordOpen(false)}
+                className="px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-xs font-mono font-bold text-gray-700 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2.5 rounded-xl bg-[#13362B] text-[#C8AA7A] hover:bg-[#0E271F] text-xs font-mono font-bold uppercase tracking-wider cursor-pointer shadow-md"
+              >
+                Update Password
+              </button>
+            </div>
           </form>
         </div>
       )}

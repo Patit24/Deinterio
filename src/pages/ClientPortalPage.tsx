@@ -60,13 +60,10 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
   const [regSuccess, setRegSuccess] = useState('');
 
   // Dashboard Tabs & Filter States
-  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'photos' | 'documents' | 'contact' | 'chat'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'photos' | 'documents' | 'contact'>('overview');
   const [workStatusFilter, setWorkStatusFilter] = useState<'ALL' | 'COMPLETED' | 'IN_PROGRESS' | 'PENDING'>('ALL');
   const [photoCategoryFilter, setPhotoCategoryFilter] = useState<'ALL' | 'Before Work' | 'During Work' | 'Completed Work'>('ALL');
   const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null);
-
-  // Chat Message Input
-  const [newMessage, setNewMessage] = useState('');
   const [approvedItems, setApprovedItems] = useState<string[]>([]);
 
   // Load persistent session on mount
@@ -203,40 +200,6 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
     setActiveAccount(newClient);
     localStorage.setItem('deinterio_active_client_id', newClient.id);
     setRegSuccess(`Account successfully created! Your username is "${cleanUser}" and default password is "password123".`);
-  };
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !activeAccount) return;
-
-    const updatedAccount = { ...activeAccount };
-    updatedAccount.chatMessages = updatedAccount.chatMessages || [];
-    updatedAccount.chatMessages.push({
-      sender: activeAccount.clientName,
-      text: newMessage,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isClient: true,
-    });
-
-    // Simulated automated response from Project Manager
-    setTimeout(() => {
-      const pmReply = {
-        sender: `${activeAccount.manager} (Project Manager)`,
-        text: `Thank you for your update, ${activeAccount.clientName.split(' ')[0]}. Our site supervisor has logged this request and our woodworking team will proceed accordingly.`,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isClient: false,
-      };
-      const refreshed = dataStore.getClients().find((c) => c.id === activeAccount.id);
-      if (refreshed) {
-        refreshed.chatMessages.push(pmReply);
-        dataStore.saveClient(refreshed);
-        setActiveAccount({ ...refreshed });
-      }
-    }, 1500);
-
-    dataStore.saveClient(updatedAccount);
-    setActiveAccount({ ...updatedAccount });
-    setNewMessage('');
   };
 
   const handleApprove = (title: string) => {
@@ -684,7 +647,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
             <div className="space-y-6">
               
               {/* Top Progress Summary Banner */}
-              <div className="p-8 rounded-3xl bg-[#13362B] text-white space-y-6 shadow-xl relative overflow-hidden">
+              <div className="p-5 sm:p-8 rounded-3xl bg-[#13362B] text-white space-y-6 shadow-xl relative overflow-hidden">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <span className="text-[10px] font-mono uppercase tracking-widest text-[#C8AA7A] block font-bold">

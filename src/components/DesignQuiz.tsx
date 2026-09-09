@@ -20,7 +20,7 @@ export const DesignQuiz: React.FC = () => {
       options: [
         { label: 'Organic Warmth & Minimal Sand', desc: 'Soft ivory curves, travertine stone, and ambient indirect illumination.', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80' },
         { label: 'Monolithic Brutalist Luxury', desc: 'Dark espresso oak, honed graphite marble, and double-height ceiling voids.', img: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80' },
-        { label: 'Cyber-Glass & Anodized Bronze', desc: 'Sleek glassmorphism, floating brass rings, and smart IoT louvers.', img: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Architectural Fluted Glass & Bronze', desc: 'Sleek fluted glassmorphism, floating brass profiles, and acoustic louvers.', img: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=600&q=80' },
         { label: 'Heritage Revival Neoclassic', desc: 'Intricate crown moldings, herringbone parquet, and crystal chandeliers.', img: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80' },
       ],
     },

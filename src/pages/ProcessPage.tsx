@@ -47,8 +47,8 @@ export const ProcessPage: React.FC<ProcessPageProps> = ({ onOpenBooking }) => {
     },
     {
       num: '06',
-      title: 'On-Site Precision Assembly & IoT Cabling',
-      desc: 'Factory modules arrive in sealed crates. Our certified carpenters install joinery while electrical engineers configure hardwired Sub-Zero IoT sensors.',
+      title: 'On-Site Precision Assembly & Hardwired Joinery',
+      desc: 'Factory modules arrive in sealed crates. Our certified carpenters install joinery while electrical engineers supervise wiring and dustless modular fit-out.',
       deliverable: 'Clean Dustless On-Site Execution',
       duration: '14–21 Days',
     },

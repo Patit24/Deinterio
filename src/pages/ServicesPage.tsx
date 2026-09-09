@@ -16,7 +16,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onOpenBooking }) => 
     <>
       <SEOHead
         title="Architectural Services & Spatial Tech"
-        description="Explore Deinterio's architectural services including turnkey luxury interiors, modular kitchens, master suites, and IoT smart home automation."
+        description="Explore Deinterio's architectural services including turnkey luxury interiors, modular kitchens, master suites, and heritage restoration across Kolkata."
       />
 
       <Breadcrumbs

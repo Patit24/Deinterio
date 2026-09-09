@@ -434,7 +434,7 @@ const INITIAL_SERVICES: ServiceItem[] = [
     problem: 'Traditional kitchen contractors suffer from warping plywood under Indian humidity, bubbling laminates, rusty hinges within 2 years, and unorganized storage space.',
     solution: 'Deinterio Modular Kitchens feature 100% CenturyPly Club Prime BWP Marine Plywood, 0.5mm PUR edge-banded acrylic doors, Hafele soft-close tandem boxes, and custom spice/grain pullouts.',
     materials: ['CenturyPly Club Prime 710 BWP Plywood', 'Hafele Sensys 110° Soft-Close Hinges', 'Merino High-Gloss Acrylic Sheet', 'Kaff Smart Touch Induction & Chimney', 'Quartz Heat & Stain Resistant Countertop'],
-    process: ['3D Laser Wall & Plumbing Audit', 'Precision Factory Joinery Woodworking', 'Live IoT Progress Dispatch', 'On-Site Dustless Installation', 'Final 45-Point Water & Hinge Inspection'],
+    process: ['3D Laser Wall & Plumbing Audit', 'Precision Factory Joinery Woodworking', 'Live PM Progress Dispatch', 'On-Site Dustless Installation', 'Final 45-Point Water & Hinge Inspection'],
   },
   {
     id: 'master-bedrooms',
@@ -485,7 +485,7 @@ const INITIAL_SERVICES: ServiceItem[] = [
     deliverables: ['Original Teak Structural Restoration', 'Lime Plaster & Heritage Masonry', 'Antique Brass Hardware Retrofitting', 'Concealed Modern Ducted Climate Control'],
     highlights: 'Restoring historic residences across Ballygunge, Alipore, and North Kolkata with authentic craftsmanship.',
     problem: 'Heritage properties suffer from dampness, deteriorating lime mortar, decaying woodwork, and outdated electrical wiring that clashes with traditional aesthetics.',
-    solution: 'Deinterio deploys structural preservation specialists, authentic chemical damp-proofing, handcrafted Burma teak joinery, and concealed IoT climate systems that preserve colonial heritage.',
+    solution: 'Deinterio deploys structural preservation specialists, authentic chemical damp-proofing, handcrafted Burma teak joinery, and concealed HVAC climate systems that preserve colonial heritage.',
     materials: ['Reclaimed Burma Teak', 'Antique Solid Brass Fittings', 'Sika Chemical Damp Proofing', 'Breathable Lime Plaster', 'Belgian Stained Glass'],
     process: ['Heritage Structural & Damp Audit', '3D Laser Architectural Documentation', 'Craftsman Joinery Restoration', 'Concealed Modern Infrastructure', 'Handover & Heritage Preservation Dossier'],
   },
@@ -851,6 +851,15 @@ class DataStoreService {
     } catch (err) {
       console.error('Error writing dataStore to localStorage:', err);
     }
+  }
+
+  // --- ADMIN SECURITY & AUTH ---
+  getAdminPassword(): string {
+    return this.getStorage<string>('deinterio_admin_password', 'admin123');
+  }
+
+  setAdminPassword(newPass: string): void {
+    this.setStorage('deinterio_admin_password', newPass.trim() || 'admin123');
   }
 
   // --- CLIENT ACCOUNTS ---

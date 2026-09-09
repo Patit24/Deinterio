@@ -117,7 +117,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.96 }}
             onClick={onOpenBooking}
-            className="group relative inline-flex items-center justify-center gap-3 px-9 py-4 rounded-full bg-[#13362B] text-white text-xs font-mono font-bold uppercase tracking-widest shadow-xl hover:bg-[#0D241D] transition-all duration-300 cursor-pointer"
+            className="group relative inline-flex items-center justify-center gap-2.5 sm:gap-3 px-6 sm:px-9 py-3.5 sm:py-4 rounded-full bg-[#13362B] text-white text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider sm:tracking-widest shadow-xl hover:bg-[#0D241D] transition-all duration-300 cursor-pointer w-full sm:w-auto"
           >
             <span>BOOK FREE DESIGN CONSULTATION</span>
             <ArrowRight className="w-4 h-4 text-[#D4AF37] group-hover:translate-x-1.5 transition-transform duration-300" />
@@ -127,7 +127,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
             onClick={() => setIsPlayingVideo(true)}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-white border border-[#1A1917]/10 text-[#1A1917] text-xs font-mono font-semibold uppercase tracking-wider hover:border-[#A88B57] shadow-sm transition-colors cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-white border border-[#1A1917]/10 text-[#1A1917] text-[11px] sm:text-xs font-mono font-semibold uppercase tracking-wider hover:border-[#A88B57] shadow-sm transition-colors cursor-pointer w-full sm:w-auto"
           >
             <Play className="w-4 h-4 text-[#A88B57] fill-[#A88B57]" />
             <span>WATCH REAL HOME STORIES</span>
@@ -203,7 +203,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePortfolio, o
               <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-mono font-bold text-[#1A1917] uppercase tracking-wider shadow-xs">
                 3D Villa Cutout
               </span>
-              <h4 className="font-serif text-lg text-white font-medium mt-2">Smart IoT Telemetry</h4>
+              <h4 className="font-serif text-lg text-white font-medium mt-2">3D Spatial Architecture</h4>
             </div>
           </motion.div>
 

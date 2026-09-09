@@ -84,7 +84,7 @@ function ArchitecturalRoom({ lightingMode, materialColor }: { lightingMode: 'day
           </div>
           <div className="absolute left-8 top-0 hidden group-hover:block w-48 p-3 rounded-xl bg-white border border-[#1A1917]/15 text-xs text-[#1A1917] backdrop-blur-md z-20 shadow-2xl">
             <span className="font-semibold text-[#8C6D3B] block">Bespoke Chandelier</span>
-            <span>24k Gold Electroplated Ring with Smart IoT Spectrum Control.</span>
+            <span>24k Gold Electroplated Ring with Concealed Ambient Warm Coves.</span>
           </div>
         </div>
       </Html>

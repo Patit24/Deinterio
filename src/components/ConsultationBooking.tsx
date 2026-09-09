@@ -11,7 +11,7 @@ interface ConsultationBookingProps {
 
 export const ConsultationBooking: React.FC<ConsultationBookingProps> = ({ isOpen, onClose, initialCategory }) => {
   const [selectedFormat, setSelectedFormat] = useState('In-Person Site Visit');
-  const [selectedDate, setSelectedDate] = useState('2026-08-10');
+  const [selectedDate, setSelectedDate] = useState(() => new Date(Date.now() + 86400000).toISOString().split('T')[0]);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -86,7 +86,7 @@ export const ConsultationBooking: React.FC<ConsultationBookingProps> = ({ isOpen
               {/* Consultation Format */}
               <div>
                 <label className="text-xs uppercase font-mono text-[#5A5852] block mb-2 font-semibold">01 / Preferred Consultation Mode</label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                   {[
                     { format: 'In-Person Site Visit', icon: MapPin },
                     { format: 'Office Meeting', icon: User },
@@ -238,6 +238,7 @@ export const ConsultationBooking: React.FC<ConsultationBookingProps> = ({ isOpen
                   <label className="text-xs uppercase font-mono text-[#5A5852] block mb-1">Preferred Date</label>
                   <input
                     type="date"
+                    min={new Date().toISOString().split('T')[0]}
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                     className="w-full p-3.5 rounded-xl bg-white border border-[#1A1917]/10 text-xs text-[#1A1917] focus:outline-none focus:border-[#A88B57]"
