@@ -1,3 +1,19 @@
+export interface RoomDimensionData {
+  id: string;
+  roomName: string;
+  length: number;
+  width: number;
+  sqft: number;
+  preset?: string;
+}
+
+export interface ServiceScopeData {
+  furniture: boolean;
+  painting: boolean;
+  electrical: boolean;
+  falseCeiling: boolean;
+}
+
 export interface QuotationPrintData {
   quotationId: string;
   date: string;
@@ -9,6 +25,10 @@ export interface QuotationPrintData {
   sizeVariant?: string;
   carpetArea?: string;
   packageTier: string;
+  ratePerSqft?: number;
+  totalAreaSqft?: number;
+  falseCeilingSqft?: number;
+  falseCeilingCost?: number;
   rooms?: {
     livingRoom: number;
     kitchen: number;
@@ -16,6 +36,8 @@ export interface QuotationPrintData {
     bathroom: number;
     dining: number;
   };
+  roomDimensions?: RoomDimensionData[];
+  serviceScope?: ServiceScopeData;
   estimatedWeeks?: number;
   totalAmountFormatted: string;
   notes?: string;
@@ -33,8 +55,10 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
     : 'Complete Turnkey Residential Interior';
 
   const tierSpecs =
-    data.packageTier === 'Luxury'
+    data.packageTier === 'Premium'
       ? {
+          name: 'Premium',
+          rate: data.ratePerSqft || 1500,
           ply: 'CenturyPly Club Prime 710 BWP (100% Boiling Water Proof Marine Grade)',
           hardware: 'Hafele / Blum Austrian Soft-Close Tandem Drawers & Hinges',
           finish: 'PU Polish & 1.2mm Merino High-Gloss Acrylic Laminates',
@@ -42,8 +66,10 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
           countertop: 'KalingaStone Quartz / Nano-White Quartz 18mm with Beveled Edges',
           warranty: '10 Years Comprehensive Digital Warranty',
         }
-      : data.packageTier === 'Premium'
+      : data.packageTier === 'Luxury'
       ? {
+          name: 'Luxury',
+          rate: data.ratePerSqft || 1200,
           ply: 'CenturyPly Sainik 710 BWP Marine Grade / Greenply Club Grade',
           hardware: 'Hettich Germany Soft-Close Hinges & Telescopic Channels',
           finish: '1mm Merino / Greenlam Suede & High-Gloss Laminate Finishes',
@@ -52,6 +78,8 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
           warranty: '10 Years Structural Warranty',
         }
       : {
+          name: 'Economy',
+          rate: data.ratePerSqft || 1000,
           ply: 'ISI 710 Grade Hardwood BWP Plywood with Anti-Termite Treatment',
           hardware: 'Ebco / Godrej High-Durability Hydraulic Hardware',
           finish: '0.8mm - 1.0mm Anti-Scratch Decorative Laminates',
@@ -59,6 +87,23 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
           countertop: 'Premium Polished Granite Slab',
           warranty: '5 Years Structural Warranty',
         };
+
+  const scope = data.serviceScope || {
+    furniture: true,
+    painting: true,
+    electrical: true,
+    falseCeiling: true,
+  };
+
+  const dimRows = (data.roomDimensions && data.roomDimensions.length > 0)
+    ? data.roomDimensions.map(d => `
+        <tr>
+          <td><strong>${d.roomName}</strong></td>
+          <td>${d.length} ft × ${d.width} ft</td>
+          <td style="text-align: right; font-family: monospace; font-weight: 600;">${d.sqft} sq.ft</td>
+        </tr>
+      `).join('')
+    : `<tr><td colspan="3" style="text-align: center; color: #666;">Standard Floor Plan (${data.carpetArea || 'As measured'})</td></tr>`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -86,8 +131,8 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       color: #1A1917;
       background: #FFFFFF;
-      font-size: 11px;
-      line-height: 1.5;
+      font-size: 10.5px;
+      line-height: 1.45;
     }
 
     .toolbar {
@@ -96,7 +141,7 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
       background: #13362B;
       color: #FFF;
       padding: 12px 20px;
-      margin: -24px -24px 24px -24px;
+      margin: -24px -24px 20px -24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -109,8 +154,8 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
       color: #13362B;
       border: none;
       font-weight: 700;
-      font-size: 12px;
-      padding: 8px 18px;
+      font-size: 11px;
+      padding: 7px 16px;
       border-radius: 6px;
       cursor: pointer;
       letter-spacing: 0.5px;
@@ -118,27 +163,21 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
       transition: all 0.2s;
     }
 
-    .toolbar button:hover {
-      background: #E5C358;
-      transform: translateY(-1px);
-    }
-
     @media print {
       .toolbar { display: none !important; }
       body { padding: 0 !important; }
     }
 
-    /* HEADER */
     .header-table {
       width: 100%;
       border-bottom: 2px solid #13362B;
-      padding-bottom: 16px;
-      margin-bottom: 16px;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
     }
 
     .brand-title {
       font-family: 'Cinzel', serif;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       color: #13362B;
       letter-spacing: 1.5px;
@@ -146,28 +185,24 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
     }
 
     .brand-sub {
-      font-size: 9.5px;
+      font-size: 9px;
       color: #8C6D3B;
       text-transform: uppercase;
       letter-spacing: 2px;
       font-weight: 600;
-      margin-top: 3px;
+      margin-top: 2px;
     }
 
     .company-meta {
-      font-size: 10px;
+      font-size: 9.5px;
       color: #5A5852;
       margin-top: 4px;
-      line-height: 1.4;
-    }
-
-    .quote-badge {
-      text-align: right;
+      line-height: 1.35;
     }
 
     .quote-title {
       font-family: 'Cinzel', serif;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       color: #13362B;
       letter-spacing: 1px;
@@ -178,26 +213,25 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
       display: inline-block;
       background: #F4EFE6;
       border: 1px solid #D4AF37;
-      padding: 3px 8px;
+      padding: 2px 7px;
       border-radius: 4px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 600;
       color: #13362B;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
-    /* SECTION BOXES */
     .section-title {
       font-family: 'Cinzel', serif;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: #13362B;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
       text-transform: uppercase;
       border-bottom: 1px solid #E5DFD5;
-      padding-bottom: 4px;
-      margin: 16px 0 8px 0;
+      padding-bottom: 3px;
+      margin: 12px 0 6px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -207,34 +241,33 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
       display: table;
       width: 100%;
       table-layout: fixed;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .grid-col {
       display: table-cell;
       vertical-align: top;
-      padding-right: 12px;
+      padding-right: 10px;
     }
 
     .grid-col:last-child {
       padding-right: 0;
-      padding-left: 12px;
+      padding-left: 10px;
     }
 
     .card-box {
       background: #FAF8F5;
       border: 1px solid #EAE5DE;
       border-radius: 6px;
-      padding: 10px 12px;
-      height: 100%;
+      padding: 8px 10px;
     }
 
     .info-row {
       display: flex;
       justify-content: space-between;
-      padding: 3px 0;
+      padding: 2.5px 0;
       border-bottom: 1px dashed #EAE5DE;
-      font-size: 10.5px;
+      font-size: 10px;
     }
 
     .info-row:last-child {
@@ -252,27 +285,26 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
       text-align: right;
     }
 
-    /* TABLE */
     table.data-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 8px 0 14px 0;
-      font-size: 10.5px;
+      margin: 6px 0 10px 0;
+      font-size: 10px;
     }
 
     table.data-table th {
       background: #13362B;
       color: #FFFFFF;
       text-align: left;
-      padding: 7px 10px;
+      padding: 6px 8px;
       font-weight: 600;
       letter-spacing: 0.5px;
       text-transform: uppercase;
-      font-size: 9.5px;
+      font-size: 9px;
     }
 
     table.data-table td {
-      padding: 7px 10px;
+      padding: 5px 8px;
       border-bottom: 1px solid #EAE5DE;
       vertical-align: middle;
     }
@@ -281,13 +313,37 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
       background: #FAF8F5;
     }
 
-    /* TOTAL BOX */
+    .scope-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 6px 0 10px 0;
+    }
+
+    .scope-tag {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid #13362B;
+      background: #EBF3F0;
+      color: #13362B;
+    }
+
+    .scope-tag.inactive {
+      border: 1px solid #DDD;
+      background: #F5F5F5;
+      color: #999;
+      text-decoration: line-through;
+    }
+
     .total-banner {
       background: #13362B;
       color: #FFF;
       border-radius: 8px;
-      padding: 14px 18px;
-      margin: 14px 0;
+      padding: 12px 16px;
+      margin: 10px 0;
       display: table;
       width: 100%;
     }
@@ -304,32 +360,31 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
     }
 
     .total-banner h3 {
-      margin: 0 0 3px 0;
+      margin: 0 0 2px 0;
       font-family: 'Cinzel', serif;
-      font-size: 14px;
+      font-size: 13px;
       color: #D4AF37;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
     }
 
     .total-banner p {
       margin: 0;
-      font-size: 10px;
+      font-size: 9.5px;
       color: #E2DDD6;
     }
 
     .total-price {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       color: #FFFFFF;
       font-family: 'JetBrains Mono', monospace;
       letter-spacing: 0.5px;
     }
 
-    /* PAYMENT SCHEDULE */
     .schedule-grid {
       display: flex;
-      gap: 8px;
-      margin-top: 6px;
+      gap: 6px;
+      margin-top: 4px;
     }
 
     .schedule-step {
@@ -337,29 +392,28 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
       background: #FAF8F5;
       border: 1px solid #EAE5DE;
       border-radius: 6px;
-      padding: 8px 6px;
+      padding: 6px 4px;
       text-align: center;
     }
 
     .schedule-pct {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: #13362B;
     }
 
     .schedule-title {
-      font-size: 9px;
+      font-size: 8.5px;
       color: #6E6A63;
-      margin-top: 2px;
+      margin-top: 1px;
       text-transform: uppercase;
       font-weight: 600;
     }
 
-    /* SIGNATURE & FOOTER */
     .footer-section {
-      margin-top: 18px;
-      padding-top: 12px;
+      margin-top: 12px;
+      padding-top: 10px;
       border-top: 1px solid #EAE5DE;
       display: table;
       width: 100%;
@@ -368,15 +422,15 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
     .footer-col {
       display: table-cell;
       vertical-align: bottom;
-      font-size: 9.5px;
+      font-size: 9px;
       color: #6E6A63;
-      line-height: 1.4;
+      line-height: 1.35;
     }
 
     .stamp-box {
       border: 1.5px dashed #D4AF37;
       border-radius: 6px;
-      padding: 8px 14px;
+      padding: 6px 12px;
       background: #FFFDF9;
       text-align: center;
       display: inline-block;
@@ -384,10 +438,10 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
 
     .stamp-text {
       font-family: 'Cinzel', serif;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       color: #13362B;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
     }
   </style>
 </head>
@@ -397,7 +451,7 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
     <div style="font-weight: 600; font-size: 13px;">
       Deinterio Official Quotation Document (#${data.quotationId})
     </div>
-    <div style="display: flex; gap: 10px;">
+    <div style="display: flex; gap: 8px;">
       <button onclick="window.print()">🖨️ Print / Save as PDF</button>
       <button onclick="window.close()" style="background: transparent; color: #FFF; border: 1px solid rgba(255,255,255,0.4);">Close</button>
     </div>
@@ -415,12 +469,12 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
           <strong>Web:</strong> www.deinterio.com • <strong>Email:</strong> consultation@deinterio.com
         </div>
       </td>
-      <td style="vertical-align: top; text-align: right; width: 260px;">
+      <td style="vertical-align: top; text-align: right; width: 240px;">
         <h2 class="quote-title">ESTIMATED QUOTATION</h2>
         <div class="quote-meta-pill">QUOTE #${data.quotationId}</div>
-        <div style="font-size: 10px; color: #5A5852; margin-top: 6px;">
+        <div style="font-size: 9.5px; color: #5A5852; margin-top: 4px;">
           <strong>Issuance Date:</strong> ${data.date}<br />
-          <strong>Validity:</strong> 30 Days from date of issuance<br />
+          <strong>Validity:</strong> 30 Days from issuance<br />
           <strong>Est. Handover:</strong> ~${data.estimatedWeeks || 6} Weeks
         </div>
       </td>
@@ -431,7 +485,7 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
   <div class="grid-2">
     <div class="grid-col">
       <div class="card-box">
-        <div style="font-weight: 700; color: #13362B; margin-bottom: 6px; font-size: 11px; text-transform: uppercase;">
+        <div style="font-weight: 700; color: #13362B; margin-bottom: 4px; font-size: 10.5px; text-transform: uppercase;">
           Client Particulars
         </div>
         <div class="info-row">
@@ -455,20 +509,20 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
 
     <div class="grid-col">
       <div class="card-box">
-        <div style="font-weight: 700; color: #13362B; margin-bottom: 6px; font-size: 11px; text-transform: uppercase;">
-          Configuration & Scope
+        <div style="font-weight: 700; color: #13362B; margin-bottom: 4px; font-size: 10.5px; text-transform: uppercase;">
+          Configuration & Pricing Tier
         </div>
         <div class="info-row">
           <span class="info-label">Apartment Configuration:</span>
           <span class="info-val">${data.bhkType} (${data.sizeVariant || 'Standard'})</span>
         </div>
         <div class="info-row">
-          <span class="info-label">Estimated Carpet Area:</span>
-          <span class="info-val">${data.carpetArea || 'As per floor plan'}</span>
+          <span class="info-label">Measured Floor Area:</span>
+          <span class="info-val">${data.totalAreaSqft ? `${data.totalAreaSqft} sq.ft` : (data.carpetArea || 'As calculated')}</span>
         </div>
         <div class="info-row">
-          <span class="info-label">Selected Finish Tier:</span>
-          <span class="info-val" style="color: #8C6D3B; font-weight: 700;">${data.packageTier}</span>
+          <span class="info-label">Package Tier & Base Rate:</span>
+          <span class="info-val" style="color: #8C6D3B; font-weight: 700;">${tierSpecs.name} (₹${tierSpecs.rate} / sq.ft)</span>
         </div>
         <div class="info-row">
           <span class="info-label">Warranty Assurance:</span>
@@ -478,73 +532,71 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
     </div>
   </div>
 
-  <!-- SCOPE OF WORK SUMMARY -->
+  <!-- SELECTED SERVICES SCOPE -->
   <div class="section-title">
-    <span>Room Scope & Turnkey Deliverables</span>
-    <span style="font-size: 9px; font-family: monospace; color: #8C6D3B;">TURNKEY ARCHITECTURE</span>
+    <span>Chosen Service Scope & Inclusions</span>
+    <span style="font-size: 8.5px; font-family: monospace; color: #8C6D3B;">CUSTOM SCOPE</span>
+  </div>
+  <div class="scope-tags">
+    <span class="scope-tag ${scope.furniture ? '' : 'inactive'}">${scope.furniture ? '✓' : '✗'} Modular Furniture & Storage</span>
+    <span class="scope-tag ${scope.painting ? '' : 'inactive'}">${scope.painting ? '✓' : '✗'} Wall Painting (Royale Emulsion)</span>
+    <span class="scope-tag ${scope.electrical ? '' : 'inactive'}">${scope.electrical ? '✓' : '✗'} Electrical Points & LED Lighting</span>
+    <span class="scope-tag ${scope.falseCeiling ? '' : 'inactive'}">${scope.falseCeiling ? '✓' : '✗'} False Ceiling (@ ₹120/sq.ft)</span>
+  </div>
+
+  <!-- ROOM-WISE MEASUREMENT SPECIFICATION TABLE -->
+  <div class="section-title">
+    <span>Room Dimensions & Measurement Schedule</span>
+    <span style="font-size: 8.5px; font-family: monospace; color: #13362B;">PRECISE SQUARE FOOT BREAKDOWN</span>
   </div>
 
   <table class="data-table">
     <thead>
       <tr>
-        <th style="width: 25%;">Area / Module</th>
-        <th style="width: 50%;">Specifications & Materials Benchmark</th>
-        <th style="width: 25%; text-align: right;">Status</th>
+        <th style="width: 45%;">Room Name / Designation</th>
+        <th style="width: 35%;">Dimensions (L × W)</th>
+        <th style="width: 20%; text-align: right;">Area (Sq.Ft)</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td><strong>Modular Kitchen</strong></td>
-        <td>BWP 710 marine plywood carcasses, anti-scratch acrylic shutters, ${tierSpecs.hardware}, cutlery organiser, spice pullout, under-sink drip tray.</td>
-        <td style="text-align: right; font-weight: 600; color: #13362B;">Included in Scope</td>
-      </tr>
-      <tr>
-        <td><strong>Master Bedroom</strong></td>
-        <td>Floor-to-ceiling wardrobe with loft, headboard paneling, dual bedside floating tables, dressing mirror with concealed LED strip.</td>
-        <td style="text-align: right; font-weight: 600; color: #13362B;">Included in Scope</td>
-      </tr>
-      <tr>
-        <td><strong>Living & Dining</strong></td>
-        <td>Suspended media entertainment unit, fluted panel feature wall, custom crockery unit with tinted glass shutters, false ceiling with ambient cove.</td>
-        <td style="text-align: right; font-weight: 600; color: #13362B;">Included in Scope</td>
-      </tr>
-      <tr>
-        <td><strong>Electrical & Lighting</strong></td>
-        <td>Concealed wiring modifications, architectural spotlights, 3000K warm white LED coves, and ${tierSpecs.electrical}.</td>
-        <td style="text-align: right; font-weight: 600; color: #13362B;">Included in Scope</td>
-      </tr>
-      <tr>
-        <td><strong>Painting & Finishing</strong></td>
-        <td>Asian Paints Royale Luxury Emulsion with 2 coats acrylic putty, 1 coat primer, and anti-fungal treatment for Kolkata humid conditions.</td>
-        <td style="text-align: right; font-weight: 600; color: #13362B;">Included in Scope</td>
+      ${dimRows}
+      <tr style="background: #FAF8F5; font-weight: 700;">
+        <td colspan="2"><strong>Total Measured Carpet Area</strong></td>
+        <td style="text-align: right; font-family: monospace; color: #13362B;">${data.totalAreaSqft || data.carpetArea || '0'} sq.ft</td>
       </tr>
     </tbody>
   </table>
 
-  <!-- MATERIAL QUALITY COMMITMENT -->
+  <!-- RATE & COST BREAKDOWN TABLE -->
   <div class="section-title">
-    <span>Certified Materials Benchmark</span>
-    <span style="font-size: 9px; font-family: monospace; color: #13362B;">100% BRAND AUTHENTICITY</span>
+    <span>Cost Estimation Breakdown</span>
+    <span style="font-size: 8.5px; font-family: monospace; color: #8C6D3B;">ITEMIZED RATES</span>
   </div>
 
-  <table class="data-table" style="margin-bottom: 8px;">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Work Scope Item</th>
+        <th>Calculated Base</th>
+        <th>Applicable Unit Rate</th>
+        <th style="text-align: right;">Estimated Subtotal</th>
+      </tr>
+    </thead>
     <tbody>
       <tr>
-        <td style="width: 25%; background: #FAF8F5;"><strong>Primary Core Board</strong></td>
-        <td>${tierSpecs.ply}</td>
+        <td><strong>Interior Execution (${tierSpecs.name} Tier)</strong><br /><span style="font-size: 8.5px; color: #666;">Furniture, woodwork, finishes & standard fittings</span></td>
+        <td>${data.totalAreaSqft || 0} sq.ft</td>
+        <td>₹${tierSpecs.rate} / sq.ft</td>
+        <td style="text-align: right; font-weight: 600; font-family: monospace;">₹${((data.totalAreaSqft || 0) * tierSpecs.rate).toLocaleString('en-IN')}</td>
       </tr>
-      <tr>
-        <td style="background: #FAF8F5;"><strong>Hardware & Fittings</strong></td>
-        <td>${tierSpecs.hardware} (Bespoke tested for 200,000 cycles)</td>
-      </tr>
-      <tr>
-        <td style="background: #FAF8F5;"><strong>Surface Laminates & Finishes</strong></td>
-        <td>${tierSpecs.finish}</td>
-      </tr>
-      <tr>
-        <td style="background: #FAF8F5;"><strong>Countertop / Stone</strong></td>
-        <td>${tierSpecs.countertop}</td>
-      </tr>
+      ${scope.falseCeiling ? `
+        <tr>
+          <td><strong>Designer False Ceiling (Gyproc / Saint-Gobain)</strong><br /><span style="font-size: 8.5px; color: #666;">Cove lighting channels, perimeter design & primer finish</span></td>
+          <td>${data.falseCeilingSqft || data.totalAreaSqft || 0} sq.ft</td>
+          <td>₹120 / sq.ft</td>
+          <td style="text-align: right; font-weight: 600; font-family: monospace;">₹${(data.falseCeilingCost || ((data.falseCeilingSqft || data.totalAreaSqft || 0) * 120)).toLocaleString('en-IN')}</td>
+        </tr>
+      ` : ''}
     </tbody>
   </table>
 
@@ -552,43 +604,40 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
   <div class="total-banner">
     <div class="total-left">
       <h3>TOTAL ESTIMATED TURNKEY INVESTMENT</h3>
-      <p>Includes 3D spatial simulation, factory fabrication, logistics, civil alterations, and dedicated site engineer supervision.</p>
-      <div style="font-size: 9.5px; color: #D4AF37; margin-top: 4px;">
-        Rooms Covered: ${roomPills}
-      </div>
+      <p>Includes 3D simulation, factory PUR edge-banding, delivery, installation & site supervision.</p>
     </div>
     <div class="total-right">
       <div class="total-price">${data.totalAmountFormatted}</div>
-      <div style="font-size: 9.5px; color: #D4AF37; letter-spacing: 0.5px;">ESTIMATED ALL-INCLUSIVE</div>
+      <div style="font-size: 9px; color: #D4AF37; letter-spacing: 0.5px;">ESTIMATED ALL-INCLUSIVE</div>
     </div>
   </div>
 
   <!-- PAYMENT SCHEDULE PHASING -->
   <div class="section-title">
     <span>Turnkey Milestone Payment Plan</span>
-    <span style="font-size: 9px; font-family: monospace; color: #8C6D3B;">TRANSPARENT BILLING</span>
+    <span style="font-size: 8.5px; font-family: monospace; color: #8C6D3B;">TRANSPARENT BILLING</span>
   </div>
 
   <div class="schedule-grid">
     <div class="schedule-step">
       <div class="schedule-pct">10%</div>
       <div class="schedule-title">Booking & Design</div>
-      <div style="font-size: 8.5px; color: #8C6D3B; margin-top: 2px;">Laser survey & 3D renders</div>
+      <div style="font-size: 8px; color: #8C6D3B; margin-top: 1px;">Laser survey & 3D renders</div>
     </div>
     <div class="schedule-step">
       <div class="schedule-pct">40%</div>
       <div class="schedule-title">Factory Kickoff</div>
-      <div style="font-size: 8.5px; color: #8C6D3B; margin-top: 2px;">Material sourcing & cutting</div>
+      <div style="font-size: 8px; color: #8C6D3B; margin-top: 1px;">Material sourcing & cutting</div>
     </div>
     <div class="schedule-step">
       <div class="schedule-pct">40%</div>
       <div class="schedule-title">Site Installation</div>
-      <div style="font-size: 8.5px; color: #8C6D3B; margin-top: 2px;">Carcass assembly & finish</div>
+      <div style="font-size: 8px; color: #8C6D3B; margin-top: 1px;">Carcass assembly & finish</div>
     </div>
     <div class="schedule-step">
       <div class="schedule-pct">10%</div>
       <div class="schedule-title">Final Handover</div>
-      <div style="font-size: 8.5px; color: #8C6D3B; margin-top: 2px;">Deep clean & warranty card</div>
+      <div style="font-size: 8px; color: #8C6D3B; margin-top: 1px;">Deep clean & warranty card</div>
     </div>
   </div>
 
@@ -597,15 +646,15 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
     <tr>
       <td class="footer-col" style="width: 60%; padding-right: 20px;">
         <strong>TERMS & REGULATORY NOTICE:</strong><br />
-        1. This quotation is an automated preliminary estimate based on inputted parameters. Final formal agreement pricing will be finalized post on-site 3D laser measurement and client material selection sign-off.<br />
-        2. All woodwork fabricated at our high-precision Rajarhat factory with PUR edge-banding technology for water resistance.<br />
-        3. 10-year warranty applies to structural woodwork integrity and manufacturing defects under normal domestic use.
+        1. This quotation is calculated from homeowner submitted dimensions and specifications. Final pricing is confirmed after on-site 3D laser measurement.<br />
+        2. Woodwork fabricated at our high-precision Rajarhat factory with PUR edge-banding technology.<br />
+        3. 10-year warranty applies to structural integrity and manufacturing defects under normal domestic use.
       </td>
       <td class="footer-col" style="width: 40%; text-align: right;">
         <div class="stamp-box">
           <div class="stamp-text">DEINTERIO INTERIOR GROUP</div>
-          <div style="font-size: 8.5px; color: #8C6D3B; font-family: monospace; margin: 2px 0;">DIGITAL ESTIMATE SEAL</div>
-          <div style="font-size: 9px; color: #13362B; font-weight: 600;">Authorized Signatory</div>
+          <div style="font-size: 8px; color: #8C6D3B; font-family: monospace; margin: 1px 0;">DIGITAL ESTIMATE SEAL</div>
+          <div style="font-size: 8.5px; color: #13362B; font-weight: 600;">Authorized Signatory</div>
         </div>
       </td>
     </tr>
@@ -617,7 +666,7 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
 export const generateQuotationPDF = (data: QuotationPrintData) => {
   const htmlContent = generateQuotationHTML(data);
 
-  // Method 1: Try window.open first (standard on desktop browsers)
+  // Method 1: window.open
   let printWindow: Window | null = null;
   try {
     printWindow = window.open('', '_blank');
@@ -644,8 +693,7 @@ export const generateQuotationPDF = (data: QuotationPrintData) => {
     }
   }
 
-  // Method 2 (Seamless Fallback - No Popup Needed): Hidden iframe printing
-  // This completely bypasses popup blockers in Chrome, Safari, and mobile browsers!
+  // Method 2: Hidden iframe printing (bypasses popup blockers)
   try {
     const existingFrame = document.getElementById('deinterio-print-frame');
     if (existingFrame) existingFrame.remove();
@@ -677,7 +725,7 @@ export const generateQuotationPDF = (data: QuotationPrintData) => {
     console.warn('Iframe printing failed:', frameErr);
   }
 
-  // Method 3 (Universal File Fallback): Download HTML quotation document directly as file
+  // Method 3: Direct HTML file download
   try {
     const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);

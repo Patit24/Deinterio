@@ -307,7 +307,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
       bhkType: bhk,
       carpetArea: lead.carpetArea,
       packageTier: tier,
+      ratePerSqft: lead.ratePerSqft,
+      totalAreaSqft: lead.totalAreaSqft,
+      falseCeilingSqft: lead.falseCeilingSqft,
+      falseCeilingCost: lead.falseCeilingCost,
       rooms: lead.rooms,
+      roomDimensions: lead.roomDimensions,
+      serviceScope: lead.serviceScope,
       totalAmountFormatted: lead.estimatedAmount || lead.budget,
       notes: lead.notes || lead.details,
     });
@@ -1283,7 +1289,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono text-[#5A5852]">
                           <div>
-                            <span className="text-[10px] uppercase text-gray-400 block">Project Type</span>
+                            <span className="text-[10px] uppercase text-gray-400 block">Project Type & Tier</span>
                             <strong className="text-[#1A1917]">{lead.type}</strong>
                           </div>
                           <div>
@@ -1291,14 +1297,40 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                             <strong className="text-[#1A1917]">{lead.city}</strong>
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase text-gray-400 block">Selected Budget</span>
-                            <strong className="text-[#13362B] font-bold">{lead.budget}</strong>
+                            <span className="text-[10px] uppercase text-gray-400 block">Total Area (Sq.Ft)</span>
+                            <strong className="text-[#13362B] font-bold">{lead.totalAreaSqft ? `${lead.totalAreaSqft} sq.ft` : (lead.carpetArea || 'N/A')}</strong>
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase text-gray-400 block">Est. Calculation</span>
-                            <strong className="text-[#13362B] font-bold">{lead.estimatedAmount || lead.budget}</strong>
+                            <span className="text-[10px] uppercase text-gray-400 block">Est. Turnkey Quote</span>
+                            <strong className="text-[#13362B] font-bold text-sm">{lead.estimatedAmount || lead.budget}</strong>
                           </div>
                         </div>
+
+                        {/* CUSTOM MEASUREMENTS & SERVICE SCOPE BADGES */}
+                        {lead.roomDimensions && lead.roomDimensions.length > 0 && (
+                          <div className="p-3.5 rounded-2xl bg-[#FAF8F3] border border-[#E2DDD6] space-y-2">
+                            <span className="text-[10px] font-mono font-bold uppercase text-[#8C6D3B] block">
+                              Measured Room Dimensions:
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {lead.roomDimensions.map((dim, idx) => (
+                                <span key={idx} className="px-2.5 py-1 rounded-lg bg-white border border-[#13362B]/20 text-[11px] font-mono text-[#13362B]">
+                                  <strong>{dim.roomName}:</strong> {dim.length}×{dim.width} ft ({dim.sqft} sq.ft)
+                                </span>
+                              ))}
+                            </div>
+
+                            {lead.serviceScope && (
+                              <div className="pt-2 border-t border-[#E2DDD6]/60 flex flex-wrap gap-1.5 text-[10px] font-mono">
+                                <span className="text-gray-400 py-0.5">Scope:</span>
+                                {lead.serviceScope.furniture && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ Furniture</span>}
+                                {lead.serviceScope.painting && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ Painting</span>}
+                                {lead.serviceScope.electrical && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ Electrical</span>}
+                                {lead.serviceScope.falseCeiling && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ False Ceiling (@ ₹120/sq.ft)</span>}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

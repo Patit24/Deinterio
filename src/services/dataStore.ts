@@ -85,6 +85,22 @@ export interface PricingTierItem {
   features: string[];
 }
 
+export interface RoomDimensionItem {
+  id: string;
+  roomName: string;
+  length: number;
+  width: number;
+  sqft: number;
+  preset?: string;
+}
+
+export interface ServiceScopeItem {
+  furniture: boolean;
+  painting: boolean;
+  electrical: boolean;
+  falseCeiling: boolean;
+}
+
 export interface LeadItem {
   id: string;
   quotationId?: string;
@@ -107,6 +123,12 @@ export interface LeadItem {
     bathroom: number;
     dining: number;
   };
+  roomDimensions?: RoomDimensionItem[];
+  serviceScope?: ServiceScopeItem;
+  totalAreaSqft?: number;
+  ratePerSqft?: number;
+  falseCeilingSqft?: number;
+  falseCeilingCost?: number;
   notes?: string;
   estimatedAmount?: string;
 }
@@ -532,54 +554,53 @@ const INITIAL_PROJECTS: ProjectItem[] = [
 
 const INITIAL_PRICING: PricingTierItem[] = [
   {
-    id: 'essentials',
-    name: 'Essentials Tier',
-    price: '₹1,250',
+    id: 'economy',
+    name: 'Economy Package',
+    price: '₹1,000',
     unit: '/ sq.ft',
-    tag: 'Turnkey Foundation',
-    desc: 'Ideal for 2BHK/3BHK apartments seeking solid structural durability and clean minimalist design.',
+    tag: 'Value Standard',
+    desc: 'BWR Grade Plywood standard package with Ebco/Godrej hardware, Asian Paints Royale finish, and durable 0.8mm laminates.',
     features: [
-      'CenturyPly Commercial Marine Grade Plywood',
-      'Hettich Soft-Close Drawer Runners',
-      'Merino Matte 0.8mm Laminate Finish',
-      'Saint-Gobain False Ceiling with Warm LEDs',
-      'Asian Paints Royale Shyne Finish',
+      'ISI 710 BWR Grade Hardwood Plywood',
+      'Ebco / Godrej High-Durability Hardware',
+      '0.8mm - 1.0mm Anti-Scratch Laminates',
+      'Asian Paints Royale Luxury Emulsion',
+      'Designer False Ceiling Available @ ₹120/sq.ft',
       '5-Year Material Warranty',
     ],
   },
   {
-    id: 'premium',
-    name: 'Premium Tier',
-    price: '₹1,850',
+    id: 'luxury',
+    name: 'Luxury Package',
+    price: '₹1,200',
     unit: '/ sq.ft',
     popular: true,
-    tag: 'Most Popular',
-    desc: 'Our flagship turnkey residential tier combining CenturyPly BWP marine plywood, Hafele fittings, and acrylic kitchens.',
+    tag: 'Popular Choice',
+    desc: 'Century Sainik 710 BWP marine plywood with Hettich Germany soft-close fittings and 1mm merino suede/high-gloss laminates.',
     features: [
-      'CenturyPly Club Prime 710 BWP Plywood',
-      'Hafele Sensys 110° Soft-Close Hardware',
-      'High-Gloss Acrylic Kitchen Doors',
-      'Quartz Heat-Resistant Countertops',
-      'Floor-to-Ceiling Wardrobes with Sensor LEDs',
-      'Live PM Progress Telemetry',
+      'CenturyPly Sainik 710 BWP Marine Grade',
+      'Hettich Germany Soft-Close Hinges & Channels',
+      '1mm Merino / Greenlam Suede Laminates',
+      'Saint-Gobain False Ceiling Framing @ ₹120/sq.ft',
+      'Schneider Electric / Havells Switches',
       '10-Year Digital Warranty Certificate',
     ],
   },
   {
-    id: 'luxury',
-    name: 'Luxury Signature',
-    price: '₹2,600',
+    id: 'premium',
+    name: 'Premium Package',
+    price: '₹1,500',
     unit: '/ sq.ft',
-    tag: 'Bespoke Sanctuaries',
-    desc: 'Uncompromising luxury for penthouses and villas featuring Italian Botticino marble, teak fluting, and full smart automation.',
+    tag: 'Turnkey Luxury',
+    desc: 'Top-tier turnkey residential luxury featuring Century Club Prime 710 BWP, Hafele/Blum Austrian fittings, and PU polish finishes.',
     features: [
-      'Italian Botticino & Calacatta Marble Paneling',
-      'Bespoke Teak Wood Fluted Accent Walls',
-      'Motorized Drapery & Curtains',
-      'Smart Lighting & Climate Automation',
-      'Double-Height Chandelier Ceiling Slots',
-      'Dedicated Principal Architect Project Lead',
-      'Lifetime Maintenance & Annual Audit',
+      'CenturyPly Club Prime 710 BWP Marine Grade',
+      'Hafele / Blum Austrian Soft-Close Tandem Systems',
+      'PU Polish & 1.2mm High-Gloss Acrylic Finishes',
+      'KalingaStone / Nano-White Quartz 18mm Slabs',
+      'False Ceiling with Ambient 3000K Warm LED Coves',
+      'Dedicated Principal Architect Site Supervision',
+      '10-Year Comprehensive Digital Warranty',
     ],
   },
 ];

@@ -3,10 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Calculator, Sparkles, Check, ChevronDown, ChevronUp, Plus, Minus, 
   User, Phone, Mail, MapPin, Download, Calendar, ArrowRight, ArrowLeft, 
-  ShieldCheck, RefreshCw, Layers, Home, Armchair, Utensils, Bed, Bath
+  ShieldCheck, RefreshCw, Layers, Home, Armchair, Utensils, Bed, Bath,
+  CheckSquare, Square, Ruler, Sparkle, Zap, Paintbrush, Box
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { dataStore } from '../services/dataStore';
+import type { RoomDimensionItem, ServiceScopeItem } from '../services/dataStore';
 import { generateQuotationPDF } from '../utils/quotationPdfGenerator';
 
 interface AICostCalculatorProps {
@@ -14,8 +16,7 @@ interface AICostCalculatorProps {
 }
 
 type BHKType = '1 BHK' | '2 BHK' | '3 BHK' | '4 BHK' | '5 BHK+';
-type BHKSize = 'Small' | 'Large';
-type PackageTier = 'Essentials' | 'Premium' | 'Luxury';
+type PackageTier = 'Economy' | 'Luxury' | 'Premium';
 
 interface RoomCounts {
   livingRoom: number;
@@ -32,14 +33,20 @@ interface UserDetails {
   city: string;
 }
 
+const DIMENSION_PRESETS = [
+  { label: '10 × 10 ft', length: 10, width: 10, sqft: 100 },
+  { label: '10 × 12 ft', length: 10, width: 12, sqft: 120 },
+  { label: '12 × 12 ft', length: 12, width: 12, sqft: 144 },
+  { label: '12 × 14 ft', length: 12, width: 14, sqft: 168 },
+];
+
 export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBooking }) => {
-  // Step State: 1: BHK, 2: Rooms, 3: Package, 4: Personal Details, 5: Price Result
+  // 1: BHK, 2: Room Counts & Measurements, 3: Package Tier & Scope, 4: Personal Details, 5: Quote
   const [step, setStep] = useState<number>(1);
 
-  // Form Selections
+  // Selections
   const [selectedBHK, setSelectedBHK] = useState<BHKType>('2 BHK');
   const [expandedBHK, setExpandedBHK] = useState<BHKType | null>('2 BHK');
-  const [selectedSize, setSelectedSize] = useState<BHKSize>('Small');
 
   const [rooms, setRooms] = useState<RoomCounts>({
     livingRoom: 1,
@@ -49,7 +56,27 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
     dining: 1,
   });
 
-  const [packageTier, setPackageTier] = useState<PackageTier>('Premium');
+  // Room Dimension Schedule
+  const [roomDimensions, setRoomDimensions] = useState<RoomDimensionItem[]>([
+    { id: 'dim-living', roomName: 'Living Room', length: 14, width: 12, sqft: 168, preset: 'Custom' },
+    { id: 'dim-bed-1', roomName: 'Master Bedroom', length: 12, width: 14, sqft: 168, preset: '12 × 14 ft' },
+    { id: 'dim-bed-2', roomName: 'Bedroom 2', length: 10, width: 12, sqft: 120, preset: '10 × 12 ft' },
+    { id: 'dim-kitchen', roomName: 'Modular Kitchen', length: 10, width: 8, sqft: 80, preset: 'Custom' },
+    { id: 'dim-dining', roomName: 'Dining Area', length: 10, width: 10, sqft: 100, preset: '10 × 10 ft' },
+    { id: 'dim-bath-1', roomName: 'Master Bathroom', length: 7, width: 6, sqft: 42, preset: 'Custom' },
+    { id: 'dim-bath-2', roomName: 'Common Bathroom', length: 6, width: 6, sqft: 36, preset: 'Custom' },
+  ]);
+
+  // Package Tier (Exact Rates: Economy = 1000, Luxury = 1200, Premium = 1500)
+  const [packageTier, setPackageTier] = useState<PackageTier>('Luxury');
+
+  // Service Scope Checkboxes
+  const [serviceScope, setServiceScope] = useState<ServiceScopeItem>({
+    furniture: true,
+    painting: true,
+    electrical: true,
+    falseCeiling: true,
+  });
 
   const [userDetails, setUserDetails] = useState<UserDetails>({
     name: '',
@@ -63,63 +90,182 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
   const [quotationId, setQuotationId] = useState<string>('');
   const [hasDownloadedPDF, setHasDownloadedPDF] = useState<boolean>(false);
 
-  // BHK Definitions & Size Details
-  const bhkOptions: { type: BHKType; smallArea: string; largeArea: string }[] = [
-    { type: '1 BHK', smallArea: 'Below 500 sq ft', largeArea: 'Above 500 sq ft' },
-    { type: '2 BHK', smallArea: 'Below 800 sq ft', largeArea: 'Above 800 sq ft' },
-    { type: '3 BHK', smallArea: 'Below 1200 sq ft', largeArea: 'Above 1200 sq ft' },
-    { type: '4 BHK', smallArea: 'Below 1800 sq ft', largeArea: 'Above 1800 sq ft' },
-    { type: '5 BHK+', smallArea: 'Below 2500 sq ft', largeArea: 'Above 2500 sq ft' },
-  ];
+  // BHK standard room initialization
+  const applyBHKDefaults = (bhk: BHKType) => {
+    setSelectedBHK(bhk);
+    let bedCount = 1;
+    let bathCount = 1;
 
-  // Room Increment/Decrement
-  const updateRoomCount = (room: keyof RoomCounts, delta: number) => {
-    setRooms((prev) => ({
-      ...prev,
-      [room]: Math.max(0, prev[room] + delta),
-    }));
+    if (bhk === '1 BHK') { bedCount = 1; bathCount = 1; }
+    else if (bhk === '2 BHK') { bedCount = 2; bathCount = 2; }
+    else if (bhk === '3 BHK') { bedCount = 3; bathCount = 2; }
+    else if (bhk === '4 BHK') { bedCount = 4; bathCount = 3; }
+    else if (bhk === '5 BHK+') { bedCount = 5; bathCount = 4; }
+
+    const newRooms: RoomCounts = {
+      livingRoom: 1,
+      kitchen: 1,
+      bedroom: bedCount,
+      bathroom: bathCount,
+      dining: 1,
+    };
+    setRooms(newRooms);
+    rebuildRoomDimensions(newRooms);
   };
 
-  // Price Calculation Logic
-  const getEstimatedArea = (): number => {
-    switch (selectedBHK) {
-      case '1 BHK': return selectedSize === 'Small' ? 450 : 580;
-      case '2 BHK': return selectedSize === 'Small' ? 720 : 920;
-      case '3 BHK': return selectedSize === 'Small' ? 1150 : 1450;
-      case '4 BHK': return selectedSize === 'Small' ? 1750 : 2100;
-      case '5 BHK+': return selectedSize === 'Small' ? 2400 : 3100;
-      default: return 850;
+  const rebuildRoomDimensions = (currentRooms: RoomCounts) => {
+    const list: RoomDimensionItem[] = [];
+    if (currentRooms.livingRoom > 0) {
+      for (let i = 1; i <= currentRooms.livingRoom; i++) {
+        list.push({
+          id: `dim-living-${i}`,
+          roomName: currentRooms.livingRoom > 1 ? `Living Room ${i}` : 'Living Room',
+          length: 14,
+          width: 12,
+          sqft: 168,
+          preset: 'Custom',
+        });
+      }
+    }
+    if (currentRooms.bedroom > 0) {
+      for (let i = 1; i <= currentRooms.bedroom; i++) {
+        const name = i === 1 ? 'Master Bedroom' : `Bedroom ${i}`;
+        const preset = i === 1 ? '12 × 14 ft' : '10 × 12 ft';
+        const length = i === 1 ? 12 : 10;
+        const width = i === 1 ? 14 : 12;
+        list.push({
+          id: `dim-bed-${i}`,
+          roomName: name,
+          length,
+          width,
+          sqft: length * width,
+          preset,
+        });
+      }
+    }
+    if (currentRooms.kitchen > 0) {
+      list.push({
+        id: `dim-kitchen-1`,
+        roomName: 'Modular Kitchen',
+        length: 10,
+        width: 8,
+        sqft: 80,
+        preset: 'Custom',
+      });
+    }
+    if (currentRooms.dining > 0) {
+      list.push({
+        id: `dim-dining-1`,
+        roomName: 'Dining Area',
+        length: 10,
+        width: 10,
+        sqft: 100,
+        preset: '10 × 10 ft',
+      });
+    }
+    if (currentRooms.bathroom > 0) {
+      for (let i = 1; i <= currentRooms.bathroom; i++) {
+        list.push({
+          id: `dim-bath-${i}`,
+          roomName: i === 1 ? 'Master Bathroom' : `Bathroom ${i}`,
+          length: 7,
+          width: 6,
+          sqft: 42,
+          preset: 'Custom',
+        });
+      }
+    }
+    setRoomDimensions(list);
+  };
+
+  const updateRoomCount = (roomKey: keyof RoomCounts, delta: number) => {
+    const updated = {
+      ...rooms,
+      [roomKey]: Math.max(0, rooms[roomKey] + delta),
+    };
+    setRooms(updated);
+    rebuildRoomDimensions(updated);
+  };
+
+  const handleDimensionChange = (id: string, length: number, width: number, preset: string = 'Custom') => {
+    const safeL = Math.max(1, length || 1);
+    const safeW = Math.max(1, width || 1);
+    setRoomDimensions(prev =>
+      prev.map(item =>
+        item.id === id
+          ? { ...item, length: safeL, width: safeW, sqft: safeL * safeW, preset }
+          : item
+      )
+    );
+  };
+
+  const handlePresetSelect = (id: string, presetLabel: string) => {
+    const found = DIMENSION_PRESETS.find(p => p.label === presetLabel);
+    if (found) {
+      handleDimensionChange(id, found.length, found.width, found.label);
     }
   };
 
-  const getBaseRate = (): number => {
+  // Calculations
+  const getTotalArea = (): number => {
+    return roomDimensions.reduce((acc, curr) => acc + curr.sqft, 0);
+  };
+
+  const getTierRate = (): number => {
     switch (packageTier) {
-      case 'Essentials': return 1250;
-      case 'Premium': return 1850;
-      case 'Luxury': return 2650;
-      default: return 1850;
+      case 'Economy': return 1000;
+      case 'Luxury': return 1200;
+      case 'Premium': return 1500;
+      default: return 1200;
     }
   };
+
+  const FALSE_CEILING_RATE = 120; // ₹120 per sq.ft
 
   const calculateTotal = (): number => {
-    const area = getEstimatedArea();
-    const rate = getBaseRate();
-    const roomMultiplier = 
-      rooms.livingRoom * 140000 + 
-      rooms.kitchen * 160000 + 
-      rooms.bedroom * 110000 + 
-      rooms.bathroom * 55000 + 
-      rooms.dining * 75000;
+    const totalArea = getTotalArea();
+    const baseRate = getTierRate();
 
-    const baseCost = area * rate;
-    const rawTotal = baseCost + roomMultiplier * 0.45;
-    return Math.round(rawTotal / 5000) * 5000;
+    // Scope weight adjustment if some elements deselected
+    let scopeMultiplier = 0;
+    if (serviceScope.furniture) scopeMultiplier += 0.65;
+    if (serviceScope.painting) scopeMultiplier += 0.20;
+    if (serviceScope.electrical) scopeMultiplier += 0.15;
+
+    // Base interior turnkey cost
+    const baseWoodworkAndFinishes = totalArea * baseRate * scopeMultiplier;
+
+    // False Ceiling cost (@ ₹120 per sq.ft)
+    const falseCeilingArea = serviceScope.falseCeiling ? Math.round(totalArea * 0.85) : 0;
+    const falseCeilingCost = falseCeilingArea * FALSE_CEILING_RATE;
+
+    const total = baseWoodworkAndFinishes + falseCeilingCost;
+    return Math.max(150000, Math.round(total / 1000) * 1000);
   };
 
   const totalInvestment = calculateTotal();
-  const estimatedWeeks = Math.round((getEstimatedArea() / 140) + (packageTier === 'Luxury' ? 3 : 1));
+  const totalCarpet = getTotalArea();
+  const falseCeilingSqft = serviceScope.falseCeiling ? Math.round(totalCarpet * 0.85) : 0;
+  const falseCeilingCost = falseCeilingSqft * FALSE_CEILING_RATE;
+  const estimatedWeeks = Math.max(4, Math.round(totalCarpet / 150) + (packageTier === 'Premium' ? 3 : 1));
 
-  // Form Validation & Submission
+  const allScopeSelected =
+    serviceScope.furniture &&
+    serviceScope.painting &&
+    serviceScope.electrical &&
+    serviceScope.falseCeiling;
+
+  const toggleAllScope = () => {
+    const targetState = !allScopeSelected;
+    setServiceScope({
+      furniture: targetState,
+      painting: targetState,
+      electrical: targetState,
+      falseCeiling: targetState,
+    });
+  };
+
+  // Submit Details
   const handleSubmitDetails = (e: React.FormEvent) => {
     e.preventDefault();
     const errors: { name?: string; phone?: string } = {};
@@ -136,7 +282,6 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
     setIsSubmitted(true);
     setStep(5);
 
-    // Generate unique Quotation ID
     const generatedQuoteId = `DQ-${Date.now().toString().slice(-6)}`;
     setQuotationId(generatedQuoteId);
 
@@ -146,16 +291,22 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
         name: userDetails.name.trim(),
         email: userDetails.email.trim() || `${userDetails.phone}@client.deinterio.com`,
         phone: userDetails.phone.trim(),
-        type: `${selectedBHK} (${packageTier} Tier)`,
+        type: `${selectedBHK} (${packageTier} Tier @ ₹${getTierRate()}/sq.ft)`,
         budget: `₹${(calculateTotal() / 100000).toFixed(2)} Lakhs`,
         city: userDetails.city || 'Kolkata',
         status: 'NEW',
-        details: `${selectedSize} layout with ${rooms.bedroom} Bed, ${rooms.livingRoom} Living, ${rooms.kitchen} Kitchen, ${rooms.bathroom} Bath`,
-        carpetArea: `${getEstimatedArea()} sq.ft`,
+        details: `${roomDimensions.length} spaces measured (${totalCarpet} sq.ft total). Tier: ${packageTier}. False ceiling: ${serviceScope.falseCeiling ? `${falseCeilingSqft} sq.ft` : 'No'}`,
+        carpetArea: `${totalCarpet} sq.ft`,
         packageTier: packageTier,
+        ratePerSqft: getTierRate(),
+        totalAreaSqft: totalCarpet,
+        falseCeilingSqft,
+        falseCeilingCost,
         rooms: { ...rooms },
+        roomDimensions: [...roomDimensions],
+        serviceScope: { ...serviceScope },
         estimatedAmount: `₹${calculateTotal().toLocaleString('en-IN')}`,
-        notes: `Auto-generated via Cost Calculator. Quote Ref: ${generatedQuoteId}`,
+        notes: `Custom measurements: ${roomDimensions.map(r => `${r.roomName}: ${r.length}x${r.width}=${r.sqft}sq.ft`).join(', ')}. Scope: ${Object.entries(serviceScope).filter(([, v]) => v).map(([k]) => k).join(', ')}`,
       });
     } catch (err) {
       console.warn('Could not record lead:', err);
@@ -169,7 +320,6 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
     });
   };
 
-  // Download PDF Handler
   const handleDownloadQuotation = () => {
     const quoteNum = quotationId || `DQ-${Date.now().toString().slice(-6)}`;
     if (!quotationId) setQuotationId(quoteNum);
@@ -182,17 +332,21 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
       clientEmail: userDetails.email.trim() || undefined,
       city: userDetails.city || 'Kolkata',
       bhkType: selectedBHK,
-      sizeVariant: selectedSize,
-      carpetArea: `${getEstimatedArea()} sq.ft`,
+      carpetArea: `${totalCarpet} sq.ft`,
       packageTier: packageTier,
+      ratePerSqft: getTierRate(),
+      totalAreaSqft: totalCarpet,
+      falseCeilingSqft,
+      falseCeilingCost,
       rooms: { ...rooms },
+      roomDimensions: [...roomDimensions],
+      serviceScope: { ...serviceScope },
       estimatedWeeks: estimatedWeeks,
       totalAmountFormatted: `₹${(calculateTotal() / 100000).toFixed(2)} Lakhs (₹${calculateTotal().toLocaleString('en-IN')})`,
     });
 
     setHasDownloadedPDF(true);
 
-    // Update lead record with QUOTATION_SENT status in dataStore
     try {
       const leads = dataStore.getLeads();
       const currentLead = leads.find(l => l.quotationId === quoteNum || l.phone === userDetails.phone.trim());
@@ -228,13 +382,13 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
       >
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#1A1917]/10 text-xs font-mono font-bold uppercase tracking-[0.25em] text-[#8C6D3B] shadow-sm">
           <Calculator className="w-3.5 h-3.5 text-[#A88B57]" />
-          <span>TURNKEY INTERIOR ESTIMATOR</span>
+          <span>DEINTERIO TURNKEY ESTIMATOR</span>
         </div>
         <h2 className="font-serif text-4xl sm:text-6xl font-normal text-[#1A1917]">
           Calculate Your <span className="italic text-gold-gradient">Home Interior Rate</span>
         </h2>
         <p className="text-sm text-[#5A5852] font-light leading-relaxed max-w-xl mx-auto">
-          Get an instant, customized interior valuation tailored to your home layout & material preferences across Kolkata.
+          Specify exact room square footage, select materials tier (Economy, Luxury, Premium), and customize service scope.
         </p>
       </motion.div>
 
@@ -249,8 +403,8 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
 
           {[
             { num: 1, label: 'BHK Type' },
-            { num: 2, label: 'Rooms' },
-            { num: 3, label: 'Package' },
+            { num: 2, label: 'Measurements' },
+            { num: 3, label: 'Tier & Scope' },
             { num: 4, label: 'Details' },
             { num: 5, label: 'Quote' },
           ].map((s) => (
@@ -280,8 +434,6 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
 
       {/* Calculator Container */}
       <div className="max-w-3xl mx-auto bg-gradient-to-br from-[#FDFBF7] to-[#F4F0E6] rounded-[32px] border border-white/80 shadow-2xl p-6 sm:p-10 relative overflow-hidden backdrop-blur-xl">
-        
-        {/* Glow Accent */}
         <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#A88B57]/10 rounded-full blur-3xl pointer-events-none" />
 
         <AnimatePresence mode="wait">
@@ -297,84 +449,40 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
               className="space-y-6"
             >
               <div className="text-center space-y-1">
-                <h3 className="font-serif text-2xl sm:text-3xl text-[#1A1917]">Select your BHK type</h3>
-                <p className="text-xs text-[#5A5852] font-light">Choose your apartment layout and carpet size preference</p>
+                <h3 className="font-serif text-2xl sm:text-3xl text-[#1A1917]">Select your apartment layout</h3>
+                <p className="text-xs text-[#5A5852] font-light">Choose your BHK to configure room counts and dimensions</p>
               </div>
 
-              <div className="space-y-3 max-w-xl mx-auto">
-                {bhkOptions.map((item) => {
-                  const isSelected = selectedBHK === item.type;
-                  const isExpanded = expandedBHK === item.type;
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-xl mx-auto">
+                {(['1 BHK', '2 BHK', '3 BHK', '4 BHK', '5 BHK+'] as BHKType[]).map((type) => {
+                  const isSelected = selectedBHK === type;
+                  const startingPrice = 
+                    type === '1 BHK' ? 'Starting from ₹2.00 Lakhs' :
+                    type === '2 BHK' ? 'Starting from ₹3.50 Lakhs' :
+                    type === '3 BHK' ? 'Starting from ₹6.50 Lakhs' :
+                    type === '4 BHK' ? 'Starting from ₹9.50 Lakhs' :
+                    'Starting from ₹12.50 Lakhs';
 
                   return (
-                    <div 
-                      key={item.type}
-                      className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
-                        isSelected 
-                          ? 'bg-white border-[#A88B57] shadow-md' 
-                          : 'bg-white/80 border-[#1A1917]/10 hover:border-[#A88B57]/50'
+                    <button
+                      key={type}
+                      onClick={() => applyBHKDefaults(type)}
+                      className={`p-4 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between ${
+                        isSelected
+                          ? 'bg-[#13362B] border-[#13362B] text-white shadow-lg scale-[1.02]'
+                          : 'bg-white border-[#1A1917]/10 text-[#1A1917] hover:border-[#A88B57]'
                       }`}
                     >
-                      {/* Main Accordion Header */}
-                      <button
-                        onClick={() => {
-                          setSelectedBHK(item.type);
-                          setExpandedBHK(isExpanded ? null : item.type);
-                        }}
-                        className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? 'border-[#A88B57] bg-[#A88B57]/10' : 'border-[#1A1917]/30'}`}>
-                            {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#A88B57]" />}
-                          </div>
-                          <span className="font-serif text-lg text-[#1A1917] font-medium">{item.type}</span>
+                      <div className="flex items-center justify-between w-full mb-2">
+                        <span className="font-serif text-lg font-bold">{type}</span>
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? 'border-white bg-[#D4AF37]' : 'border-gray-300'}`}>
+                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-[#13362B]" />}
                         </div>
-                        <div className="text-[#5A5852]">
-                          {isExpanded ? <ChevronUp className="w-5 h-5 text-[#A88B57]" /> : <ChevronDown className="w-5 h-5" />}
-                        </div>
-                      </button>
-
-                      {/* Expanded Sub-option (Small vs Large) */}
-                      {isExpanded && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="px-4 pb-4 pt-1 grid grid-cols-2 gap-3 border-t border-[#1A1917]/5 bg-[#FAF8F3]/50"
-                        >
-                          {(['Small', 'Large'] as BHKSize[]).map((size) => {
-                            const isSizeSelected = isSelected && selectedSize === size;
-                            const areaLabel = size === 'Small' ? item.smallArea : item.largeArea;
-
-                            return (
-                              <button
-                                key={size}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedBHK(item.type);
-                                  setSelectedSize(size);
-                                }}
-                                className={`p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
-                                  isSizeSelected
-                                    ? 'bg-[#13362B] border-[#13362B] text-white shadow-sm'
-                                    : 'bg-white border-[#1A1917]/10 text-[#1A1917] hover:border-[#A88B57]'
-                                }`}
-                              >
-                                <div className="flex items-center justify-between mb-1">
-                                  <span className="text-xs font-serif font-semibold">{size}</span>
-                                  <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${isSizeSelected ? 'border-white bg-white' : 'border-[#1A1917]/30'}`}>
-                                    {isSizeSelected && <div className="w-1.5 h-1.5 rounded-full bg-[#13362B]" />}
-                                  </div>
-                                </div>
-                                <span className={`text-[10px] font-mono block ${isSizeSelected ? 'text-white/80' : 'text-[#5A5852]'}`}>
-                                  {areaLabel}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </motion.div>
-                      )}
-                    </div>
+                      </div>
+                      <span className={`text-[10px] font-mono block ${isSelected ? 'text-[#D4AF37]' : 'text-[#8C6D3B]'}`}>
+                        {startingPrice}
+                      </span>
+                    </button>
                   );
                 })}
               </div>
@@ -385,14 +493,14 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
                   onClick={() => setStep(2)}
                   className="px-8 py-3.5 rounded-full bg-[#13362B] text-white text-xs font-mono font-bold uppercase tracking-widest hover:bg-[#0D241D] transition-all flex items-center gap-2 shadow-lg cursor-pointer"
                 >
-                  <span>NEXT: ROOM SELECTION</span>
+                  <span>NEXT: ROOM MEASUREMENTS</span>
                   <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
                 </button>
               </div>
             </motion.div>
           )}
 
-          {/* STEP 2: ROOM COUNTER SELECTION */}
+          {/* STEP 2: ROOM MEASUREMENTS & SQFT SELECTION */}
           {step === 2 && (
             <motion.div
               key="step2"
@@ -403,55 +511,101 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
               className="space-y-6"
             >
               <div className="text-center space-y-1">
-                <h3 className="font-serif text-2xl sm:text-3xl text-[#1A1917]">Select the rooms you’d like us to design</h3>
-                <p className="text-xs text-[#5A5852] font-light">Customize the exact quantity of rooms in your renovation plan</p>
+                <h3 className="font-serif text-2xl sm:text-3xl text-[#1A1917]">Specify Room Dimensions & Square Footage</h3>
+                <p className="text-xs text-[#5A5852] font-light">
+                  Pick preset measurements (10×10, 10×12, 12×14) or customize Length × Width in feet
+                </p>
               </div>
 
-              <div className="space-y-3 max-w-xl mx-auto">
-                {[
-                  { key: 'livingRoom' as keyof RoomCounts, label: 'Living Room', icon: Armchair },
-                  { key: 'kitchen' as keyof RoomCounts, label: 'Kitchen', icon: Utensils },
-                  { key: 'bedroom' as keyof RoomCounts, label: 'Bedroom', icon: Bed },
-                  { key: 'bathroom' as keyof RoomCounts, label: 'Bathroom', icon: Bath },
-                  { key: 'dining' as keyof RoomCounts, label: 'Dining Area', icon: Home },
-                ].map((room) => {
-                  const IconComponent = room.icon;
-                  const count = rooms[room.key];
+              {/* Room Counters Bar */}
+              <div className="p-4 rounded-2xl bg-white/70 border border-[#1A1917]/10 max-w-2xl mx-auto flex flex-wrap items-center justify-around gap-2 text-xs font-mono">
+                <span className="font-bold text-[#13362B] flex items-center gap-1.5">
+                  <Ruler className="w-4 h-4 text-[#D4AF37]" /> Rooms Included:
+                </span>
+                <span className="px-2 py-1 rounded bg-[#FAF8F3] border">{rooms.livingRoom} Living</span>
+                <span className="px-2 py-1 rounded bg-[#FAF8F3] border">{rooms.bedroom} Bed</span>
+                <span className="px-2 py-1 rounded bg-[#FAF8F3] border">{rooms.kitchen} Kitchen</span>
+                <span className="px-2 py-1 rounded bg-[#FAF8F3] border">{rooms.dining} Dining</span>
+                <span className="px-2 py-1 rounded bg-[#FAF8F3] border">{rooms.bathroom} Bath</span>
+              </div>
 
-                  return (
-                    <div
-                      key={room.key}
-                      className="p-4 rounded-2xl bg-white border border-[#1A1917]/10 flex items-center justify-between shadow-sm"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#FAF8F3] border border-[#A88B57]/20 flex items-center justify-center text-[#8C6D3B]">
-                          <IconComponent className="w-5 h-5" />
-                        </div>
-                        <span className="font-serif text-base text-[#1A1917] font-medium">{room.label}</span>
+              {/* Room Measurement Cards List */}
+              <div className="space-y-3 max-w-2xl mx-auto max-h-[50vh] overflow-y-auto pr-1">
+                {roomDimensions.map((room) => (
+                  <div
+                    key={room.id}
+                    className="p-4 rounded-2xl bg-white border border-[#1A1917]/10 space-y-3 shadow-sm hover:border-[#A88B57]/50 transition-all"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1A1917]/5 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-[#D4AF37]" />
+                        <strong className="font-serif text-base text-[#1A1917]">{room.roomName}</strong>
                       </div>
-
-                      {/* Counter Controls */}
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => updateRoomCount(room.key, -1)}
-                          disabled={count === 0}
-                          className="w-9 h-9 rounded-full bg-[#FAF8F3] border border-[#1A1917]/15 flex items-center justify-center text-[#1A1917] hover:bg-[#13362B] hover:text-white disabled:opacity-30 disabled:hover:bg-[#FAF8F3] disabled:hover:text-[#1A1917] transition-all cursor-pointer"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-8 text-center font-mono font-bold text-lg text-[#13362B]">
-                          {count}
+                      <div className="flex items-center gap-2 font-mono text-xs">
+                        <span className="text-[#5A5852]">Calculated Area:</span>
+                        <span className="px-2.5 py-1 rounded-md bg-[#13362B] text-white font-bold text-sm">
+                          {room.sqft} sq.ft
                         </span>
-                        <button
-                          onClick={() => updateRoomCount(room.key, 1)}
-                          className="w-9 h-9 rounded-full bg-[#13362B] text-white flex items-center justify-center hover:bg-[#A88B57] transition-all cursor-pointer shadow-sm"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
                       </div>
                     </div>
-                  );
-                })}
+
+                    {/* Dimension Controls */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* Presets */}
+                      <div>
+                        <label className="text-[10px] font-mono uppercase text-[#5A5852] block mb-1">Preset Dimension:</label>
+                        <select
+                          value={room.preset || 'Custom'}
+                          onChange={(e) => handlePresetSelect(room.id, e.target.value)}
+                          className="w-full px-3 py-2 rounded-xl bg-[#FAF8F3] border border-[#1A1917]/15 text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B]"
+                        >
+                          <option value="Custom">Custom (Manual Entry)</option>
+                          {DIMENSION_PRESETS.map(p => (
+                            <option key={p.label} value={p.label}>{p.label} ({p.sqft} sq.ft)</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Manual L x W inputs */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <label className="text-[10px] font-mono uppercase text-[#5A5852] block mb-1">Length (ft):</label>
+                          <input
+                            type="number"
+                            min="4"
+                            max="60"
+                            value={room.length}
+                            onChange={(e) => handleDimensionChange(room.id, Number(e.target.value), room.width, 'Custom')}
+                            className="w-full px-3 py-2 rounded-xl bg-[#FAF8F3] border border-[#1A1917]/15 text-xs font-mono text-center font-bold text-[#13362B]"
+                          />
+                        </div>
+                        <span className="text-[#5A5852] font-mono pt-4">×</span>
+                        <div className="flex-1">
+                          <label className="text-[10px] font-mono uppercase text-[#5A5852] block mb-1">Width (ft):</label>
+                          <input
+                            type="number"
+                            min="4"
+                            max="60"
+                            value={room.width}
+                            onChange={(e) => handleDimensionChange(room.id, room.length, Number(e.target.value), 'Custom')}
+                            className="w-full px-3 py-2 rounded-xl bg-[#FAF8F3] border border-[#1A1917]/15 text-xs font-mono text-center font-bold text-[#13362B]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Total Area Live Summary */}
+              <div className="p-4 rounded-2xl bg-[#13362B] text-white flex items-center justify-between max-w-2xl mx-auto shadow-md">
+                <div>
+                  <span className="text-[10px] font-mono uppercase text-[#D4AF37] block font-bold">Total Measured Carpet</span>
+                  <span className="font-serif text-xl font-bold">{totalCarpet} sq.ft</span>
+                </div>
+                <div className="text-right text-xs font-mono text-white/80">
+                  <span>Across {roomDimensions.length} designated areas</span>
+                </div>
               </div>
 
               {/* Navigation Footer */}
@@ -467,14 +621,14 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
                   onClick={() => setStep(3)}
                   className="px-8 py-3.5 rounded-full bg-[#13362B] text-white text-xs font-mono font-bold uppercase tracking-widest hover:bg-[#0D241D] transition-all flex items-center gap-2 shadow-lg cursor-pointer"
                 >
-                  <span>NEXT: PACKAGE TIER</span>
+                  <span>NEXT: TIER & SCOPE</span>
                   <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
                 </button>
               </div>
             </motion.div>
           )}
 
-          {/* STEP 3: PACKAGE QUALITY SELECTION */}
+          {/* STEP 3: PACKAGE QUALITY & SERVICE SCOPE SELECTION */}
           {step === 3 && (
             <motion.div
               key="step3"
@@ -485,87 +639,174 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
               className="space-y-6"
             >
               <div className="text-center space-y-1">
-                <h3 className="font-serif text-2xl sm:text-3xl text-[#1A1917]">Select your interior package tier</h3>
-                <p className="text-xs text-[#5A5852] font-light">Choose from our curated material standards and finish quality</p>
+                <h3 className="font-serif text-2xl sm:text-3xl text-[#1A1917]">Select Package Tier & Scope of Work</h3>
+                <p className="text-xs text-[#5A5852] font-light">
+                  Choose your sq.ft finish rate and check the specific services you require
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  {
-                    tier: 'Essentials' as PackageTier,
-                    priceTag: '₹₹',
-                    desc: 'A range of essential home interior solutions perfect for all your basic needs.',
-                    features: ['Affordable pricing', 'Convenient modular designs', 'CenturyPly 710 Grade'],
-                    imgUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=400',
-                  },
-                  {
-                    tier: 'Premium' as PackageTier,
-                    priceTag: '₹₹₹',
-                    desc: 'Superior home interior solutions that take your interiors to the next level.',
-                    features: ['Mid-range luxury pricing', 'Customized space planning', 'Hettich Precision Hardware'],
-                    imgUrl: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=400',
-                  },
-                  {
-                    tier: 'Luxury' as PackageTier,
-                    priceTag: '₹₹₹₹',
-                    desc: 'Opulent, bespoke interior architecture tailored for grand residences.',
-                    features: ['Bespoke heritage wood', 'Italian Marble flooring', 'Hafele & Blum Systems'],
-                    imgUrl: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=400',
-                  },
-                ].map((item) => {
-                  const isSelected = packageTier === item.tier;
+              {/* 3-Tier Rates Selection */}
+              <div>
+                <span className="text-xs font-mono uppercase tracking-wider text-[#8C6D3B] font-bold block mb-3 text-center">
+                  Select Finish Quality Grade (Per Sq.Ft Rate)
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {[
+                    {
+                      tier: 'Economy' as PackageTier,
+                      rate: 1000,
+                      tag: 'Value Standard',
+                      desc: 'ISI 710 Hardwood BWP Plywood, Ebco/Godrej hardware, 0.8mm laminates.',
+                    },
+                    {
+                      tier: 'Luxury' as PackageTier,
+                      rate: 1200,
+                      tag: 'Popular Choice',
+                      desc: 'Century Sainik 710 BWP Marine Plywood, Hettich soft-close, 1mm laminates.',
+                    },
+                    {
+                      tier: 'Premium' as PackageTier,
+                      rate: 1500,
+                      tag: 'Turnkey Luxury',
+                      desc: 'Century Club Prime 710 BWP, Hafele/Blum fittings, PU Polish & Acrylic.',
+                    },
+                  ].map((item) => {
+                    const isSelected = packageTier === item.tier;
 
-                  return (
-                    <div
-                      key={item.tier}
-                      onClick={() => setPackageTier(item.tier)}
-                      className={`rounded-2xl border p-5 flex flex-col justify-between transition-all duration-300 cursor-pointer ${
-                        isSelected
-                          ? 'bg-white border-[#A88B57] shadow-xl ring-2 ring-[#A88B57]/30 scale-[1.02]'
-                          : 'bg-white/80 border-[#1A1917]/10 hover:border-[#A88B57]/40'
-                      }`}
-                    >
-                      <div>
-                        {/* Header & Radio */}
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? 'border-[#A88B57] bg-[#A88B57]' : 'border-[#1A1917]/30'}`}>
-                              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                            </div>
-                            <span className="font-serif text-lg font-bold text-[#1A1917]">{item.tier}</span>
+                    return (
+                      <div
+                        key={item.tier}
+                        onClick={() => setPackageTier(item.tier)}
+                        className={`rounded-2xl border p-5 flex flex-col justify-between transition-all duration-300 cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#13362B] border-[#13362B] text-white shadow-xl ring-2 ring-[#D4AF37] scale-[1.02]'
+                            : 'bg-white border-[#1A1917]/10 hover:border-[#A88B57]/50 text-[#1A1917]'
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-serif text-lg font-bold">{item.tier}</span>
+                            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${isSelected ? 'bg-[#D4AF37] text-[#13362B] font-bold' : 'bg-gray-100 text-gray-600'}`}>
+                              {item.tag}
+                            </span>
                           </div>
-                          <span className="text-xs font-mono font-bold text-[#8C6D3B]">{item.priceTag}</span>
+
+                          <div className="my-2">
+                            <span className={`font-serif text-2xl font-bold ${isSelected ? 'text-[#D4AF37]' : 'text-[#13362B]'}`}>
+                              ₹{item.rate.toLocaleString('en-IN')}
+                            </span>
+                            <span className={`text-xs font-mono ml-1 ${isSelected ? 'text-white/80' : 'text-gray-500'}`}>/ sq.ft</span>
+                          </div>
+
+                          <p className={`text-[11px] font-light leading-relaxed ${isSelected ? 'text-white/90' : 'text-[#5A5852]'}`}>
+                            {item.desc}
+                          </p>
                         </div>
 
-                        <p className="text-[11px] text-[#5A5852] font-light leading-relaxed mb-4">
-                          {item.desc}
-                        </p>
-
-                        {/* Image Preview */}
-                        <div className="rounded-xl overflow-hidden mb-4 aspect-[4/3] relative">
-                          <img src={item.imgUrl} alt={item.tier} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                        <div className="mt-4 pt-3 border-t border-white/10 text-center">
+                          <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${isSelected ? 'text-[#D4AF37]' : 'text-[#8C6D3B]'}`}>
+                            {isSelected ? '✓ SELECTED TIER' : 'CLICK TO SELECT'}
+                          </span>
                         </div>
-
-                        {/* Checklist */}
-                        <ul className="space-y-2">
-                          {item.features.map((feat, idx) => (
-                            <li key={idx} className="flex items-center gap-2 text-[11px] text-[#1A1917]">
-                              <Check className="w-3.5 h-3.5 text-[#13362B] shrink-0" />
-                              <span>{feat}</span>
-                            </li>
-                          ))}
-                        </ul>
                       </div>
+                    );
+                  })}
+                </div>
+              </div>
 
-                      <div className="mt-4 pt-3 border-t border-[#1A1917]/5 text-center">
-                        <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${isSelected ? 'text-[#13362B]' : 'text-[#5A5852]'}`}>
-                          {isSelected ? '✓ SELECTED TIER' : 'CLICK TO SELECT'}
-                        </span>
-                      </div>
+              {/* Service Scope Checkboxes */}
+              <div className="p-5 rounded-2xl bg-white border border-[#1A1917]/10 space-y-4 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1A1917]/10 pb-3">
+                  <div>
+                    <h4 className="font-serif text-lg font-bold text-[#1A1917]">Select Scope of Services</h4>
+                    <p className="text-xs text-[#5A5852] font-mono">Tick which services you want included in your quote</p>
+                  </div>
+                  <button
+                    onClick={toggleAllScope}
+                    className="px-4 py-1.5 rounded-full bg-[#FAF8F3] border border-[#A88B57]/30 text-xs font-mono font-bold text-[#8C6D3B] hover:bg-[#13362B] hover:text-white transition-all cursor-pointer"
+                  >
+                    {allScopeSelected ? 'Deselect All' : 'Select All (Complete Turnkey)'}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Furniture */}
+                  <label
+                    onClick={() => setServiceScope(prev => ({ ...prev, furniture: !prev.furniture }))}
+                    className={`p-3.5 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${
+                      serviceScope.furniture
+                        ? 'bg-[#13362B]/5 border-[#13362B] text-[#13362B]'
+                        : 'bg-white border-gray-200 text-gray-500'
+                    }`}
+                  >
+                    <div className="mt-0.5">
+                      {serviceScope.furniture ? <CheckSquare className="w-4 h-4 text-[#13362B]" /> : <Square className="w-4 h-4 text-gray-400" />}
                     </div>
-                  );
-                })}
+                    <div>
+                      <strong className="text-xs font-serif block text-[#1A1917]">Modular Furniture & Woodwork</strong>
+                      <span className="text-[11px] font-mono text-[#5A5852]">Wardrobes, TV units, Modular Kitchen, Beds & Storage</span>
+                    </div>
+                  </label>
+
+                  {/* Painting */}
+                  <label
+                    onClick={() => setServiceScope(prev => ({ ...prev, painting: !prev.painting }))}
+                    className={`p-3.5 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${
+                      serviceScope.painting
+                        ? 'bg-[#13362B]/5 border-[#13362B] text-[#13362B]'
+                        : 'bg-white border-gray-200 text-gray-500'
+                    }`}
+                  >
+                    <div className="mt-0.5">
+                      {serviceScope.painting ? <CheckSquare className="w-4 h-4 text-[#13362B]" /> : <Square className="w-4 h-4 text-gray-400" />}
+                    </div>
+                    <div>
+                      <strong className="text-xs font-serif block text-[#1A1917]">Wall Painting & Polishing</strong>
+                      <span className="text-[11px] font-mono text-[#5A5852]">Asian Paints Royale Luxury Emulsion + Primer & Putty</span>
+                    </div>
+                  </label>
+
+                  {/* Electrical */}
+                  <label
+                    onClick={() => setServiceScope(prev => ({ ...prev, electrical: !prev.electrical }))}
+                    className={`p-3.5 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${
+                      serviceScope.electrical
+                        ? 'bg-[#13362B]/5 border-[#13362B] text-[#13362B]'
+                        : 'bg-white border-gray-200 text-gray-500'
+                    }`}
+                  >
+                    <div className="mt-0.5">
+                      {serviceScope.electrical ? <CheckSquare className="w-4 h-4 text-[#13362B]" /> : <Square className="w-4 h-4 text-gray-400" />}
+                    </div>
+                    <div>
+                      <strong className="text-xs font-serif block text-[#1A1917]">Electrical & Lighting Work</strong>
+                      <span className="text-[11px] font-mono text-[#5A5852]">Concealed wiring, modular switches, LED spots & coves</span>
+                    </div>
+                  </label>
+
+                  {/* False Ceiling */}
+                  <label
+                    onClick={() => setServiceScope(prev => ({ ...prev, falseCeiling: !prev.falseCeiling }))}
+                    className={`p-3.5 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${
+                      serviceScope.falseCeiling
+                        ? 'bg-[#13362B]/5 border-[#13362B] text-[#13362B]'
+                        : 'bg-white border-gray-200 text-gray-500'
+                    }`}
+                  >
+                    <div className="mt-0.5">
+                      {serviceScope.falseCeiling ? <CheckSquare className="w-4 h-4 text-[#13362B]" /> : <Square className="w-4 h-4 text-gray-400" />}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <strong className="text-xs font-serif text-[#1A1917]">Designer False Ceiling</strong>
+                        <span className="px-2 py-0.5 rounded bg-[#D4AF37]/20 text-[#8C6D3B] text-[10px] font-mono font-bold">₹120 / sq.ft</span>
+                      </div>
+                      <span className="text-[11px] font-mono text-[#5A5852]">
+                        Gyproc Saint-Gobain boards ({falseCeilingSqft} sq.ft ~ ₹{falseCeilingCost.toLocaleString('en-IN')})
+                      </span>
+                    </div>
+                  </label>
+                </div>
               </div>
 
               {/* Navigation Footer */}
@@ -599,94 +840,123 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
               className="space-y-6"
             >
               <div className="text-center space-y-1">
-                <h3 className="font-serif text-2xl sm:text-3xl text-[#1A1917]">Submit Details to Unlock Price</h3>
-                <p className="text-xs text-[#5A5852] font-light">Provide your contact info to calculate your exact turnkey valuation</p>
+                <h3 className="font-serif text-2xl sm:text-3xl text-[#1A1917]">Receive Your Official Quotation</h3>
+                <p className="text-xs text-[#5A5852] font-light">
+                  Your customized estimation is calculated. Enter your contact details to generate and download the quotation.
+                </p>
               </div>
 
-              <form onSubmit={handleSubmitDetails} className="space-y-4 max-w-lg mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-[#1A1917]/10 shadow-sm">
-                
-                {/* Full Name */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[#1A1917] flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-[#8C6D3B]" />
-                    <span>Full Name *</span>
+              {/* Live Mini Preview */}
+              <div className="p-4 rounded-2xl bg-white border border-[#1A1917]/10 max-w-md mx-auto space-y-2 text-xs font-mono">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Configuration:</span>
+                  <strong>{selectedBHK} ({totalCarpet} sq.ft)</strong>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Finish Tier:</span>
+                  <strong className="text-[#8C6D3B]">{packageTier} (₹{getTierRate()}/sq.ft)</strong>
+                </div>
+                {serviceScope.falseCeiling && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">False Ceiling:</span>
+                    <strong>{falseCeilingSqft} sq.ft @ ₹120/sq.ft (₹{falseCeilingCost.toLocaleString('en-IN')})</strong>
+                  </div>
+                )}
+                <div className="flex justify-between border-t pt-2 text-[#13362B] font-bold text-sm">
+                  <span>Estimated Total:</span>
+                  <span>₹{(totalInvestment / 100000).toFixed(2)} Lakhs</span>
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmitDetails} className="space-y-4 max-w-md mx-auto">
+                <div>
+                  <label className="text-xs font-mono uppercase tracking-wider text-[#5A5852] block mb-1.5">
+                    Your Full Name *
                   </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Anirban Das"
-                    value={userDetails.name}
-                    onChange={(e) => setUserDetails({ ...userDetails, name: e.target.value })}
-                    className={`w-full px-4 py-3 rounded-xl border text-sm font-sans focus:outline-none transition-all ${
-                      formErrors.name ? 'border-red-500 bg-red-50/50' : 'border-[#1A1917]/15 focus:border-[#A88B57] bg-[#FAF8F3]'
-                    }`}
-                  />
-                  {formErrors.name && <p className="text-[10px] text-red-500 font-mono">{formErrors.name}</p>}
+                  <div className="relative">
+                    <User className="w-4 h-4 text-[#8C6D3B] absolute left-4 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="e.g. Sourav Mukherjee"
+                      value={userDetails.name}
+                      onChange={(e) => setUserDetails({ ...userDetails, name: e.target.value })}
+                      className={`w-full pl-11 pr-4 py-3 rounded-2xl bg-white border text-xs font-mono text-[#1A1917] focus:outline-none transition-all ${
+                        formErrors.name ? 'border-red-400 ring-2 ring-red-100' : 'border-[#1A1917]/15 focus:border-[#13362B]'
+                      }`}
+                    />
+                  </div>
+                  {formErrors.name && <p className="text-[11px] text-red-500 font-mono mt-1">{formErrors.name}</p>}
                 </div>
 
-                {/* Mobile Number */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[#1A1917] flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-[#8C6D3B]" />
-                    <span>Mobile Phone *</span>
+                <div>
+                  <label className="text-xs font-mono uppercase tracking-wider text-[#5A5852] block mb-1.5">
+                    WhatsApp / Mobile Number *
                   </label>
-                  <input
-                    type="tel"
-                    placeholder="e.g. +91 98765 43210"
-                    value={userDetails.phone}
-                    onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value })}
-                    className={`w-full px-4 py-3 rounded-xl border text-sm font-sans focus:outline-none transition-all ${
-                      formErrors.phone ? 'border-red-500 bg-red-50/50' : 'border-[#1A1917]/15 focus:border-[#A88B57] bg-[#FAF8F3]'
-                    }`}
-                  />
-                  {formErrors.phone && <p className="text-[10px] text-red-500 font-mono">{formErrors.phone}</p>}
+                  <div className="relative">
+                    <Phone className="w-4 h-4 text-[#8C6D3B] absolute left-4 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="tel"
+                      placeholder="e.g. 98300 12345"
+                      value={userDetails.phone}
+                      onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value })}
+                      className={`w-full pl-11 pr-4 py-3 rounded-2xl bg-white border text-xs font-mono text-[#1A1917] focus:outline-none transition-all ${
+                        formErrors.phone ? 'border-red-400 ring-2 ring-red-100' : 'border-[#1A1917]/15 focus:border-[#13362B]'
+                      }`}
+                    />
+                  </div>
+                  {formErrors.phone && <p className="text-[11px] text-red-500 font-mono mt-1">{formErrors.phone}</p>}
                 </div>
 
-                {/* Email Address */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[#1A1917] flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-[#8C6D3B]" />
-                    <span>Email Address (Optional)</span>
+                <div>
+                  <label className="text-xs font-mono uppercase tracking-wider text-[#5A5852] block mb-1.5">
+                    Email Address (Optional)
                   </label>
-                  <input
-                    type="email"
-                    placeholder="e.g. anirban@example.com"
-                    value={userDetails.email}
-                    onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#1A1917]/15 focus:border-[#A88B57] bg-[#FAF8F3] text-sm font-sans focus:outline-none"
-                  />
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-[#8C6D3B] absolute left-4 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="email"
+                      placeholder="e.g. sourav@example.com"
+                      value={userDetails.email}
+                      onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
+                      className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white border border-[#1A1917]/15 text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B]"
+                    />
+                  </div>
                 </div>
 
-                {/* City / Property Location */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-[#1A1917] flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-[#8C6D3B]" />
-                    <span>Project Location / City</span>
+                <div>
+                  <label className="text-xs font-mono uppercase tracking-wider text-[#5A5852] block mb-1.5">
+                    Property Location in Kolkata
                   </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Alipore, Kolkata"
-                    value={userDetails.city}
-                    onChange={(e) => setUserDetails({ ...userDetails, city: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#1A1917]/15 focus:border-[#A88B57] bg-[#FAF8F3] text-sm font-sans focus:outline-none"
-                  />
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 text-[#8C6D3B] absolute left-4 top-1/2 -translate-y-1/2" />
+                    <select
+                      value={userDetails.city}
+                      onChange={(e) => setUserDetails({ ...userDetails, city: e.target.value })}
+                      className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white border border-[#1A1917]/15 text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B]"
+                    >
+                      <option value="South Kolkata (Ballygunge, Alipore, New Alipore)">South Kolkata (Ballygunge, Alipore)</option>
+                      <option value="New Town & Rajarhat (Action Area 1/2/3)">New Town & Rajarhat</option>
+                      <option value="Salt Lake (Sector 1-5)">Salt Lake (Sector 1-5)</option>
+                      <option value="EM Bypass & Garia">EM Bypass & Garia</option>
+                      <option value="North Kolkata (Dum Dum, Shyambazar)">North Kolkata</option>
+                      <option value="Howrah & Hooghly">Howrah & Hooghly</option>
+                    </select>
+                  </div>
                 </div>
 
-                {/* Submit Action Button */}
-                <div className="pt-4">
+                <div className="pt-2">
                   <button
                     type="submit"
-                    className="w-full py-4 rounded-full bg-gradient-to-r from-[#B59258] via-[#D4AF37] to-[#B59258] text-[#1A1917] font-mono text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl hover:brightness-110 transition-all cursor-pointer"
+                    className="w-full py-4 rounded-full bg-[#13362B] text-white font-mono text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#0D241D] transition-all shadow-xl cursor-pointer"
                   >
-                    <Sparkles className="w-4 h-4" />
-                    <span>SUBMIT & REVEAL PRICE QUOTE</span>
+                    <Sparkles className="w-4 h-4 text-[#D4AF37]" />
+                    <span>VIEW OFFICIAL QUOTATION</span>
                   </button>
                 </div>
               </form>
 
-              {/* Navigation Footer */}
-              <div className="flex items-center justify-start pt-2">
+              <div className="flex justify-start pt-2 border-t border-[#1A1917]/10">
                 <button
-                  type="button"
                   onClick={() => setStep(3)}
                   className="px-6 py-3 rounded-full bg-white border border-[#1A1917]/15 text-[#1A1917] text-xs font-mono font-bold uppercase tracking-wider hover:border-[#A88B57] transition-all flex items-center gap-2 cursor-pointer"
                 >
@@ -732,20 +1002,35 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
                 </h4>
 
                 <div className="grid grid-cols-2 gap-y-2 text-xs font-mono text-[#1A1917]">
-                  <div><span className="text-[#5A5852]">BHK Layout:</span> {selectedBHK} ({selectedSize})</div>
-                  <div><span className="text-[#5A5852]">Package Tier:</span> {packageTier}</div>
-                  <div><span className="text-[#5A5852]">Est. Carpet:</span> {getEstimatedArea()} sq.ft</div>
+                  <div><span className="text-[#5A5852]">BHK Layout:</span> {selectedBHK}</div>
+                  <div><span className="text-[#5A5852]">Package Tier:</span> {packageTier} (₹{getTierRate()}/sq.ft)</div>
+                  <div><span className="text-[#5A5852]">Total Area:</span> {totalCarpet} sq.ft</div>
                   <div><span className="text-[#5A5852]">Timeline:</span> ~{estimatedWeeks} Weeks</div>
+                  {serviceScope.falseCeiling && (
+                    <div className="col-span-2 text-emerald-800">
+                      <span className="text-[#5A5852]">False Ceiling:</span> {falseCeilingSqft} sq.ft @ ₹120/sq.ft (₹{falseCeilingCost.toLocaleString('en-IN')})
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-2 border-t border-[#1A1917]/10">
-                  <span className="text-[11px] font-mono text-[#5A5852] block mb-1">Rooms Included:</span>
+                  <span className="text-[11px] font-mono text-[#5A5852] block mb-1">Measured Rooms:</span>
                   <div className="flex flex-wrap gap-1.5">
-                    {rooms.livingRoom > 0 && <span className="px-2.5 py-0.5 rounded-md bg-[#FAF8F3] text-[10px] font-mono text-[#13362B] font-bold border border-[#13362B]/20">{rooms.livingRoom} Living</span>}
-                    {rooms.kitchen > 0 && <span className="px-2.5 py-0.5 rounded-md bg-[#FAF8F3] text-[10px] font-mono text-[#13362B] font-bold border border-[#13362B]/20">{rooms.kitchen} Kitchen</span>}
-                    {rooms.bedroom > 0 && <span className="px-2.5 py-0.5 rounded-md bg-[#FAF8F3] text-[10px] font-mono text-[#13362B] font-bold border border-[#13362B]/20">{rooms.bedroom} Bedroom</span>}
-                    {rooms.bathroom > 0 && <span className="px-2.5 py-0.5 rounded-md bg-[#FAF8F3] text-[10px] font-mono text-[#13362B] font-bold border border-[#13362B]/20">{rooms.bathroom} Bath</span>}
-                    {rooms.dining > 0 && <span className="px-2.5 py-0.5 rounded-md bg-[#FAF8F3] text-[10px] font-mono text-[#13362B] font-bold border border-[#13362B]/20">{rooms.dining} Dining</span>}
+                    {roomDimensions.map(d => (
+                      <span key={d.id} className="px-2 py-0.5 rounded-md bg-[#FAF8F3] text-[10px] font-mono text-[#13362B] font-bold border border-[#13362B]/20">
+                        {d.roomName}: {d.length}×{d.width} ({d.sqft} sq.ft)
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-[#1A1917]/10">
+                  <span className="text-[11px] font-mono text-[#5A5852] block mb-1">Service Scope Included:</span>
+                  <div className="flex flex-wrap gap-1.5 text-[10px] font-mono">
+                    {serviceScope.furniture && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ Furniture</span>}
+                    {serviceScope.painting && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ Painting</span>}
+                    {serviceScope.electrical && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ Electrical</span>}
+                    {serviceScope.falseCeiling && <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">✓ False Ceiling (@ ₹120)</span>}
                   </div>
                 </div>
               </div>
@@ -794,4 +1079,3 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
     </motion.section>
   );
 };
-
