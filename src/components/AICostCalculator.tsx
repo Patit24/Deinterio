@@ -1420,19 +1420,50 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
               </div>
 
               {/* BOQ Table */}
-              <div className="p-6 rounded-3xl bg-white border border-[#1A1917]/10 space-y-4 shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-3">
+              <div className="p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-[#1A1917]/10 space-y-4 shadow-sm overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2DDD6] pb-3">
                   <div>
                     <span className="text-[10px] font-mono uppercase text-[#8C6D3B] font-bold block">SPECIFICATION AUDIT</span>
-                    <h4 className="font-serif text-lg font-bold text-[#1A1917]">Schedule of Trade Costs</h4>
+                    <h4 className="font-serif text-base sm:text-lg font-bold text-[#1A1917]">Schedule of Trade Costs</h4>
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#13362B] font-bold">
+                  <span className="self-start sm:self-auto px-3 py-1 rounded-full bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#13362B] font-bold">
                     {totalCarpetArea} sq.ft Total Carpet
                   </span>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs font-mono border-collapse">
+                {/* Mobile Card List (< sm) */}
+                <div className="block sm:hidden space-y-2.5">
+                  {tradeBreakdown.map((item, idx) => (
+                    <div key={idx} className="p-3.5 rounded-2xl bg-[#FAF8F4] border border-[#E2DDD6] space-y-2.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-white border border-[#E2DDD6] text-[#8C6D3B]">
+                              Trade #{idx + 1}
+                            </span>
+                            <strong className="text-sm font-serif text-[#1A1917] truncate block">{item.trade}</strong>
+                          </div>
+                          <p className="text-xs text-[#5A5852] font-light leading-relaxed">{item.selection}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="text-sm font-bold font-mono text-[#13362B] block">
+                            ₹{item.cost.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t border-[#E2DDD6]/80 flex items-center justify-between text-[11px] font-mono">
+                        <span className="text-[#8C6D3B] font-medium">Rate & Scope:</span>
+                        <span className="px-2 py-0.5 rounded-md bg-white border border-[#E2DDD6] text-[#1A1917] font-semibold text-[10px]">
+                          {item.rateInfo}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Table View (>= sm) */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full min-w-[550px] text-left text-xs font-mono border-collapse">
                     <thead>
                       <tr className="border-b border-[#E2DDD6] text-[#6B6560]">
                         <th className="py-2.5 px-2 uppercase font-bold">Trade & Specification</th>
@@ -1460,22 +1491,22 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
                 </div>
 
                 {/* Grand Total Bar */}
-                <div className="p-4 rounded-2xl bg-[#13362B] text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
-                  <div>
-                    <span className="text-[10px] font-mono uppercase text-[#D4AF37] block font-bold">
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#13362B] text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-mono uppercase text-[#D4AF37] block font-bold tracking-wider">
                       Estimated Turnkey Investment
                     </span>
-                    <span className="font-serif text-3xl font-bold">
-                      ₹{(totalTurnkeyCost / 100000).toFixed(2)} <span className="text-xl text-[#A88B57]">Lakhs</span>
+                    <span className="font-serif text-2xl sm:text-3xl font-bold">
+                      ₹{(totalTurnkeyCost / 100000).toFixed(2)} <span className="text-lg sm:text-xl text-[#A88B57]">Lakhs</span>
                     </span>
-                    <p className="text-[11px] font-mono text-white/70 mt-0.5">
+                    <p className="text-[11px] font-mono text-white/70">
                       ₹{totalTurnkeyCost.toLocaleString('en-IN')} All-Inclusive Execution (No Hidden Extras)
                     </p>
                   </div>
 
-                  <div className="text-right text-xs font-mono text-white/90">
-                    <span className="block">Guaranteed Handover: ~{estimatedWeeks} Weeks</span>
-                    <span className="text-[10px] text-[#D4AF37] block mt-0.5">10-Year Digital Warranty</span>
+                  <div className="text-left sm:text-right text-xs font-mono text-white/90 border-t sm:border-t-0 border-white/10 pt-2.5 sm:pt-0 w-full sm:w-auto">
+                    <span className="block font-medium">Guaranteed Handover: ~{estimatedWeeks} Weeks</span>
+                    <span className="text-[10px] text-[#D4AF37] block mt-0.5 font-bold">10-Year Digital Warranty</span>
                   </div>
                 </div>
               </div>
