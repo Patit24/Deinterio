@@ -723,6 +723,23 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
                 <p className="text-xs font-mono text-[#5A5852] mt-1">
                   ₹{totalInvestment.toLocaleString('en-IN')} Total Valuation (Inclusive of GST & Execution)
                 </p>
+
+                {/* Primary Quick Download Button directly under amount */}
+                <div className="pt-3 max-w-md mx-auto">
+                  <button
+                    onClick={handleDownloadQuotation}
+                    className="w-full py-3.5 px-6 rounded-full bg-[#D4AF37] hover:bg-[#C29B28] text-[#13362B] font-mono text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer transform hover:-translate-y-0.5"
+                  >
+                    <Download className="w-4 h-4 text-[#13362B]" />
+                    <span>{hasDownloadedPDF ? 'DOWNLOAD PDF QUOTATION AGAIN' : 'DOWNLOAD OFFICIAL PDF QUOTATION'}</span>
+                  </button>
+                  {hasDownloadedPDF && (
+                    <p className="text-[11px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 py-1.5 px-3 rounded-lg text-center mt-2 flex items-center justify-center gap-1.5">
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Official Quotation #{quotationId} downloaded & recorded in admin panel.</span>
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Selected Summary Breakdown Card */}
