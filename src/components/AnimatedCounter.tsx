@@ -16,13 +16,15 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   const isInView = useInView(ref, { once: true, amount: 0.5 });
   const [displayValue, setDisplayValue] = useState('0');
 
-  // Parse prefix, number, and suffix (e.g., "150+" -> num: 150, suffix: "+")
-  const valueStr = String(value);
-  const match = valueStr.match(/^([^\d]*)([\d,.]+)([^\d]*)$/);
+  const valueStr = String(value).trim();
+  // Support prefixes, numbers with optional decimals (e.g. 4.9), and any trailing suffix (e.g. "★", "/5", "+")
+  const match = valueStr.match(/^([^\d]*)([\d,]+(?:\.\d+)?)(.*)$/);
 
   const prefix = match ? match[1] : '';
-  const targetNum = match ? parseFloat(match[2].replace(/,/g, '')) : 0;
+  const targetNum = match ? parseFloat(match[2].replace(/,/g, '')) : NaN;
   const suffix = match ? match[3] : '';
+  const hasDecimal = match ? match[2].includes('.') : false;
+  const decimalPlaces = hasDecimal ? (match![2].split('.')[1]?.length || 1) : 0;
 
   useEffect(() => {
     if (!isInView || isNaN(targetNum)) return;
@@ -36,20 +38,20 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
       
       // Easing function: easeOutExpo for dramatic slowdown at the end
       const easedProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      const current = Math.floor(easedProgress * targetNum);
+      const current = easedProgress * targetNum;
 
-      setDisplayValue(current.toLocaleString('en-US'));
+      setDisplayValue(hasDecimal ? current.toFixed(decimalPlaces) : Math.floor(current).toLocaleString('en-US'));
 
       if (progress < 1) {
         animationFrameId = requestAnimationFrame(step);
       } else {
-        setDisplayValue(targetNum.toLocaleString('en-US'));
+        setDisplayValue(hasDecimal ? targetNum.toFixed(decimalPlaces) : targetNum.toLocaleString('en-US'));
       }
     };
 
     animationFrameId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [isInView, targetNum, duration]);
+  }, [isInView, targetNum, duration, hasDecimal, decimalPlaces]);
 
   if (isNaN(targetNum)) {
     return <span className={className}>{value}</span>;

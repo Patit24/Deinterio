@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles, ArrowRight, Check, X, Building2, Home, Utensils,
   Landmark, ShoppingBag, GraduationCap, Trophy, Users, Clock,
-  Flame, Box, ShieldCheck, Gem, TrendingUp
+  Flame, Box, ShieldCheck, Gem, TrendingUp, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { BeforeAfterSlider } from './BeforeAfterSlider';
 import { useResponsiveMotion } from '../hooks/useResponsiveMotion';
@@ -18,7 +18,7 @@ const CARDS = [
     category: 'Residential', badge: '528+ Homes', subtext: '500+ Happy Families',
     desc: '2BHK · 3BHK · 4BHK · Villas · Penthouses',
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=90',
-    beforeImg: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=1000&q=80',
+    beforeImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1000&q=80',
     afterImg: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=80',
     specs: 'Complete turnkey residential architecture including Italian marble wall cladding, acoustic false ceiling slots, modular kitchens, and custom imported wardrobe cabinetry.',
     invest: '₹18L – ₹65L',
@@ -211,39 +211,8 @@ export const MaterialsLibrary: React.FC = () => {
     setIdx(clamped);
   }, [idx, total]);
 
-  useEffect(() => {
-    if (shouldDisableScrollMotion) return; // Native instant scrolling on mobile
-
-    const onWheel = (e: WheelEvent) => {
-      if (!sectionRef.current) return;
-      const rect = sectionRef.current.getBoundingClientRect();
-      const inZone = rect.top <= 0 && rect.bottom >= window.innerHeight;
-      if (!inZone) return;
-
-      if (Math.abs(e.deltaY) < 18) return;
-
-      if (e.deltaY > 0 && idx < total - 1) {
-        e.preventDefault();
-        goTo(idx + 1, 1);
-      } else if (e.deltaY < 0 && idx > 0) {
-        e.preventDefault();
-        goTo(idx - 1, -1);
-      }
-    };
-
-    window.addEventListener('wheel', onWheel, { passive: false });
-    return () => window.removeEventListener('wheel', onWheel);
-  }, [idx, total, goTo, shouldDisableScrollMotion]);
-
-  const scrollTo = (i: number) => {
-    if (!sectionRef.current) return;
-    const top = sectionRef.current.offsetTop;
-    const step = sectionRef.current.offsetHeight / total;
-    window.scrollTo({ top: top + step * (i + 0.4), behavior: 'smooth' });
-  };
-
   return (
-    <section id="materials" className="relative py-28 lg:py-36 bg-[#F6F3EE] text-[#1A1917]">
+    <section id="materials" className="relative py-16 lg:py-24 bg-[#F6F3EE] text-[#1A1917]">
 
       {/* MOBILE DISPLAY (Clean Warm Theme Card Deck - No Scroll Traps) */}
       {shouldDisableScrollMotion ? (
@@ -281,12 +250,12 @@ export const MaterialsLibrary: React.FC = () => {
           </div>
         </div>
       ) : (
-        /* DESKTOP & TABLET DISPLAY (Clean Warm Theme 3-Column Studio Layout) */
-        <div ref={sectionRef} style={{ height: `${total * 100}vh` }} className="relative">
-          <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col bg-[#F6F3EE]">
+        /* DESKTOP & TABLET DISPLAY (Clean Warm Theme 3-Column Studio Layout - Fully Contained, Zero Scroll Jacking) */
+        <div ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="w-full rounded-3xl border border-[#E2DDD6] overflow-hidden flex flex-col bg-[#F6F3EE] shadow-xl">
 
             {/* ── TOP HEADER BAR ──────────────────────────────────────────── */}
-            <div className="shrink-0 flex items-center justify-between px-6 lg:px-12 py-4 border-b border-[#E2DDD6] bg-[#FAF8F4]">
+            <div className="shrink-0 flex items-center justify-between px-6 lg:px-10 py-4 border-b border-[#E2DDD6] bg-[#FAF8F4]">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="w-3.5 h-3.5 text-[#8C6D3B]" />
@@ -300,22 +269,38 @@ export const MaterialsLibrary: React.FC = () => {
                 </h2>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="px-4 py-2 rounded-full border border-[#D4C3A3] bg-[#F5EFDF] text-xs font-mono font-bold text-[#8C6D3B] shadow-2xs">
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => goTo(idx - 1)}
+                  disabled={idx === 0}
+                  className="w-8 h-8 rounded-full border border-[#D4C3A3] bg-white hover:bg-[#F5EFDF] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[#1A1917] transition-all cursor-pointer shadow-2xs"
+                  title="Previous Vertical"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <div className="px-3.5 py-1.5 rounded-full border border-[#D4C3A3] bg-[#F5EFDF] text-xs font-mono font-bold text-[#8C6D3B] shadow-2xs">
                   {String(idx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
                 </div>
+                <button
+                  onClick={() => goTo(idx + 1)}
+                  disabled={idx === total - 1}
+                  className="w-8 h-8 rounded-full border border-[#D4C3A3] bg-white hover:bg-[#F5EFDF] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[#1A1917] transition-all cursor-pointer shadow-2xs"
+                  title="Next Vertical"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
 
             {/* ── MAIN GRID ───────────────────────────────────────────────── */}
-            <div className="flex-1 min-h-0 grid grid-cols-[72px_1fr] xl:grid-cols-[72px_1fr_320px] overflow-hidden">
+            <div className="flex-1 min-h-[560px] grid grid-cols-[72px_1fr] xl:grid-cols-[72px_1fr_320px] overflow-hidden">
 
               {/* ── COL 1: Vertical thumb rail ──────────────────────────── */}
               <div className="flex flex-col items-center justify-center gap-4 py-6 border-r border-[#E2DDD6] bg-[#FAF8F4]">
                 {CARDS.map((c, i) => (
                   <button
                     key={c.id}
-                    onClick={() => scrollTo(i)}
+                    onClick={() => goTo(i)}
                     title={c.category}
                     className="relative flex flex-col items-center gap-1 group cursor-pointer"
                   >
@@ -425,7 +410,7 @@ export const MaterialsLibrary: React.FC = () => {
                       />
                     </div>
                     <div className="flex justify-between mt-2">
-                      <span className="text-xs font-mono text-[#5A5852] font-medium">Scroll through space verticals</span>
+                      <span className="text-xs font-mono text-[#5A5852] font-medium">Explore 6 space verticals · Click thumbnails or arrows</span>
                       <span className="text-xs font-mono font-bold text-[#8C6D3B]">
                         {idx + 1} of {total}
                       </span>
@@ -439,7 +424,7 @@ export const MaterialsLibrary: React.FC = () => {
               <div className="hidden xl:flex flex-col justify-between py-7 px-6 border-l border-[#E2DDD6] bg-[#FAF8F4] overflow-hidden">
                 <div>
                   <p className="text-xs text-[#5A5852] font-light leading-relaxed tracking-wide">
-                    Scroll through our six dedicated space verticals — each crafted with precision material engineering and bespoke design philosophy.
+                    Explore our six dedicated architectural verticals — each crafted with precision material engineering and bespoke design philosophy.
                   </p>
                 </div>
 

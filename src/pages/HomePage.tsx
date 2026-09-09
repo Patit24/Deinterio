@@ -78,11 +78,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               tag: 'Complete Residence',
             },
             {
-              id: 'smart-automation',
-              title: 'Sub-Zero IoT Automation',
-              desc: 'Sub-Zero IoT smart lighting control, motorized curtains, climate zone tuning, and live mobile PM project telemetry.',
-              image: 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80',
-              tag: 'Smart Spatial Tech',
+              id: 'living-lounge',
+              title: 'Artisanal Living & Pooja Sanctuaries',
+              desc: 'Vastu-aligned Corian mandirs, Italian marble TV feature walls, fluted Burma teak joinery, and warm cove ambient lighting for Kolkata homes.',
+              image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80',
+              tag: 'Sanctuary & Living',
             },
           ].map((srv) => (
             <a

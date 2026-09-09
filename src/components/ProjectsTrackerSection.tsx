@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Building2, 
   Construction, 
@@ -20,6 +20,7 @@ import {
   FileText
 } from 'lucide-react';
 import { BeforeAfterSlider } from './BeforeAfterSlider';
+import { dataStore, type TrackerProject } from '../services/dataStore';
 
 interface ProjectsTrackerSectionProps {
   onOpenDashboard?: () => void;
@@ -31,8 +32,22 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({
   onOpenBooking = () => { window.location.hash = '#/calculator'; }
 }) => {
   const [activeFilter, setActiveFilter] = useState('ALL PROJECTS');
-  const [selectedLiveProject, setSelectedLiveProject] = useState<any | null>(null);
-  const [selectedCompletedProject, setSelectedCompletedProject] = useState<any | null>(null);
+  const [selectedLiveProject, setSelectedLiveProject] = useState<TrackerProject | null>(null);
+  const [selectedCompletedProject, setSelectedCompletedProject] = useState<TrackerProject | null>(null);
+  const [allTrackerProjects, setAllTrackerProjects] = useState<TrackerProject[]>(() => dataStore.getTrackerProjects());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setAllTrackerProjects(dataStore.getTrackerProjects());
+    };
+    window.addEventListener('storage', handleUpdate);
+    window.addEventListener('deinterio_datastore_updated', handleUpdate);
+    return () => {
+      window.removeEventListener('storage', handleUpdate);
+      window.removeEventListener('deinterio_datastore_updated', handleUpdate);
+    };
+  }, []);
+
   const [activeMapPin, setActiveMapPin] = useState<any | null>({
     name: 'Lakeview Villa',
     location: 'New Town, Kolkata',
@@ -40,10 +55,22 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({
     img: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=400&q=80',
   });
 
+  const getStageIcon = (stage?: string) => {
+    if (!stage) return Target;
+    const s = stage.toLowerCase();
+    if (s.includes('elect')) return Zap;
+    if (s.includes('ceil') || s.includes('pop')) return Target;
+    if (s.includes('floor') || s.includes('tile')) return Building2;
+    return Construction;
+  };
+
+  const workingProjectsTotal = allTrackerProjects.filter(p => p.status === 'WORKING');
+  const completedProjectsTotal = allTrackerProjects.filter(p => p.status === 'COMPLETED');
+
   // Top Statistics Bar Data
   const statsData = [
-    { number: '420+', label: 'Projects Delivered', icon: Building2 },
-    { number: '17', label: 'Homes Under Construction', icon: Construction },
+    { number: `${completedProjectsTotal.length + 418}+`, label: 'Projects Delivered', icon: Building2 },
+    { number: `${workingProjectsTotal.length}`, label: 'Homes Under Construction', icon: Construction },
     { number: '98%', label: 'On-Time Completion', icon: Clock },
     { number: '4.9★', label: 'Average Client Rating', icon: Users },
     { number: '10 Yrs', label: 'Warranty Guarantee', icon: Award },
@@ -61,131 +88,26 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({
     'RESTAURANTS',
   ];
 
-  // Live Ongoing Projects (Left Column)
-  const liveProjects = [
-    {
-      id: 'live-1',
-      name: 'Moderna Apartment',
-      location: 'New Town, Kolkata',
-      type: 'Apartment (3 BHK)',
-      currentStage: 'False Ceiling Work',
-      stageIcon: Target,
-      progress: 62,
-      estCompletion: '28 Aug, 2026',
-      manager: 'Arijit D.',
-      managerAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-      heroImage: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80',
-      badge: 'Live',
-      pmNote: 'Saint-Gobain gypsum ceiling frames installed. Indirect LED slot cutouts complete.',
-      timeline: [
-        { milestone: 'Site Preparation & Demolition', date: '10 Jun, 2026', status: 'Completed' },
-        { milestone: 'Electrical & Plumbing Wiring', date: '28 Jun, 2026', status: 'Completed' },
-        { milestone: 'False Ceiling & Gypsum POP', date: '20 Jul, 2026', status: 'Active' },
-        { milestone: 'Modular Furniture Installation', date: '10 Aug, 2026', status: 'Upcoming' },
-        { milestone: 'Final Quality Inspection & Handover', date: '28 Aug, 2026', status: 'Upcoming' },
-      ],
-    },
-    {
-      id: 'live-2',
-      name: 'Siddha Sky Villa',
-      location: 'Rajarhat, Kolkata',
-      type: 'Villa / Bungalow',
-      currentStage: 'Electrical Work',
-      stageIcon: Zap,
-      progress: 48,
-      estCompletion: '12 Oct, 2026',
-      manager: 'Pooja S.',
-      managerAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
-      heroImage: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=800&q=80',
-      badge: 'Live',
-      pmNote: 'Concealed copper wiring running through living room ceiling slots. DB box fixed.',
-      timeline: [
-        { milestone: 'Architectural Layout Approval', date: '15 May, 2026', status: 'Completed' },
-        { milestone: 'Civil Masonry & Demolition', date: '10 Jun, 2026', status: 'Completed' },
-        { milestone: 'Concealed Electrical & Plumbing', date: '15 Jul, 2026', status: 'Active' },
-        { milestone: 'False Ceiling & Flooring', date: '25 Aug, 2026', status: 'Upcoming' },
-        { milestone: 'Handover', date: '12 Oct, 2026', status: 'Upcoming' },
-      ],
-    },
-    {
-      id: 'live-3',
-      name: 'Garia Garden Residence',
-      location: 'Garia, Kolkata',
-      type: 'Apartment (2 BHK)',
-      currentStage: 'Flooring Work',
-      stageIcon: Target,
-      progress: 35,
-      estCompletion: '05 Sep, 2026',
-      manager: 'Sourav M.',
-      managerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-      heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-      badge: 'Live',
-      pmNote: 'Italian marble tile alignment underway in master bedroom and dining hall.',
-      timeline: [
-        { milestone: 'Site Measurement', date: '01 Jun, 2026', status: 'Completed' },
-        { milestone: 'Civil & Wall Plastering', date: '20 Jun, 2026', status: 'Completed' },
-        { milestone: 'Marble Flooring Laying', date: '28 Jul, 2026', status: 'Active' },
-        { milestone: 'Modular Wardrobes Fitting', date: '15 Aug, 2026', status: 'Upcoming' },
-        { milestone: 'Final Painting & Handover', date: '05 Sep, 2026', status: 'Upcoming' },
-      ],
-    },
-  ];
+  const filteredProjects = allTrackerProjects.filter((p) => {
+    if (activeFilter === 'ALL PROJECTS') return true;
+    if (activeFilter === 'ONGOING') return p.status === 'WORKING';
+    if (activeFilter === 'COMPLETED') return p.status === 'COMPLETED';
+    if (activeFilter === 'APARTMENTS') return p.type.toLowerCase().includes('apartment') || p.type.toLowerCase().includes('bhk');
+    if (activeFilter === 'VILLAS') return p.type.toLowerCase().includes('villa') || p.type.toLowerCase().includes('bungalow');
+    if (activeFilter === 'COMMERCIAL' || activeFilter === 'OFFICES') return p.type.toLowerCase().includes('commercial') || p.type.toLowerCase().includes('office');
+    if (activeFilter === 'RESTAURANTS') return p.type.toLowerCase().includes('restaurant') || p.type.toLowerCase().includes('cafe');
+    return true;
+  });
 
-  // Recently Completed Projects (Right Column Grid)
-  const completedProjects = [
-    {
-      id: 'comp-1',
-      name: 'Woodstone Residence',
-      location: 'Ballygunge, Kolkata',
-      type: '4BHK Apartment',
-      area: '3,450 sq.ft',
-      completedDate: 'May 2026',
-      duration: '14 Weeks',
-      rating: '5.0',
-      heroImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
-      beforeImg: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80',
-      afterImg: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
-      testimonial: 'Deinterio Interior Group transformed our 4BHK apartment in Ballygunge beyond expectation.',
-      clientName: 'Sujit & Mousumi Dutta',
-    },
-    {
-      id: 'comp-2',
-      name: 'Lakeview Villa',
-      location: 'New Town, Kolkata',
-      type: 'Villa',
-      area: '5,200 sq.ft',
-      completedDate: 'April 2026',
-      duration: '20 Weeks',
-      rating: '4.9',
-      heroImage: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
-      beforeImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
-      afterImg: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
-      testimonial: 'Superb execution of modular kitchen, false ceiling, and dining chandelier.',
-      clientName: 'Subir & Poulomi Ghosh',
-    },
-    {
-      id: 'comp-3',
-      name: 'Thinkspace Office',
-      location: 'Salt Lake, Kolkata',
-      type: 'Commercial Office',
-      area: '2,800 sq.ft',
-      completedDate: 'March 2026',
-      duration: '10 Weeks',
-      rating: '4.8',
-      heroImage: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
-      beforeImg: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80',
-      afterImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
-      testimonial: 'Modern acoustic glass workstations and bank office branch design.',
-      clientName: 'Apex Financial Services',
-    },
-  ];
+  const liveProjects = filteredProjects.filter((p) => p.status === 'WORKING');
+  const completedProjects = filteredProjects.filter((p) => p.status === 'COMPLETED');
 
   // Kolkata Map Pins
   const mapPins = [
     { id: 1, name: 'Lakeview Villa', location: 'New Town, Kolkata', status: 'Completed', top: '30%', left: '70%', img: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=400&q=80' },
     { id: 2, name: 'Salt Lake Penthouse', location: 'Salt Lake, Kolkata', status: 'Completed', top: '42%', left: '62%', img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=400&q=80' },
     { id: 3, name: 'Siddha Sky Villa', location: 'Rajarhat, Kolkata', status: 'Live', top: '22%', left: '80%', img: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=400&q=80' },
-    { id: 4, name: 'South Kolkata Estate', location: 'Behala, Kolkata', status: 'Live', top: '75%', left: '35%', img: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=400&q=80' },
+    { id: 4, name: 'South Kolkata Estate', location: 'Behala, Kolkata', status: 'Live', top: '75%', left: '35%', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80' },
     { id: 5, name: 'Woodstone Residence', location: 'Ballygunge, Kolkata', status: 'Completed', top: '65%', left: '52%', img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=400&q=80' },
     { id: 6, name: 'EM Bypass Residency', location: 'EM Bypass, Kolkata', status: 'Live', top: '58%', left: '68%', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80' },
     { id: 7, name: 'Riverview Heights', location: 'Howrah, Kolkata', status: 'Completed', top: '50%', left: '25%', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80' },
@@ -266,69 +188,81 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({
 
             {/* Stacked Live Project Cards */}
             <div className="space-y-5">
-              {liveProjects.map((project) => {
-                const StageIcon = project.stageIcon;
-                return (
-                  <div
-                    key={project.id}
-                    className="p-3.5 rounded-xl border border-[#EAE6DF] hover:border-[#13362B] transition-all duration-300 bg-[#FAF9F5]/60 hover:bg-white flex flex-col sm:flex-row gap-4"
-                  >
-                    {/* Thumbnail */}
-                    <div className="relative w-full sm:w-44 h-32 rounded-lg overflow-hidden shrink-0">
-                      <img src={project.heroImage} alt={project.name} className="w-full h-full object-cover" />
-                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-[#13362B]/90 backdrop-blur-md text-white text-[9px] font-mono font-bold uppercase tracking-wider flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                        {project.badge}
-                      </span>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 space-y-2.5">
-                      <div>
-                        <h4 className="font-serif text-base font-bold text-[#1A1917] leading-snug">{project.name}</h4>
-                        <div className="flex items-center gap-1 text-[11px] text-[#6B6862] mt-0.5">
-                          <MapPin className="w-3 h-3 text-[#A88B57]" />
-                          <span>{project.location}</span>
-                        </div>
-                      </div>
-
-                      {/* Current Stage */}
-                      <div>
-                        <span className="text-[10px] text-[#8C8880] uppercase tracking-wider font-mono block">Current Stage</span>
-                        <div className="flex items-center gap-1.5 text-xs text-[#1A1917] font-semibold mt-0.5">
-                          <StageIcon className="w-3.5 h-3.5 text-[#13362B]" />
-                          <span>{project.currentStage}</span>
-                        </div>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div className="space-y-1">
-                        <div className="flex justify-end text-[11px] font-bold text-[#13362B]">
-                          {project.progress}%
-                        </div>
-                        <div className="w-full h-1.5 bg-[#EAE6DF] rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-[#13362B] rounded-full transition-all duration-700"
-                            style={{ width: `${project.progress}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Completion & PM */}
-                      <div className="flex justify-between items-center text-[10px] text-[#6B6862] pt-1 border-t border-[#EAE6DF]/60">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-[#A88B57]" /> Est. Completion: <strong className="text-[#1A1917]">{project.estCompletion}</strong>
+              {liveProjects.length === 0 ? (
+                <div className="p-8 text-center border border-dashed border-[#EAE6DF] rounded-xl text-[#8C8880] text-xs">
+                  No live working projects found for this filter.
+                </div>
+              ) : (
+                liveProjects.map((project) => {
+                  const StageIcon = getStageIcon(project.currentStage);
+                  return (
+                    <div
+                      key={project.id}
+                      onClick={() => setSelectedLiveProject(project)}
+                      className="p-3.5 rounded-xl border border-[#EAE6DF] hover:border-[#13362B] transition-all duration-300 bg-[#FAF9F5]/60 hover:bg-white flex flex-col sm:flex-row gap-4 cursor-pointer group"
+                    >
+                      {/* Thumbnail */}
+                      <div className="relative w-full sm:w-44 h-32 rounded-lg overflow-hidden shrink-0">
+                        <img src={project.heroImage} alt={project.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-[#13362B]/90 backdrop-blur-md text-white text-[9px] font-mono font-bold uppercase tracking-wider flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                          {project.badge || 'Live'}
                         </span>
-                        <div className="flex items-center gap-1">
-                          <img src={project.managerAvatar} alt={project.manager} className="w-4 h-4 rounded-full object-cover" />
-                          <span>PM: <strong className="text-[#1A1917]">{project.manager}</strong></span>
-                        </div>
                       </div>
 
+                      {/* Content */}
+                      <div className="flex-1 space-y-2.5">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-serif text-base font-bold text-[#1A1917] leading-snug group-hover:text-[#13362B] transition-colors">{project.name}</h4>
+                            <div className="flex items-center gap-1 text-[11px] text-[#6B6862] mt-0.5">
+                              <MapPin className="w-3 h-3 text-[#A88B57]" />
+                              <span>{project.location}</span>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-mono font-bold text-[#13362B] group-hover:translate-x-0.5 transition-transform hidden sm:inline-flex items-center gap-0.5">
+                            Milestones →
+                          </span>
+                        </div>
+
+                        {/* Current Stage */}
+                        <div>
+                          <span className="text-[10px] text-[#8C8880] uppercase tracking-wider font-mono block">Current Stage</span>
+                          <div className="flex items-center gap-1.5 text-xs text-[#1A1917] font-semibold mt-0.5">
+                            <StageIcon className="w-3.5 h-3.5 text-[#13362B]" />
+                            <span>{project.currentStage || 'Civil & Joinery'}</span>
+                          </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="space-y-1">
+                          <div className="flex justify-end text-[11px] font-bold text-[#13362B]">
+                            {project.progress || 0}%
+                          </div>
+                          <div className="w-full h-1.5 bg-[#EAE6DF] rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-[#13362B] rounded-full transition-all duration-700"
+                              style={{ width: `${project.progress || 0}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Completion & PM */}
+                        <div className="flex justify-between items-center text-[10px] text-[#6B6862] pt-1 border-t border-[#EAE6DF]/60">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-[#A88B57]" /> Est. Completion: <strong className="text-[#1A1917]">{project.estCompletion || 'Underway'}</strong>
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <img src={project.managerAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'} alt={project.manager || 'PM'} className="w-4 h-4 rounded-full object-cover" />
+                            <span>PM: <strong className="text-[#1A1917]">{project.manager || 'Site Lead'}</strong></span>
+                          </div>
+                        </div>
+
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -382,7 +316,12 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({
 
             {/* Completed Projects 3-Card Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {completedProjects.map((project) => (
+              {completedProjects.length === 0 ? (
+                <div className="col-span-1 sm:col-span-3 p-8 text-center border border-dashed border-[#EAE6DF] rounded-xl text-[#8C8880] text-xs">
+                  No completed projects found for this filter.
+                </div>
+              ) : (
+                completedProjects.slice(0, 3).map((project) => (
                 <div
                   key={project.id}
                   className="rounded-xl border border-[#EAE6DF] overflow-hidden bg-white hover:border-[#13362B] transition-all duration-300 shadow-sm flex flex-col justify-between"
@@ -426,7 +365,7 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({
                     </button>
                   </div>
                 </div>
-              ))}
+              )))}
             </div>
           </div>
 
@@ -541,7 +480,13 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({
             </div>
 
             <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-              {selectedLiveProject.timeline.map((item: any, idx: number) => (
+              {(selectedLiveProject.timeline || [
+                { milestone: 'Site Measurement & Demolition', date: 'Phase 1', status: 'Completed' },
+                { milestone: 'Civil & Concealed Electrical/Plumbing', date: 'Phase 2', status: 'Completed' },
+                { milestone: selectedLiveProject.currentStage || 'False Ceiling & Joinery', date: 'Current Phase', status: 'Active' },
+                { milestone: 'Modular Installation & Finishes', date: 'Phase 4', status: 'Upcoming' },
+                { milestone: 'Final 45-Point QA Handover', date: selectedLiveProject.estCompletion || 'Upcoming', status: 'Upcoming' },
+              ]).map((item: any, idx: number) => (
                 <div key={idx} className="p-3 rounded-lg border border-[#EAE6DF] bg-[#FAF9F5] flex justify-between items-center text-xs">
                   <div>
                     <h5 className="font-bold text-[#1A1917]">{item.milestone}</h5>
@@ -567,17 +512,20 @@ export const ProjectsTrackerSection: React.FC<ProjectsTrackerSectionProps> = ({
               <div>
                 <span className="text-[10px] uppercase font-mono text-[#B48F57] font-bold">✔ Completed Transformation</span>
                 <h4 className="font-serif text-xl font-bold text-[#1A1917]">{selectedCompletedProject.name}</h4>
-                <span className="text-xs text-[#6B6862]">{selectedCompletedProject.location} • Area: {selectedCompletedProject.area}</span>
+                <span className="text-xs text-[#6B6862]">{selectedCompletedProject.location} • Area: {selectedCompletedProject.area || 'Residential'}</span>
               </div>
               <button onClick={() => setSelectedCompletedProject(null)} className="p-2 rounded-full bg-gray-100 text-gray-700">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <BeforeAfterSlider beforeImage={selectedCompletedProject.beforeImg} afterImage={selectedCompletedProject.afterImg} />
+            <BeforeAfterSlider 
+              beforeImage={selectedCompletedProject.beforeImg || selectedCompletedProject.heroImage || 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80'} 
+              afterImage={selectedCompletedProject.afterImg || selectedCompletedProject.heroImage || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'} 
+            />
 
             <p className="text-xs italic text-[#5A5852] font-serif border-t pt-3">
-              "{selectedCompletedProject.testimonial}" — <strong className="font-sans not-italic font-bold text-[#13362B]">{selectedCompletedProject.clientName}</strong>
+              "{selectedCompletedProject.testimonial || 'Deinterio completed our home with exemplary craftsmanship, exact BOQ billing, and flawless execution.'}" — <strong className="font-sans not-italic font-bold text-[#13362B]">{selectedCompletedProject.clientName || 'Satisfied Homeowner'}</strong>
             </p>
           </div>
         </div>

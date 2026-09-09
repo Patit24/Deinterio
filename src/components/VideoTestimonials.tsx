@@ -1,14 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Sparkles, X, Star, MapPin, Smile, Home, Award, ChevronRight, Quote, ArrowRight } from 'lucide-react';
 import { AnimatedCounter } from './AnimatedCounter';
 import { TiltCard } from './TiltCard';
+import { dataStore, type ClientStory } from '../services/dataStore';
 
 export const VideoTestimonials: React.FC = () => {
   const [activeVideo, setActiveVideo] = useState<any | null>(null);
+  const [allStories, setAllStories] = useState<ClientStory[]>(() => dataStore.getClientStories());
 
-  // Client Stories Data
-  const featuredStory = {
+  useEffect(() => {
+    const handleUpdate = () => {
+      setAllStories(dataStore.getClientStories());
+    };
+    window.addEventListener('storage', handleUpdate);
+    window.addEventListener('deinterio_datastore_updated', handleUpdate);
+    return () => {
+      window.removeEventListener('storage', handleUpdate);
+      window.removeEventListener('deinterio_datastore_updated', handleUpdate);
+    };
+  }, []);
+
+  const featuredStory = allStories.find((s) => s.featured) || allStories[0] || {
     id: 1,
     client: 'Anirban & Swati Sengupta',
     location: 'Uniworld City, New Town, Kolkata',
@@ -18,26 +31,7 @@ export const VideoTestimonials: React.FC = () => {
     videoUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1',
   };
 
-  const stories = [
-    {
-      id: 2,
-      client: 'Rajesh & Pooja Agarwal',
-      location: 'Ballygunge Circular Road, Kolkata',
-      duration: '01:45',
-      lang: 'EN / HN',
-      thumbnail: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80',
-      videoUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1',
-    },
-    {
-      id: 3,
-      client: 'Dr. Debasis Roy & Family',
-      location: 'Salt Lake Sector III, Kolkata',
-      duration: '02:30',
-      lang: 'EN / BN',
-      thumbnail: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-      videoUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1',
-    },
-  ];
+  const stories = allStories.filter((s) => s.id !== featuredStory.id);
 
   // Client Avatars Stack for Featured Card
   const clientAvatars = [
@@ -347,7 +341,7 @@ export const VideoTestimonials: React.FC = () => {
                   { icon: Smile, value: '200+', label: 'Happy Families' },
                   { icon: Home, value: '150+', label: 'Projects Completed' },
                   { icon: Award, value: '12+', label: 'Years of Excellence' },
-                  { icon: Star, value: '4.9/5', label: 'Average Client Rating' },
+                  { icon: Star, value: '4.9 ★', label: 'Average Client Rating' },
                 ].map((stat, idx) => {
                   const Icon = stat.icon;
                   return (

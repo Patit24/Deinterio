@@ -92,7 +92,7 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2.5 text-xs text-[#D4C3A3]/80 font-light">
               <li><a href="#/services/turnkey-luxury-interiors" className="hover:text-white transition-colors">Turnkey Residential Interiors</a></li>
               <li><a href="#/services/modular-kitchens" className="hover:text-white transition-colors">Modular Kitchen Architecture</a></li>
-              <li><a href="#/services/smart-home-automation" className="hover:text-white transition-colors">Sub-Zero IoT Smart Homes</a></li>
+              <li><a href="#/services/living-lounge" className="hover:text-white transition-colors">Living & Pooja Sanctuaries</a></li>
               <li><a href="#/services/master-bedroom-suites" className="hover:text-white transition-colors">Master Bedroom Suites</a></li>
               <li><a href="#/services/heritage-restoration" className="hover:text-white transition-colors">Heritage Bungalow Restoration</a></li>
             </ul>

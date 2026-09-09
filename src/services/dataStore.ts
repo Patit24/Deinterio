@@ -102,6 +102,44 @@ export interface LeadItem {
   estimatedAmount?: string;
 }
 
+export interface TrackerProject {
+  id: string;
+  name: string;
+  location: string;
+  type: string;
+  currentStage: string;
+  progress: number;
+  estCompletion: string;
+  manager: string;
+  managerAvatar?: string;
+  heroImage: string;
+  badge: 'Live' | 'Completed';
+  status: 'WORKING' | 'COMPLETED';
+  pmNote: string;
+  area?: string;
+  rating?: string;
+  completedDate?: string;
+  beforeImg?: string;
+  afterImg?: string;
+  duration?: string;
+  testimonial?: string;
+  clientName?: string;
+  timeline?: { milestone: string; date: string; status: 'Completed' | 'Active' | 'Upcoming' }[];
+}
+
+export interface ClientStory {
+  id: string | number;
+  client: string;
+  location: string;
+  duration: string;
+  lang: string;
+  thumbnail: string;
+  videoUrl: string;
+  quote?: string;
+  rating?: string;
+  featured?: boolean;
+}
+
 // Initial Seed Data
 const DEFAULT_WORK_ITEMS: WorkItem[] = [
   {
@@ -364,13 +402,17 @@ const INITIAL_SERVICES: ServiceItem[] = [
     highlights: 'Seamless integration of concealed ducted AC vents and ambient ceiling coves.',
   },
   {
-    id: 'smart-automation',
-    title: 'Smart Home Automation & Lighting Control',
-    tagline: 'Real-time mobile PM project telemetry app integrated with smart lighting and climate zoning.',
-    category: 'Spatial Technology',
-    image: 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1000&q=80',
-    deliverables: ['Live Project Progress App', 'Automated Scene Lighting', 'Motorized Curtain Control', 'Climate Sensors'],
-    highlights: 'Track daily site progress photos, milestone logs, and material dispatches in real-time.',
+    id: 'living-lounge',
+    title: 'Artisanal Living & Pooja Sanctuaries',
+    tagline: 'Vastu-aligned Corian Mandir architecture, Italian marble TV walls, fluted teak louvers, and warm ambient lighting.',
+    category: 'Living & Sacred Spaces',
+    image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1000&q=80',
+    deliverables: ['Custom Corian CNC Jaali Mandir', 'Italian Statuario Marble TV Wall', 'Burma Teak Fluted Accent Walls', 'Concealed Ambient Cove Illumination'],
+    highlights: 'Handcrafted spiritual sanctums and opulent living halls engineered for Kolkata luxury homes.',
+    problem: 'Homeowners struggle with contractors who cannot integrate traditional Vastu Mandirs into modern minimalist living spaces without creating architectural discord.',
+    solution: 'Deinterio custom-engineers precision-cut Corian Mandirs with concealed LED backlights, solid brass bells, and premium Italian marble wall cladding seamlessly integrated with ducted HVAC.',
+    materials: ['Corian Solid Surface Sheet', 'Italian Statuario Marble', 'Century Plywood BWP 710', 'Antique Brass Profiles', '3000K Warm Dimming LEDs'],
+    process: ['Vastu Orientation & Spatial Scan', '3D Jaali Detail Simulation', 'Factory CNC Fabrication & Polish', 'Dustless On-Site Installation', 'Sanctum Handover'],
   },
   {
     id: 'commercial-cafes',
@@ -566,6 +608,178 @@ const INITIAL_LEADS: LeadItem[] = [
   },
 ];
 
+const INITIAL_TRACKER_PROJECTS: TrackerProject[] = [
+  {
+    id: 'live-1',
+    name: 'Moderna Apartment',
+    location: 'New Town, Kolkata',
+    type: 'Apartment (3 BHK)',
+    currentStage: 'False Ceiling Work',
+    progress: 62,
+    estCompletion: '28 Aug, 2026',
+    manager: 'Arijit D.',
+    managerAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+    badge: 'Live',
+    status: 'WORKING',
+    pmNote: 'Saint-Gobain gypsum ceiling frames installed. Indirect LED slot cutouts complete.',
+    timeline: [
+      { milestone: 'Site Preparation & Demolition', date: '10 Jun, 2026', status: 'Completed' },
+      { milestone: 'Electrical & Plumbing Wiring', date: '28 Jun, 2026', status: 'Completed' },
+      { milestone: 'False Ceiling & Gypsum POP', date: '20 Jul, 2026', status: 'Active' },
+      { milestone: 'Modular Furniture Installation', date: '10 Aug, 2026', status: 'Upcoming' },
+      { milestone: 'Final Quality Inspection & Handover', date: '28 Aug, 2026', status: 'Upcoming' },
+    ],
+  },
+  {
+    id: 'live-2',
+    name: 'Siddha Sky Villa',
+    location: 'Rajarhat, Kolkata',
+    type: 'Villa / Bungalow',
+    currentStage: 'Electrical Work',
+    progress: 48,
+    estCompletion: '12 Oct, 2026',
+    manager: 'Pooja S.',
+    managerAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=800&q=80',
+    badge: 'Live',
+    status: 'WORKING',
+    pmNote: 'Concealed copper wiring running through living room ceiling slots. DB box fixed.',
+    timeline: [
+      { milestone: 'Architectural Layout Approval', date: '15 May, 2026', status: 'Completed' },
+      { milestone: 'Civil Masonry & Demolition', date: '10 Jun, 2026', status: 'Completed' },
+      { milestone: 'Concealed Electrical & Plumbing', date: '15 Jul, 2026', status: 'Active' },
+      { milestone: 'False Ceiling & Flooring', date: '25 Aug, 2026', status: 'Upcoming' },
+      { milestone: 'Handover', date: '12 Oct, 2026', status: 'Upcoming' },
+    ],
+  },
+  {
+    id: 'live-3',
+    name: 'Garia Garden Residence',
+    location: 'Garia, Kolkata',
+    type: 'Apartment (2 BHK)',
+    currentStage: 'Flooring Work',
+    progress: 35,
+    estCompletion: '05 Sep, 2026',
+    manager: 'Sourav M.',
+    managerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80',
+    badge: 'Live',
+    status: 'WORKING',
+    pmNote: 'Italian marble tile alignment underway in master bedroom and dining hall.',
+    timeline: [
+      { milestone: 'Site Measurement', date: '01 Jun, 2026', status: 'Completed' },
+      { milestone: 'Civil & Wall Plastering', date: '20 Jun, 2026', status: 'Completed' },
+      { milestone: 'Marble Flooring Laying', date: '28 Jul, 2026', status: 'Active' },
+      { milestone: 'Modular Wardrobes Fitting', date: '15 Aug, 2026', status: 'Upcoming' },
+      { milestone: 'Final Painting & Handover', date: '05 Sep, 2026', status: 'Upcoming' },
+    ],
+  },
+  {
+    id: 'comp-1',
+    name: 'Woodstone Residence',
+    location: 'Ballygunge, Kolkata',
+    type: '4BHK Apartment',
+    currentStage: 'Handover Completed',
+    progress: 100,
+    area: '3,450 sq.ft',
+    completedDate: 'May 2026',
+    duration: '14 Weeks',
+    rating: '5.0',
+    heroImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
+    beforeImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
+    afterImg: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
+    testimonial: 'Deinterio transformed our 4BHK apartment in Ballygunge beyond expectation.',
+    clientName: 'Sujit & Mousumi Dutta',
+    manager: 'Sourav Banerjee',
+    estCompletion: 'Handed Over',
+    badge: 'Completed',
+    status: 'COMPLETED',
+    pmNote: 'All 45-point QA checks verified. Handover certificate & 10-year warranty activated.',
+  },
+  {
+    id: 'comp-2',
+    name: 'Lakeview Villa',
+    location: 'New Town, Kolkata',
+    type: 'Villa',
+    currentStage: 'Handover Completed',
+    progress: 100,
+    area: '5,200 sq.ft',
+    completedDate: 'April 2026',
+    duration: '20 Weeks',
+    rating: '4.9',
+    heroImage: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
+    beforeImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
+    afterImg: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
+    testimonial: 'Superb execution of modular kitchen, false ceiling, and dining chandelier.',
+    clientName: 'Subir & Poulomi Ghosh',
+    manager: 'Arijit D.',
+    estCompletion: 'Handed Over',
+    badge: 'Completed',
+    status: 'COMPLETED',
+    pmNote: 'Handover complete with custom Burma teak dining set and high-gloss acrylic kitchen.',
+  },
+  {
+    id: 'comp-3',
+    name: 'Thinkspace Executive Office',
+    location: 'Salt Lake, Kolkata',
+    type: 'Commercial Office',
+    currentStage: 'Handover Completed',
+    progress: 100,
+    area: '2,800 sq.ft',
+    completedDate: 'March 2026',
+    duration: '10 Weeks',
+    rating: '4.8',
+    heroImage: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
+    beforeImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
+    afterImg: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
+    testimonial: 'Modern acoustic glass workstations and boardroom design.',
+    clientName: 'Apex Financial Services',
+    manager: 'Pooja S.',
+    estCompletion: 'Handed Over',
+    badge: 'Completed',
+    status: 'COMPLETED',
+    pmNote: 'Fast-track corporate execution delivered 5 days ahead of schedule.',
+  },
+];
+
+const INITIAL_CLIENT_STORIES: ClientStory[] = [
+  {
+    id: 'story-1',
+    client: 'Anirban & Swati Sengupta',
+    location: 'Uniworld City, New Town, Kolkata',
+    duration: '02:15',
+    lang: 'EN / BN',
+    thumbnail: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
+    videoUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1',
+    quote: 'Deinterio gave our 4BHK apartment an international luxury feel while keeping the warm Bengali heritage touches.',
+    rating: '5.0 ★',
+    featured: true,
+  },
+  {
+    id: 'story-2',
+    client: 'Rajesh & Pooja Agarwal',
+    location: 'Ballygunge Circular Road, Kolkata',
+    duration: '01:45',
+    lang: 'EN / HN',
+    thumbnail: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1',
+    quote: 'Zero hidden costs. What was quoted in the BOQ is exactly what we paid. Incredible transparency!',
+    rating: '5.0 ★',
+  },
+  {
+    id: 'story-3',
+    client: 'Dr. Debasis Roy & Family',
+    location: 'Salt Lake Sector III, Kolkata',
+    duration: '02:30',
+    lang: 'EN / BN',
+    thumbnail: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1',
+    quote: 'The 3D walkthrough was so precise that the actual handover looked 100% identical. Truly Kolkata’s best design studio.',
+    rating: '4.9 ★',
+  },
+];
+
 class DataStoreService {
   private getStorage<T>(key: string, defaultVal: T): T {
     try {
@@ -579,6 +793,9 @@ class DataStoreService {
   private setStorage<T>(key: string, value: T): void {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('deinterio_datastore_updated', { detail: { key } }));
+      }
     } catch (err) {
       console.error('Error writing dataStore to localStorage:', err);
     }
@@ -776,6 +993,66 @@ class DataStoreService {
     this.updateLeadStatus(leadId, 'CONVERTED');
 
     return newClient;
+  }
+
+  // --- TRACKER PROJECTS (ONGOING & COMPLETED) ---
+  getTrackerProjects(): TrackerProject[] {
+    return this.getStorage<TrackerProject[]>('deinterio_tracker_projects', INITIAL_TRACKER_PROJECTS);
+  }
+
+  saveTrackerProject(proj: TrackerProject): void {
+    const list = this.getTrackerProjects();
+    const idx = list.findIndex((p) => p.id === proj.id);
+    if (idx >= 0) {
+      list[idx] = proj;
+    } else {
+      list.unshift(proj);
+    }
+    this.setStorage('deinterio_tracker_projects', list);
+  }
+
+  markTrackerProjectComplete(id: string): void {
+    const list = this.getTrackerProjects();
+    const item = list.find((p) => p.id === id);
+    if (item) {
+      item.status = 'COMPLETED';
+      item.badge = 'Completed';
+      item.progress = 100;
+      item.currentStage = 'Handover Completed';
+      item.completedDate = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      this.setStorage('deinterio_tracker_projects', list);
+    }
+  }
+
+  deleteTrackerProject(id: string): void {
+    const list = this.getTrackerProjects().filter((p) => p.id !== id);
+    this.setStorage('deinterio_tracker_projects', list);
+  }
+
+  // --- CLIENT STORIES (AUTO-ROLL) ---
+  getClientStories(): ClientStory[] {
+    return this.getStorage<ClientStory[]>('deinterio_client_stories', INITIAL_CLIENT_STORIES);
+  }
+
+  saveClientStory(story: ClientStory): void {
+    let list = this.getClientStories();
+    const idx = list.findIndex((s) => s.id === story.id);
+    if (idx >= 0) {
+      list[idx] = story;
+    } else {
+      // Add new story at the beginning
+      list = [story, ...list];
+      // Keep maximum 4 stories: auto-remove/trim oldest
+      if (list.length > 4) {
+        list = list.slice(0, 4);
+      }
+    }
+    this.setStorage('deinterio_client_stories', list);
+  }
+
+  deleteClientStory(id: string | number): void {
+    const list = this.getClientStories().filter((s) => s.id !== id);
+    this.setStorage('deinterio_client_stories', list);
   }
 }
 

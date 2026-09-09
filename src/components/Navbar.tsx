@@ -81,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         { label: 'Turnkey Luxury Interiors', desc: 'End-to-end residential transformations', href: '#/services/turnkey-luxury-interiors' },
         { label: 'Modular Kitchen Architecture', desc: 'Hafele & Hettich fittings, acrylic cabinetry', href: '#/services/modular-kitchens' },
         { label: 'Master Bedroom Suites', desc: 'Custom wardrobes & acoustic acoustics', href: '#/services/master-bedroom-suites' },
-        { label: 'Smart Home Automation', desc: 'IoT climate, lighting & shade control', href: '#/services/smart-home-automation' },
+        { label: 'Living & Pooja Sanctuaries', desc: 'Vastu mandirs, marble TV walls & fluted teak', href: '#/services/living-lounge' },
         { label: 'Heritage Restoration', desc: 'Colonial & heritage home preservation', href: '#/services/heritage-restoration' },
       ],
     },

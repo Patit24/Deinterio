@@ -27,7 +27,10 @@ import {
   Mail,
   Building,
   Eye,
-  EyeOff
+  EyeOff,
+  PhoneCall,
+  MessageCircle,
+  ExternalLink
 } from 'lucide-react';
 import { dataStore, type ClientAccount, type WorkItem } from '../services/dataStore';
 
@@ -57,7 +60,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
   const [regSuccess, setRegSuccess] = useState('');
 
   // Dashboard Tabs & Filter States
-  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'photos' | 'documents' | 'chat'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'photos' | 'documents' | 'contact' | 'chat'>('overview');
   const [workStatusFilter, setWorkStatusFilter] = useState<'ALL' | 'COMPLETED' | 'IN_PROGRESS' | 'PENDING'>('ALL');
   const [photoCategoryFilter, setPhotoCategoryFilter] = useState<'ALL' | 'Before Work' | 'During Work' | 'Completed Work'>('ALL');
   const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null);
@@ -651,7 +654,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
             { key: 'progress', label: `Work Items & Milestones (${workItems.length})`, icon: Clock },
             { key: 'photos', label: `Site Photo Gallery (${dailyPhotos.length})`, icon: Camera },
             { key: 'documents', label: `Blueprints & Documents (${activeAccount.documents.length})`, icon: FileText },
-            { key: 'chat', label: `Concierge Messages (${activeAccount.chatMessages.length})`, icon: MessageSquare },
+            { key: 'contact', label: 'Direct Call & WhatsApp', icon: PhoneCall },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -1059,59 +1062,147 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
           {/* =================================================================== */}
           {/* TAB 5: DIRECT ARCHITECT CONCIERGE CHAT                              */}
           {/* =================================================================== */}
-          {activeTab === 'chat' && (
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E2DDD6] space-y-6 shadow-xs">
-              <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-4">
+          {/* =================================================================== */}
+          {/* TAB 5: DIRECT ARCHITECT CALL & WHATSAPP CONNECT                     */}
+          {/* =================================================================== */}
+          {activeTab === 'contact' && (
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E2DDD6] space-y-8 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E2DDD6] pb-5">
                 <div>
-                  <h3 className="font-serif text-2xl font-bold text-[#1A1917]">Direct Architect Concierge</h3>
-                  <p className="text-xs font-mono text-[#6B6560]">Chat directly with {activeAccount.manager} & the Deinterio Design Studio</p>
+                  <h3 className="font-serif text-2xl font-bold text-[#1A1917]">Direct Architect & PM Connect</h3>
+                  <p className="text-xs font-mono text-[#6B6560]">
+                    Direct voice call & WhatsApp hotline to your dedicated project architect {activeAccount.manager}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-mono text-emerald-700 font-bold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>PM Online</span>
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-mono text-emerald-800 font-bold">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>PM On Duty (9:00 AM – 8:00 PM)</span>
                 </div>
               </div>
 
-              {/* Chat Message Box */}
-              <div className="space-y-4 max-h-[450px] overflow-y-auto p-4 rounded-2xl bg-[#FAF8F4] border border-[#E2DDD6]">
-                {activeAccount.chatMessages.map((msg, mIdx) => (
-                  <div
-                    key={mIdx}
-                    className={`flex flex-col ${msg.isClient ? 'items-end' : 'items-start'} space-y-1`}
-                  >
-                    <span className="text-[10px] font-mono text-gray-500 px-1">
-                      {msg.sender} • {msg.time}
-                    </span>
-                    <div
-                      className={`p-4 rounded-2xl max-w-lg text-xs leading-relaxed ${
-                        msg.isClient
-                          ? 'bg-[#13362B] text-white rounded-tr-xs'
-                          : 'bg-white border border-[#E2DDD6] text-[#1A1917] rounded-tl-xs shadow-xs'
-                      }`}
-                    >
-                      {msg.text}
+              {/* Primary Connect Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* 1. Direct Phone Call Card */}
+                <div className="p-6 sm:p-8 rounded-3xl bg-[#FAF8F4] border border-[#E2DDD6] flex flex-col justify-between space-y-6 hover:border-[#13362B] transition-all shadow-xs">
+                  <div className="space-y-4">
+                    <div className="w-12 h-12 rounded-2xl bg-[#13362B] text-[#C8AA7A] flex items-center justify-center shadow-md">
+                      <PhoneCall className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#8C6D3B] font-bold block">
+                        INSTANT VOICE CALL
+                      </span>
+                      <h4 className="font-serif text-2xl font-bold text-[#1A1917] mt-1">
+                        Call Site Architect Directly
+                      </h4>
+                      <p className="text-xs text-[#5A5852] font-light leading-relaxed mt-2">
+                        Speak directly with {activeAccount.manager} regarding on-site carpentry, electrical wiring, Italian marble laying, or material delivery schedules.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-white border border-[#E2DDD6] space-y-1 font-mono text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Site Lead:</span>
+                        <strong className="text-[#13362B] font-bold">{activeAccount.manager}</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Direct Number:</span>
+                        <strong className="text-[#1A1917] font-bold">{activeAccount.managerPhone || '+91 98300 00000'}</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Project Code:</span>
+                        <span className="text-[#8C6D3B] font-bold">{activeAccount.projectCode}</span>
+                      </div>
                     </div>
                   </div>
-                ))}
+
+                  <a
+                    href={`tel:${(activeAccount.managerPhone || '+919830000000').replace(/\s+/g, '')}`}
+                    className="w-full py-4 rounded-2xl bg-[#13362B] hover:bg-[#0E271F] text-[#C8AA7A] hover:text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-md transition-all cursor-pointer"
+                  >
+                    <Phone className="w-4 h-4" />
+                    <span>Call {activeAccount.managerPhone || '+91 98300 00000'}</span>
+                  </a>
+                </div>
+
+                {/* 2. WhatsApp Direct Chat Card */}
+                <div className="p-6 sm:p-8 rounded-3xl bg-[#F0F7F4] border border-[#13362B]/20 flex flex-col justify-between space-y-6 hover:border-emerald-600 transition-all shadow-xs">
+                  <div className="space-y-4">
+                    <div className="w-12 h-12 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-md">
+                      <MessageCircle className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-emerald-800 font-bold block">
+                        WHATSAPP CHAT
+                      </span>
+                      <h4 className="font-serif text-2xl font-bold text-[#13362B] mt-1">
+                        Chat on WhatsApp
+                      </h4>
+                      <p className="text-xs text-[#13362B]/80 font-light leading-relaxed mt-2">
+                        Share on-site photos, request drawing clarifications, send audio voice notes, or get immediate updates directly on your WhatsApp.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-white border border-emerald-200/80 space-y-1 font-mono text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Response Speed:</span>
+                        <strong className="text-emerald-700 font-bold">Within 5–15 Minutes</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Media Support:</span>
+                        <span className="text-gray-700">Photos, Videos, PDFs, Voice Notes</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Official Handle:</span>
+                        <span className="text-[#13362B] font-bold">Deinterio Project Desk</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <a
+                    href={`https://wa.me/919830000000?text=${encodeURIComponent(`Hello Sourav, I am contacting you regarding my Deinterio project (${activeAccount.clientName} - ${activeAccount.projectCode}) at ${activeAccount.location}.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-4 rounded-2xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-md transition-all cursor-pointer"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Open WhatsApp Chat</span>
+                    <ExternalLink className="w-3.5 h-3.5 ml-1" />
+                  </a>
+                </div>
+
               </div>
 
-              {/* Chat Input Box */}
-              <form onSubmit={handleSendMessage} className="flex gap-3">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type a message or instruction for your site manager..."
-                  className="flex-1 px-4 py-3 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-3 rounded-xl bg-[#13362B] hover:bg-[#0E271F] text-[#C8AA7A] font-mono font-bold text-xs uppercase flex items-center gap-2 cursor-pointer shadow-md transition-all shrink-0"
-                >
-                  <Send className="w-4 h-4" />
-                  <span className="hidden sm:inline">Send Message</span>
-                </button>
-              </form>
+              {/* Escalation & Studio Visits Banner */}
+              <div className="p-6 rounded-3xl bg-[#FAF8F4] border border-[#E2DDD6] grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#8C6D3B]">
+                    <ShieldCheck className="w-4 h-4 text-[#13362B]" />
+                    <span>Studio Director Escalation Desk</span>
+                  </div>
+                  <h4 className="font-serif text-lg font-bold text-[#1A1917]">Need Immediate Priority Escalation?</h4>
+                  <p className="text-xs text-[#5A5852] font-light leading-relaxed">
+                    Direct access to Deinterio studio partners for critical design reviews or schedule requirements.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-end gap-3">
+                  <a
+                    href="tel:+919830000000"
+                    className="w-full sm:w-auto px-5 py-3 rounded-xl border border-[#D4C3A3] bg-white hover:bg-[#13362B] text-[#13362B] hover:text-white text-xs font-mono font-bold uppercase tracking-wider transition-all text-center"
+                  >
+                    Call Partner Hotline: +91 98300 00000
+                  </a>
+                  <button
+                    onClick={() => alert(`Site visit requested for ${activeAccount.projectName}. Project manager ${activeAccount.manager} will call you within 30 minutes to confirm your visit time.`)}
+                    className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#13362B] hover:bg-[#0E271F] text-[#C8AA7A] hover:text-white text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer text-center"
+                  >
+                    Request Physical Site Visit
+                  </button>
+                </div>
+              </div>
+
             </div>
           )}
 

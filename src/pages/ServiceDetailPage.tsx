@@ -17,7 +17,8 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
   const aliasMap: Record<string, string> = {
     'turnkey-luxury-interiors': 'interior-architecture',
     'master-bedroom-suites': 'master-bedrooms',
-    'smart-home-automation': 'smart-automation',
+    'smart-home-automation': 'living-lounge',
+    'living-pooja-sanctuaries': 'living-lounge',
     'heritage-restoration': 'heritage-restoration',
     'commercial-corporate': 'commercial-cafes',
   };
@@ -29,7 +30,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
   const problemText = service.problem || 'Traditional interior contractors suffer from material substitution, unorganized storage, and unverified fittings.';
   const solutionText = service.solution || 'Deinterio features 100% CenturyPly Club Prime BWP Marine Plywood, 0.5mm PUR edge-banding, and Hafele certified hardware.';
   const materialsList = service.materials || ['CenturyPly Club Prime BWP Plywood', 'Hafele Soft-Close Hinges', 'Quartz Countertop'];
-  const processList = service.process || ['3D Spatial Scan', 'Factory CNC Woodworking', 'Sub-Zero IoT Telemetry Dispatch', 'On-Site Installation', '45-Point Audit'];
+  const processList = service.process || ['3D Spatial Scan', 'Factory CNC Woodworking', 'Joinery & Hardware Fitting', 'On-Site Installation', '45-Point QA Audit'];
 
   return (
     <>
