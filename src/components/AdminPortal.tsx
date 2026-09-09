@@ -36,6 +36,7 @@ import {
 import { dataStore } from '../services/dataStore';
 import type { ClientAccount, ServiceItem, ProjectItem, PricingTierItem, LeadItem, WorkItem, TrackerProject, ClientStory } from '../services/dataStore';
 import { generateQuotationPDF } from '../utils/quotationPdfGenerator';
+import { ImageUploader } from './ImageUploader';
 
 interface AdminPortalProps {
   isOpen?: boolean;
@@ -1536,22 +1537,61 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
               </div>
             </div>
 
-            {/* COMPLETION PHOTO REQUIREMENT RULE #14 */}
-            {editingWorkItem.status === 'COMPLETED' && (
-              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 space-y-2">
+            {/* COMPLETION / SITE PHOTO UPLOADER (Gallery or Instant Camera) */}
+            <div className={`p-4 rounded-2xl space-y-3 ${
+              editingWorkItem.status === 'COMPLETED'
+                ? 'bg-amber-50/70 border-2 border-amber-300'
+                : 'bg-neutral-50 border border-[#E2DDD6]'
+            }`}>
+              <div className="flex items-center justify-between">
                 <span className="text-xs font-mono font-bold text-amber-900 flex items-center gap-1.5">
                   <Camera className="w-4 h-4 text-amber-700" />
-                  <span>REQUIRED RULE (#14): Upload Site Completion Photo</span>
+                  <span>
+                    {editingWorkItem.status === 'COMPLETED'
+                      ? 'REQUIRED RULE (#14): Site Completion Photo'
+                      : 'Site Progress Photo (Optional)'}
+                  </span>
                 </span>
-                <input
-                  type="url"
-                  value={completionPhotoUrl}
-                  onChange={(e) => setCompletionPhotoUrl(e.target.value)}
-                  placeholder="Paste Image URL e.g. https://images.unsplash.com/..."
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-amber-300 text-xs font-mono"
-                />
+                {editingWorkItem.status === 'COMPLETED' && (
+                  <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px] font-mono font-bold">
+                    Mandatory
+                  </span>
+                )}
               </div>
-            )}
+
+              {/* Previously uploaded photos if any */}
+              {editingWorkItem.photos && editingWorkItem.photos.length > 0 && (
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-mono font-bold text-[#6B6560] block">Existing Uploaded Photos:</span>
+                  <div className="flex gap-2 flex-wrap">
+                    {editingWorkItem.photos.map((ph, idx) => (
+                      <div key={idx} className="relative group/thumb w-16 h-16 rounded-xl overflow-hidden border border-[#E2DDD6] shadow-xs">
+                        <img src={ph} alt={`Site photo ${idx + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newPhotos = editingWorkItem.photos?.filter((_, i) => i !== idx);
+                            setEditingWorkItem({ ...editingWorkItem, photos: newPhotos });
+                          }}
+                          className="absolute top-1 right-1 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-80 hover:opacity-100 transition-opacity cursor-pointer shadow-xs"
+                          title="Delete photo"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <ImageUploader
+                label={editingWorkItem.status === 'COMPLETED' ? "Site Completion Photo" : "Upload Work Progress Photo"}
+                value={completionPhotoUrl}
+                onChange={(photo) => setCompletionPhotoUrl(photo)}
+                helperText="Upload site verification photo from gallery or take instant camera snapshot"
+                required={editingWorkItem.status === 'COMPLETED' && !editingWorkItem.photos?.length}
+              />
+            </div>
 
             <div className="space-y-1">
               <label className="text-xs font-mono font-bold block">Client Notes / Update</label>
@@ -1669,6 +1709,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                 onChange={(e) => setEditingBlog({ ...editingBlog, metaDescription: e.target.value })}
                 rows={2}
                 className="w-full px-3 py-2 rounded-xl border border-[#E2DDD6] text-xs font-mono"
+              />
+            </div>
+
+            <div>
+              <ImageUploader
+                label="Article Featured Cover Image"
+                value={editingBlog.image || ''}
+                onChange={(photo) => setEditingBlog({ ...editingBlog, image: photo })}
+                helperText="Upload blog cover image from gallery or take instant photo"
               />
             </div>
 
@@ -1790,36 +1839,31 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                 />
               </div>
 
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Cover / Main Image URL</label>
-                <input
-                  type="url"
+              <div className="sm:col-span-2">
+                <ImageUploader
+                  label="Cover / Main Portfolio Image"
                   value={editingProject.image || ''}
-                  onChange={(e) => setEditingProject({ ...editingProject, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                  onChange={(img) => setEditingProject({ ...editingProject, image: img })}
+                  helperText="Upload cover image from gallery or take instant camera photo"
+                  required
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Before Image URL (Slider)</label>
-                <input
-                  type="url"
+              <div>
+                <ImageUploader
+                  label="Before Transformation Photo"
                   value={editingProject.beforeImg || ''}
-                  onChange={(e) => setEditingProject({ ...editingProject, beforeImg: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                  onChange={(img) => setEditingProject({ ...editingProject, beforeImg: img })}
+                  helperText="Initial raw or bare site state before renovation"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-mono font-bold block uppercase tracking-wider">After Image URL (Slider)</label>
-                <input
-                  type="url"
+              <div>
+                <ImageUploader
+                  label="After Transformation Photo"
                   value={editingProject.afterImg || ''}
-                  onChange={(e) => setEditingProject({ ...editingProject, afterImg: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                  onChange={(img) => setEditingProject({ ...editingProject, afterImg: img })}
+                  helperText="Final finished luxury interior handover state"
                 />
               </div>
 
@@ -1993,14 +2037,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                 />
               </div>
 
-              <div className="space-y-1 sm:col-span-2">
-                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Hero Image URL</label>
-                <input
-                  type="url"
+              <div className="sm:col-span-2">
+                <ImageUploader
+                  label="Live Construction Site Hero Photo"
                   value={editingTrackerProject.heroImage || ''}
-                  onChange={(e) => setEditingTrackerProject({ ...editingTrackerProject, heroImage: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                  onChange={(img) => setEditingTrackerProject({ ...editingTrackerProject, heroImage: img })}
+                  helperText="Upload recent construction/execution photo from gallery or snap with camera"
+                  required
                 />
               </div>
 
@@ -2157,14 +2200,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                 />
               </div>
 
-              <div className="space-y-1 sm:col-span-2">
-                <label className="text-xs font-mono font-bold block uppercase tracking-wider">Thumbnail Image URL</label>
-                <input
-                  type="url"
+              <div className="sm:col-span-2">
+                <ImageUploader
+                  label="Story Thumbnail Image"
                   value={editingStory.thumbnail || ''}
-                  onChange={(e) => setEditingStory({ ...editingStory, thumbnail: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917]"
+                  onChange={(img) => setEditingStory({ ...editingStory, thumbnail: img })}
+                  helperText="Choose from gallery or snap photo of client or finished interior"
+                  required
                 />
               </div>
 
