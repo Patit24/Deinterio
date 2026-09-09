@@ -21,13 +21,7 @@ export interface QuotationPrintData {
   notes?: string;
 }
 
-export const generateQuotationPDF = (data: QuotationPrintData) => {
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) {
-    alert('Please allow popup windows in your browser to view and download your Quotation PDF.');
-    return;
-  }
-
+export const generateQuotationHTML = (data: QuotationPrintData): string => {
   const roomPills = data.rooms
     ? [
         data.rooms.livingRoom > 0 ? `${data.rooms.livingRoom} Living Room` : null,
@@ -66,7 +60,7 @@ export const generateQuotationPDF = (data: QuotationPrintData) => {
           warranty: '5 Years Structural Warranty',
         };
 
-  const html = `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -616,18 +610,85 @@ export const generateQuotationPDF = (data: QuotationPrintData) => {
       </td>
     </tr>
   </table>
-
-  <script>
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        window.print();
-      }, 500);
-    });
-  </script>
 </body>
 </html>`;
+};
 
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
+export const generateQuotationPDF = (data: QuotationPrintData) => {
+  const htmlContent = generateQuotationHTML(data);
+
+  // Method 1: Try window.open first (standard on desktop browsers)
+  let printWindow: Window | null = null;
+  try {
+    printWindow = window.open('', '_blank');
+  } catch (e) {
+    printWindow = null;
+  }
+
+  if (printWindow && !printWindow.closed) {
+    try {
+      printWindow.document.open();
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      setTimeout(() => {
+        try {
+          printWindow?.focus();
+          printWindow?.print();
+        } catch (err) {
+          console.warn('Direct print failed, user can use toolbar print:', err);
+        }
+      }, 500);
+      return;
+    } catch (err) {
+      console.warn('Error populating popup window:', err);
+    }
+  }
+
+  // Method 2 (Seamless Fallback - No Popup Needed): Hidden iframe printing
+  // This completely bypasses popup blockers in Chrome, Safari, and mobile browsers!
+  try {
+    const existingFrame = document.getElementById('deinterio-print-frame');
+    if (existingFrame) existingFrame.remove();
+
+    const iframe = document.createElement('iframe');
+    iframe.id = 'deinterio-print-frame';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (doc) {
+      doc.open();
+      doc.write(htmlContent);
+      doc.close();
+
+      setTimeout(() => {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      }, 500);
+      return;
+    }
+  } catch (frameErr) {
+    console.warn('Iframe printing failed:', frameErr);
+  }
+
+  // Method 3 (Universal File Fallback): Download HTML quotation document directly as file
+  try {
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Deinterio_Official_Quotation_${data.quotationId}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (blobErr) {
+    console.error('All print and download mechanisms failed:', blobErr);
+  }
 };
