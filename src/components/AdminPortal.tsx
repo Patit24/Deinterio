@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { dataStore } from '../services/dataStore';
 import type { ClientAccount, ServiceItem, ProjectItem, PricingTierItem, LeadItem, WorkItem, TrackerProject, ClientStory } from '../services/dataStore';
+import { generateQuotationPDF } from '../utils/quotationPdfGenerator';
 
 interface AdminPortalProps {
   isOpen?: boolean;
@@ -285,106 +286,31 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
 
   // --- DOWNLOAD PDF QUOTATION (#22) ---
   const handleDownloadQuotationPDF = (lead: LeadItem) => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert('Please allow popup windows to download Quotation PDF.');
-      return;
+    // Parse package tier if available or infer from type
+    let tier = lead.packageTier || 'Premium';
+    if (!lead.packageTier) {
+      if (lead.type.includes('Luxury')) tier = 'Luxury';
+      else if (lead.type.includes('Essentials')) tier = 'Essentials';
     }
 
-    const pdfHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Deinterio Estimated Interior Quotation #${lead.id}</title>
-        <style>
-          body { font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; color: #1A1917; background: #FFF; }
-          .header { display: flex; justify-content: space-between; align-items: center; border-b: 2px solid #13362B; padding-bottom: 20px; margin-bottom: 30px; }
-          .brand { font-size: 24px; font-weight: bold; color: #13362B; letter-spacing: 2px; }
-          .sub { font-size: 11px; color: #8C6D3B; text-transform: uppercase; letter-spacing: 3px; font-family: monospace; }
-          .info-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-          .info-table td { padding: 8px 12px; border: 1px solid #E2DDD6; font-size: 12px; }
-          .info-table th { padding: 10px 12px; background: #F9F6F0; border: 1px solid #E2DDD6; font-size: 12px; text-align: left; color: #13362B; }
-          .summary { background: #13362B; color: #FFF; padding: 20px; border-radius: 12px; margin-top: 30px; }
-          .summary h3 { margin: 0 0 10px 0; color: #C8AA7A; font-size: 18px; }
-          .disclaimer { font-size: 10px; color: #6B6560; margin-top: 30px; border-t: 1px solid #E2DDD6; padding-top: 15px; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <div>
-            <div class="brand">DEINTERIO INTERIOR GROUP</div>
-            <div class="sub">A Unit of All In One Contractual Services Pvt Ltd</div>
-            <p style="font-size: 11px; color: #5A5852; margin: 4px 0 0 0;">South Kolkata HQ • Rajarhat Factory • New Town Studio</p>
-          </div>
-          <div style="text-align: right;">
-            <h2 style="margin: 0; color: #13362B;">ESTIMATED QUOTATION</h2>
-            <p style="font-size: 11px; font-family: monospace; margin: 4px 0 0 0;">Quotation ID: #${lead.id}</p>
-            <p style="font-size: 11px; font-family: monospace; margin: 2px 0 0 0;">Date: ${lead.date}</p>
-          </div>
-        </div>
+    // Parse BHK
+    const bhkMatch = lead.type.match(/\d\s*BHK(\+)?/i);
+    const bhk = bhkMatch ? bhkMatch[0].toUpperCase() : 'Turnkey Residential';
 
-        <table class="info-table">
-          <tr>
-            <th colspan="2">CUSTOMER DETAILS</th>
-            <th colspan="2">PROJECT SPECIFICATIONS</th>
-          </tr>
-          <tr>
-            <td><strong>Client Name:</strong></td><td>${lead.name}</td>
-            <td><strong>Project Type:</strong></td><td>${lead.type}</td>
-          </tr>
-          <tr>
-            <td><strong>Phone / WhatsApp:</strong></td><td>${lead.phone}</td>
-            <td><strong>Location:</strong></td><td>${lead.city}</td>
-          </tr>
-          <tr>
-            <td><strong>Email:</strong></td><td>${lead.email}</td>
-            <td><strong>Selected Budget Tier:</strong></td><td>${lead.budget}</td>
-          </tr>
-        </table>
-
-        <table class="info-table">
-          <thead>
-            <tr>
-              <th>Scope Item</th>
-              <th>Specification Grade</th>
-              <th>Warranty</th>
-              <th style="text-align: right;">Est. Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Turnkey Interior Architecture</td>
-              <td>CenturyPly Club Prime 710 BWP Marine Plywood & Hafele Soft-Close Hardware</td>
-              <td>10 Years Digital Warranty</td>
-              <td style="text-align: right; font-weight: bold;">${lead.estimatedAmount || lead.budget}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="summary">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <h3>TOTAL ESTIMATED INVESTMENT</h3>
-              <p style="font-size: 11px; color: #D4C3A3; margin: 0;">Includes 3D spatial simulation, material delivery, installation & site supervision.</p>
-            </div>
-            <div style="font-size: 28px; font-weight: bold; color: #C8AA7A;">
-              ${lead.estimatedAmount || lead.budget}
-            </div>
-          </div>
-        </div>
-
-        <div class="disclaimer">
-          <p><strong>IMPORTANT QUOTATION DISCLAIMER (#21):</strong></p>
-          <p>This is an automated preliminary estimated quotation. Final pricing may vary after 3D laser site measurement, exact material selection, design approval, and structural project assessment. Valid for 30 days from date of issuance.</p>
-        </div>
-
-        <script>window.print();</script>
-      </body>
-      </html>
-    `;
-
-    printWindow.document.write(pdfHtml);
-    printWindow.document.close();
+    generateQuotationPDF({
+      quotationId: lead.quotationId || lead.id,
+      date: lead.date || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      clientName: lead.name,
+      clientPhone: lead.phone,
+      clientEmail: lead.email,
+      city: lead.city,
+      bhkType: bhk,
+      carpetArea: lead.carpetArea,
+      packageTier: tier,
+      rooms: lead.rooms,
+      totalAmountFormatted: lead.estimatedAmount || lead.budget,
+      notes: lead.notes || lead.details,
+    });
   };
 
   // --- SAVE PORTFOLIO PROJECT ---

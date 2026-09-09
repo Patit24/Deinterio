@@ -87,6 +87,7 @@ export interface PricingTierItem {
 
 export interface LeadItem {
   id: string;
+  quotationId?: string;
   name: string;
   email: string;
   phone: string;
@@ -98,6 +99,14 @@ export interface LeadItem {
   details?: string;
   requirements?: string[];
   carpetArea?: string;
+  packageTier?: string;
+  rooms?: {
+    livingRoom: number;
+    kitchen: number;
+    bedroom: number;
+    bathroom: number;
+    dining: number;
+  };
   notes?: string;
   estimatedAmount?: string;
 }

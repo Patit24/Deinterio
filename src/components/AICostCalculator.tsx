@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { dataStore } from '../services/dataStore';
+import { generateQuotationPDF } from '../utils/quotationPdfGenerator';
 
 interface AICostCalculatorProps {
   onOpenBooking: () => void;
@@ -59,6 +60,8 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
 
   const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [quotationId, setQuotationId] = useState<string>('');
+  const [hasDownloadedPDF, setHasDownloadedPDF] = useState<boolean>(false);
 
   // BHK Definitions & Size Details
   const bhkOptions: { type: BHKType; smallArea: string; largeArea: string }[] = [
@@ -80,12 +83,12 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
   // Price Calculation Logic
   const getEstimatedArea = (): number => {
     switch (selectedBHK) {
-      case '1 BHK': return selectedSize === 'Small' ? 450 : 650;
-      case '2 BHK': return selectedSize === 'Small' ? 750 : 950;
+      case '1 BHK': return selectedSize === 'Small' ? 450 : 580;
+      case '2 BHK': return selectedSize === 'Small' ? 720 : 920;
       case '3 BHK': return selectedSize === 'Small' ? 1150 : 1450;
-      case '4 BHK': return selectedSize === 'Small' ? 1750 : 2200;
-      case '5 BHK+': return selectedSize === 'Small' ? 2600 : 3500;
-      default: return 900;
+      case '4 BHK': return selectedSize === 'Small' ? 1750 : 2100;
+      case '5 BHK+': return selectedSize === 'Small' ? 2400 : 3100;
+      default: return 850;
     }
   };
 
@@ -93,7 +96,8 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
     switch (packageTier) {
       case 'Essentials': return 1250;
       case 'Premium': return 1850;
-      case 'Luxury': return 2600;
+      case 'Luxury': return 2650;
+      default: return 1850;
     }
   };
 
@@ -132,8 +136,13 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
     setIsSubmitted(true);
     setStep(5);
 
+    // Generate unique Quotation ID
+    const generatedQuoteId = `DQ-${Date.now().toString().slice(-6)}`;
+    setQuotationId(generatedQuoteId);
+
     try {
       dataStore.addLead({
+        quotationId: generatedQuoteId,
         name: userDetails.name.trim(),
         email: userDetails.email.trim() || `${userDetails.phone}@client.deinterio.com`,
         phone: userDetails.phone.trim(),
@@ -143,7 +152,10 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
         status: 'NEW',
         details: `${selectedSize} layout with ${rooms.bedroom} Bed, ${rooms.livingRoom} Living, ${rooms.kitchen} Kitchen, ${rooms.bathroom} Bath`,
         carpetArea: `${getEstimatedArea()} sq.ft`,
+        packageTier: packageTier,
+        rooms: { ...rooms },
         estimatedAmount: `₹${calculateTotal().toLocaleString('en-IN')}`,
+        notes: `Auto-generated via Cost Calculator. Quote Ref: ${generatedQuoteId}`,
       });
     } catch (err) {
       console.warn('Could not record lead:', err);
@@ -157,9 +169,45 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
     });
   };
 
+  // Download PDF Handler
+  const handleDownloadQuotation = () => {
+    const quoteNum = quotationId || `DQ-${Date.now().toString().slice(-6)}`;
+    if (!quotationId) setQuotationId(quoteNum);
+
+    generateQuotationPDF({
+      quotationId: quoteNum,
+      date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      clientName: userDetails.name.trim() || 'Valued Homeowner',
+      clientPhone: userDetails.phone.trim() || '+91 98300 XXXXX',
+      clientEmail: userDetails.email.trim() || undefined,
+      city: userDetails.city || 'Kolkata',
+      bhkType: selectedBHK,
+      sizeVariant: selectedSize,
+      carpetArea: `${getEstimatedArea()} sq.ft`,
+      packageTier: packageTier,
+      rooms: { ...rooms },
+      estimatedWeeks: estimatedWeeks,
+      totalAmountFormatted: `₹${(calculateTotal() / 100000).toFixed(2)} Lakhs (₹${calculateTotal().toLocaleString('en-IN')})`,
+    });
+
+    setHasDownloadedPDF(true);
+
+    // Update lead record with QUOTATION_SENT status in dataStore
+    try {
+      const leads = dataStore.getLeads();
+      const currentLead = leads.find(l => l.quotationId === quoteNum || l.phone === userDetails.phone.trim());
+      if (currentLead) {
+        dataStore.updateLeadStatus(currentLead.id, 'QUOTATION_SENT', 'Client downloaded official PDF quotation');
+      }
+    } catch (err) {
+      console.warn('Error updating lead status:', err);
+    }
+  };
+
   const resetForm = () => {
     setStep(1);
     setIsSubmitted(false);
+    setHasDownloadedPDF(false);
   };
 
   return (
@@ -703,22 +751,39 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 max-w-md mx-auto">
+              <div className="flex flex-col gap-3 pt-2 max-w-md mx-auto">
                 <button
-                  onClick={onOpenBooking}
-                  className="w-full sm:w-auto flex-1 py-4 px-6 rounded-full bg-[#13362B] text-white font-mono text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl hover:bg-[#0D241D] transition-all cursor-pointer"
+                  onClick={handleDownloadQuotation}
+                  className="w-full py-4 px-6 rounded-full bg-[#D4AF37] hover:bg-[#C29B28] text-[#13362B] font-mono text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer transform hover:-translate-y-0.5"
                 >
-                  <Calendar className="w-4 h-4 text-[#D4AF37]" />
-                  <span>BOOK SITE VISIT</span>
+                  <Download className="w-4 h-4 text-[#13362B]" />
+                  <span>{hasDownloadedPDF ? 'DOWNLOAD PDF QUOTATION AGAIN' : 'DOWNLOAD PDF QUOTATION'}</span>
                 </button>
 
-                <button
-                  onClick={resetForm}
-                  className="w-full sm:w-auto py-4 px-6 rounded-full bg-white border border-[#1A1917]/20 text-[#1A1917] font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:border-[#A88B57] transition-all cursor-pointer"
-                >
-                  <RefreshCw className="w-4 h-4 text-[#A88B57]" />
-                  <span>RECALCULATE</span>
-                </button>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
+                  <button
+                    onClick={onOpenBooking}
+                    className="w-full sm:w-auto flex-1 py-4 px-6 rounded-full bg-[#13362B] text-white font-mono text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl hover:bg-[#0D241D] transition-all cursor-pointer"
+                  >
+                    <Calendar className="w-4 h-4 text-[#D4AF37]" />
+                    <span>BOOK SITE VISIT</span>
+                  </button>
+
+                  <button
+                    onClick={resetForm}
+                    className="w-full sm:w-auto py-4 px-6 rounded-full bg-white border border-[#1A1917]/20 text-[#1A1917] font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:border-[#A88B57] transition-all cursor-pointer"
+                  >
+                    <RefreshCw className="w-4 h-4 text-[#A88B57]" />
+                    <span>RECALCULATE</span>
+                  </button>
+                </div>
+
+                {hasDownloadedPDF && (
+                  <p className="text-[11px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 py-1.5 px-3 rounded-lg text-center mt-1 flex items-center justify-center gap-1.5">
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Official Quotation #{quotationId} generated & recorded in client consultation registry.</span>
+                  </p>
+                )}
               </div>
             </motion.div>
           )}
