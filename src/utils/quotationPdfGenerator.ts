@@ -489,7 +489,7 @@ export const generateQuotationHTML = (data: QuotationPrintData): string => {
         <div class="brand-sub">A Unit of All In One Contractual Services Pvt Ltd</div>
         <div class="company-meta">
           <strong>Kolkata Experience Studios:</strong> Prince Anwar Shah Road (South) • Rajarhat Factory • New Town<br />
-          <strong>Helpline:</strong> +91 98300 00000 / +91 98311 11111 • <strong>GSTIN:</strong> 19AAACA0000A1Z5<br />
+          <strong>Helpline:</strong> +91 79802 02221 • <strong>GSTIN:</strong> 19AAACA0000A1Z5<br />
           <strong>Web:</strong> www.deinterio.com • <strong>Email:</strong> consultation@deinterio.com
         </div>
       </td>

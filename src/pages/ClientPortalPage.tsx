@@ -45,8 +45,8 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
   const [authMode, setAuthMode] = useState<'signin' | 'register'>('signin');
 
   // Sign In Form State
-  const [username, setUsername] = useState('client');
-  const [password, setPassword] = useState('password123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
 
@@ -87,24 +87,15 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
       setActiveAccount(account);
       localStorage.setItem('deinterio_active_client_id', account.id);
     } else {
-      setLoginError('Invalid credentials. Please enter a valid username/email and password (or use a demo account below).');
-    }
-  };
-
-  const handleQuickDemoLogin = (userKey: string) => {
-    const account = dataStore.authenticateClient(userKey, 'password123');
-    if (account) {
-      setActiveAccount(account);
-      setLoginError('');
-      localStorage.setItem('deinterio_active_client_id', account.id);
+      setLoginError('Invalid credentials. Please enter a valid username/email and password.');
     }
   };
 
   const handleLogout = () => {
     setActiveAccount(null);
     localStorage.removeItem('deinterio_active_client_id');
-    setUsername('client');
-    setPassword('password123');
+    setUsername('');
+    setPassword('');
   };
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
@@ -126,7 +117,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
       projectCode: `DENTORIO LIVE TRACKER #D-${Math.floor(500 + Math.random() * 499)}`,
       location: regLocation.trim(),
       manager: 'Sourav Banerjee',
-      managerPhone: '+91 98300 11223',
+      managerPhone: '+91 79802 02221',
       progress: 15,
       currentPhase: 'Discovery Consultation & Site Measurement',
       paidMilestone: '₹0',
@@ -245,7 +236,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
 
             <div className="flex items-center gap-3 text-xs font-mono text-[#6B6560]">
               <Phone className="w-3.5 h-3.5 text-[#C8AA7A]" />
-              <span>Client Concierge Desk: <strong className="text-[#1A1917]">+91 98300 00000</strong></span>
+              <span>Client Concierge Desk: <strong className="text-[#1A1917]">+91 79802 02221</strong></span>
             </div>
           </div>
 
@@ -367,49 +358,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
                   </button>
                 </form>
 
-                {/* 1-Click Quick Demo Accounts */}
-                <div className="pt-6 border-t border-[#E2DDD6] space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono text-[#8C6D3B] uppercase tracking-wider font-bold">
-                      1-Click Instant Demo Portals
-                    </span>
-                    <span className="text-[10px] font-mono text-gray-400">Click to explore</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button
-                      onClick={() => handleQuickDemoLogin('client')}
-                      className="p-3.5 rounded-2xl bg-[#FAF8F4] border border-[#E2DDD6] hover:border-[#13362B] hover:bg-white text-left transition-all cursor-pointer group shadow-xs"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#13362B] group-hover:text-[#8C6D3B] transition-colors block">
-                          Rahul & Priya Verma
-                        </span>
-                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-                      </div>
-                      <span className="text-[10px] font-mono text-[#6B6560] block mt-1">
-                        New Town Penthouse • <strong>72% Active</strong>
-                      </span>
-                    </button>
-
-                    <button
-                      onClick={() => handleQuickDemoLogin('ballygunge')}
-                      className="p-3.5 rounded-2xl bg-[#FAF8F4] border border-[#E2DDD6] hover:border-[#13362B] hover:bg-white text-left transition-all cursor-pointer group shadow-xs"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#13362B] group-hover:text-[#8C6D3B] transition-colors block">
-                          Dr. Debabrata Roy
-                        </span>
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      </div>
-                      <span className="text-[10px] font-mono text-[#6B6560] block mt-1">
-                        Ballygunge Villa • <strong>100% Handover</strong>
-                      </span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="text-center pt-2">
+                <div className="text-center pt-4 border-t border-[#E2DDD6]">
                   <span className="text-xs text-[#6B6560] font-light">
                     Need help logging in?{' '}
                     <a href="#/contact" className="text-[#13362B] font-bold underline underline-offset-2">
@@ -468,7 +417,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
                           onChange={(e) => setRegPhone(e.target.value)}
                           required
                           className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
-                          placeholder="+91 98300 00000"
+                          placeholder="+91 79802 02221"
                         />
                       </div>
                     </div>
@@ -1071,7 +1020,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500">Direct Number:</span>
-                        <strong className="text-[#1A1917] font-bold">{activeAccount.managerPhone || '+91 98300 00000'}</strong>
+                        <strong className="text-[#1A1917] font-bold">{activeAccount.managerPhone || '+91 79802 02221'}</strong>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500">Project Code:</span>
@@ -1081,11 +1030,11 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
                   </div>
 
                   <a
-                    href={`tel:${(activeAccount.managerPhone || '+919830000000').replace(/\s+/g, '')}`}
+                    href={`tel:${(activeAccount.managerPhone || '+917980202221').replace(/\s+/g, '')}`}
                     className="w-full py-4 rounded-2xl bg-[#13362B] hover:bg-[#0E271F] text-[#C8AA7A] hover:text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-md transition-all cursor-pointer"
                   >
                     <Phone className="w-4 h-4" />
-                    <span>Call {activeAccount.managerPhone || '+91 98300 00000'}</span>
+                    <span>Call {activeAccount.managerPhone || '+91 79802 02221'}</span>
                   </a>
                 </div>
 
@@ -1124,7 +1073,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
                   </div>
 
                   <a
-                    href={`https://wa.me/919830000000?text=${encodeURIComponent(`Hello Sourav, I am contacting you regarding my Deinterio project (${activeAccount.clientName} - ${activeAccount.projectCode}) at ${activeAccount.location}.`)}`}
+                    href={`https://wa.me/917980202221?text=${encodeURIComponent(`Hello Sourav, I am contacting you regarding my Deinterio project (${activeAccount.clientName} - ${activeAccount.projectCode}) at ${activeAccount.location}.`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full py-4 rounded-2xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-md transition-all cursor-pointer"
@@ -1152,10 +1101,10 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
 
                 <div className="flex flex-col sm:flex-row items-center justify-end gap-3">
                   <a
-                    href="tel:+919830000000"
+                    href="tel:+917980202221"
                     className="w-full sm:w-auto px-5 py-3 rounded-xl border border-[#D4C3A3] bg-white hover:bg-[#13362B] text-[#13362B] hover:text-white text-xs font-mono font-bold uppercase tracking-wider transition-all text-center"
                   >
-                    Call Partner Hotline: +91 98300 00000
+                    Call Partner Hotline: +91 79802 02221
                   </a>
                   <button
                     onClick={() => alert(`Site visit requested for ${activeAccount.projectName}. Project manager ${activeAccount.manager} will call you within 30 minutes to confirm your visit time.`)}

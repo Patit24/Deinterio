@@ -33,10 +33,21 @@ import {
   Star,
   Building2,
   Eye,
-  EyeOff
+  EyeOff,
+  BookOpen,
+  Image as ImageIcon,
+  Tag,
+  Calendar,
+  User,
+  Hash,
+  FileCode,
+  List,
+  Quote,
+  Bold,
+  Italic
 } from 'lucide-react';
 import { dataStore } from '../services/dataStore';
-import type { ClientAccount, ServiceItem, ProjectItem, PricingTierItem, LeadItem, WorkItem, TrackerProject, ClientStory } from '../services/dataStore';
+import type { ClientAccount, ServiceItem, ProjectItem, PricingTierItem, LeadItem, WorkItem, TrackerProject, ClientStory, BlogArticle } from '../services/dataStore';
 import { generateQuotationPDF } from '../utils/quotationPdfGenerator';
 import { ImageUploader } from './ImageUploader';
 
@@ -50,7 +61,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
     return localStorage.getItem('deinterio_admin_authenticated') === 'true';
   });
-  const [adminPassword, setAdminPassword] = useState('admin123');
+  const [adminPassword, setAdminPassword] = useState('');
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [adminLoginError, setAdminLoginError] = useState('');
 
@@ -93,46 +104,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
   const [editingPricing, setEditingPricing] = useState<Partial<PricingTierItem> | null>(null);
 
   // Blog Management State
-  const [blogs, setBlogs] = useState([
-    {
-      id: 'blog-1',
-      title: '2026 Interior Design Trends in Kolkata: Italian Minimalism Meets Heritage Vastu',
-      slug: 'kolkata-interior-trends-2026',
-      excerpt: 'Discover why Alipore & New Town homeowners are combining Italian Statuario marble with warm fluted teak wood and concealed LED cove ceilings.',
-      category: 'Interior Design',
-      status: 'PUBLISHED',
-      publishedDate: 'Aug 15, 2026',
-      readTime: '6 Min Read',
-      primaryKeyword: 'interior design trends Kolkata',
-      metaTitle: '2026 Interior Design Trends in Kolkata • Deinterio',
-      metaDescription: 'Complete 2026 Kolkata home interior trend guide: Italian Statuario marble, fluted teak louvers, and Vastu spatial proportions.',
-      author: 'Ananya Mukherjee, Principal Architect',
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=80',
-    },
-    {
-      id: 'blog-2',
-      title: 'The Ultimate Modular Kitchen Buyer’s Guide: Plywood Grades, Hardware & Countertops',
-      slug: 'modular-kitchen-buyers-guide',
-      excerpt: 'Avoid bubbling laminates and rusting hinges. A complete technical breakdown of CenturyPly BWP 710 marine plywood and Hafele tandem boxes.',
-      category: 'Modular Kitchen',
-      status: 'PUBLISHED',
-      publishedDate: 'Jul 28, 2026',
-      readTime: '8 Min Read',
-      primaryKeyword: 'modular kitchen buying guide India',
-      metaTitle: 'Modular Kitchen Buyer Guide: Plywood & Fittings • Deinterio',
-      metaDescription: 'Technical breakdown of marine plywood BWP 710, Hafele soft-close hardware, and quartz heat-resistant countertops for Indian kitchens.',
-      author: 'Siddharth Banerjee, Joinery Director',
-      image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1000&q=80',
-    },
-  ]);
-
-  const [editingBlog, setEditingBlog] = useState<any | null>(null);
+  const [editingBlog, setEditingBlog] = useState<Partial<BlogArticle> | null>(null);
+  const [blogEditorTab, setBlogEditorTab] = useState<'write' | 'preview'>('write');
+  const [inArticleImg, setInArticleImg] = useState('');
+  const [inArticleCaption, setInArticleCaption] = useState('');
+  const [blogSearchQuery, setBlogSearchQuery] = useState('');
+  const [blogStatusFilter, setBlogStatusFilter] = useState<'ALL' | 'PUBLISHED' | 'DRAFT'>('ALL');
+  const [blogCategoryFilter, setBlogCategoryFilter] = useState<string>('ALL');
 
   if (!isOpen) return null;
 
   const clients = dataStore.getClients();
   const services = dataStore.getServices();
   const projects = dataStore.getProjects();
+  const blogs = dataStore.getBlogs();
   const pricing = dataStore.getPricing();
   const leads = dataStore.getLeads();
 
@@ -191,12 +176,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
       password: editingClient.password,
       clientName: editingClient.clientName || 'Valued Homeowner',
       clientEmail: editingClient.clientEmail || 'client@example.com',
-      clientPhone: editingClient.clientPhone || '+91 98300 00000',
+      clientPhone: editingClient.clientPhone || '+91 79802 02221',
       projectName: editingClient.projectName,
       projectCode: editingClient.projectCode || `DENTORIO LIVE TRACKER #D-${Math.floor(100 + Math.random() * 900)}`,
       location: editingClient.location || 'Kolkata, West Bengal',
       manager: editingClient.manager || 'Sourav Banerjee',
-      managerPhone: editingClient.managerPhone || '+91 98300 11223',
+      managerPhone: editingClient.managerPhone || '+91 79802 02221',
       progress: Number(editingClient.progress) || 10,
       currentPhase: editingClient.currentPhase || 'Discovery Consultation & Site Measurement',
       paidMilestone: editingClient.paidMilestone || '₹0',
@@ -402,37 +387,77 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
     }
   };
 
-  // --- SAVE BLOG (#16) ---
+  // --- BLOG MANAGEMENT HANDLERS ---
   const handleSaveBlog = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingBlog?.title) return;
-
-    const newBlog = {
-      id: editingBlog.id || `blog-${Date.now()}`,
-      title: editingBlog.title,
-      slug: editingBlog.slug || editingBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      excerpt: editingBlog.excerpt || '',
-      category: editingBlog.category || 'Interior Design',
-      status: editingBlog.status || 'PUBLISHED',
-      publishedDate: editingBlog.publishedDate || 'Today',
-      readTime: editingBlog.readTime || '5 Min Read',
-      primaryKeyword: editingBlog.primaryKeyword || '',
-      metaTitle: editingBlog.metaTitle || editingBlog.title,
-      metaDescription: editingBlog.metaDescription || editingBlog.excerpt,
-      author: editingBlog.author || 'Deinterio Architectural Team',
-      image: editingBlog.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=80',
-    };
-
-    const updated = [...blogs];
-    const idx = updated.findIndex((b) => b.id === newBlog.id);
-    if (idx >= 0) {
-      updated[idx] = newBlog;
-    } else {
-      updated.unshift(newBlog);
+    if (!editingBlog?.title?.trim()) {
+      alert('Please enter an article title.');
+      return;
     }
 
-    setBlogs(updated);
+    const title = editingBlog.title.trim();
+    const cleanSlug = (editingBlog.slug?.trim() || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')) || `article-${Date.now()}`;
+    const wordCount = (editingBlog.content || '').trim().split(/\s+/).filter(Boolean).length;
+    const estimatedReadTime = editingBlog.readTime?.trim() || `${Math.max(2, Math.ceil(wordCount / 180))} Min Read`;
+
+    const blogToSave: BlogArticle = {
+      id: editingBlog.id || `blog-${Date.now()}`,
+      title,
+      slug: cleanSlug,
+      excerpt: editingBlog.excerpt?.trim() || (editingBlog.content ? editingBlog.content.slice(0, 160) + '...' : ''),
+      content: editingBlog.content || '',
+      category: editingBlog.category?.trim() || 'Design Trends',
+      status: (editingBlog.status as 'PUBLISHED' | 'DRAFT') || 'PUBLISHED',
+      publishedDate: editingBlog.publishedDate?.trim() || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      readTime: estimatedReadTime,
+      author: editingBlog.author?.trim() || 'Deinterio Architectural Team',
+      image: editingBlog.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=80',
+      imageCaption: editingBlog.imageCaption?.trim() || '',
+      primaryKeyword: editingBlog.primaryKeyword?.trim() || '',
+      metaTitle: editingBlog.metaTitle?.trim() || `${title} • Deinterio`,
+      metaDescription: editingBlog.metaDescription?.trim() || (editingBlog.excerpt?.slice(0, 155) || title),
+      tags: editingBlog.tags || [],
+      lastModified: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    };
+
+    dataStore.saveBlog(blogToSave);
     setEditingBlog(null);
+    setInArticleImg('');
+    setInArticleCaption('');
+    setBlogEditorTab('write');
+    refresh();
+  };
+
+  const handleDeleteBlog = (id: string, title: string) => {
+    if (window.confirm(`Are you sure you want to delete article "${title}"? This cannot be undone.`)) {
+      dataStore.deleteBlog(id);
+      refresh();
+    }
+  };
+
+  const handleInsertInArticleImage = () => {
+    if (!inArticleImg) {
+      alert('Please upload or select a photo from your gallery/desktop first.');
+      return;
+    }
+    const caption = inArticleCaption.trim() || 'Interior Architectural Detail';
+    const markdownTag = `\n\n![${caption}](${inArticleImg})\n\n`;
+    const current = editingBlog?.content || '';
+    setEditingBlog({
+      ...editingBlog,
+      content: current + markdownTag,
+    });
+    setInArticleImg('');
+    setInArticleCaption('');
+    alert('In-article photo inserted successfully into markdown body!');
+  };
+
+  const insertMarkdownSnippet = (prefix: string, suffix: string = '') => {
+    const current = editingBlog?.content || '';
+    setEditingBlog({
+      ...editingBlog,
+      content: current ? `${current}\n\n${prefix}Your Heading or Text${suffix}\n` : `${prefix}Your Heading or Text${suffix}\n`,
+    });
   };
 
   // --- TRACKER PROJECTS HANDLERS ---
@@ -569,7 +594,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                     onChange={(e) => setAdminPassword(e.target.value)}
                     required
                     className="w-full pl-10 pr-10 py-3 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B]"
-                    placeholder="Enter password (default: admin123)"
+                    placeholder="Enter admin master password"
                   />
                   <button
                     type="button"
@@ -629,6 +654,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                   onClick={() => {
                     setIsAdminAuthenticated(false);
                     localStorage.removeItem('deinterio_admin_authenticated');
+                    setAdminPassword('');
                   }}
                   className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#C8AA7A] text-xs font-mono font-bold transition-colors cursor-pointer"
                 >
@@ -1466,54 +1492,225 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
               )}
 
               {/* =================================================================== */}
-              {/* TAB 6: BLOGS & SEO (#16 & #17)                                       */}
+              {/* TAB 6: BLOGS & EDITORIAL CMS                                        */}
               {/* =================================================================== */}
               {activeTab === 'blogs' && (
                 <div className="space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  {/* Header & Stats */}
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div>
-                      <h4 className="font-serif text-2xl font-normal text-[#1A1917]">Blog & SEO Article Management</h4>
-                      <p className="text-xs font-mono text-[#6B6560]">Publish architectural articles with live Google search preview</p>
+                      <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 rounded-full bg-[#13362B] text-[#C8AA7A] text-[10px] font-mono font-bold uppercase tracking-wider">
+                          EDITORIAL & SEO CMS
+                        </span>
+                        <span className="text-xs font-mono text-[#8C6D3B]">
+                          {blogs.length} Total Articles
+                        </span>
+                      </div>
+                      <h4 className="font-serif text-2xl sm:text-3xl font-normal text-[#1A1917] mt-1">
+                        Architectural Blog & Editorial Management
+                      </h4>
+                      <p className="text-xs font-mono text-[#6B6560]">
+                        Publish luxury design guides, material breakdowns, and Vastu insights with live in-article photo insertion.
+                      </p>
                     </div>
 
-                    <button
-                      onClick={() => setEditingBlog({})}
-                      className="px-5 py-2.5 rounded-xl bg-[#13362B] text-[#C8AA7A] text-xs font-mono font-bold uppercase flex items-center gap-2 cursor-pointer shadow-md"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>+ Create New Article</span>
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => {
+                          setEditingBlog({
+                            status: 'PUBLISHED',
+                            category: 'Design Trends',
+                            author: 'Ananya Mukherjee, Principal Architect',
+                            publishedDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                            readTime: '5 Min Read',
+                            content: `### 1. Introduction & Spatial Concept\nWrite your introduction here...\n\n### 2. Materials & Construction Detailing\nDescribe joinery, lighting channels, and hardware specifications...\n\n### 3. Final Styling & Handover\nConclude with practical homeowner recommendations...`,
+                          });
+                          setBlogEditorTab('write');
+                        }}
+                        className="px-5 py-3 rounded-2xl bg-[#13362B] hover:bg-[#0E271F] text-[#C8AA7A] hover:text-white text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md transition-all"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>+ Write New Article</span>
+                      </button>
+                    </div>
                   </div>
 
+                  {/* Quick Metrics Bar */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="p-4 rounded-2xl bg-white border border-[#E2DDD6] space-y-1 shadow-xs">
+                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider block">Total Articles</span>
+                      <strong className="text-2xl font-serif text-[#13362B]">{blogs.length}</strong>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-white border border-[#E2DDD6] space-y-1 shadow-xs">
+                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider block">Published Live</span>
+                      <strong className="text-2xl font-serif text-emerald-700">
+                        {blogs.filter((b) => b.status === 'PUBLISHED').length}
+                      </strong>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-white border border-[#E2DDD6] space-y-1 shadow-xs">
+                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider block">Draft Articles</span>
+                      <strong className="text-2xl font-serif text-amber-700">
+                        {blogs.filter((b) => b.status === 'DRAFT').length}
+                      </strong>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-white border border-[#E2DDD6] space-y-1 shadow-xs">
+                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider block">Categories</span>
+                      <strong className="text-2xl font-serif text-[#8C6D3B]">
+                        {new Set(blogs.map((b) => b.category)).size}
+                      </strong>
+                    </div>
+                  </div>
+
+                  {/* Search and Filters */}
+                  <div className="p-4 rounded-2xl bg-white border border-[#E2DDD6] flex flex-col md:flex-row gap-3 items-center justify-between shadow-xs">
+                    <div className="relative w-full md:w-80">
+                      <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={blogSearchQuery}
+                        onChange={(e) => setBlogSearchQuery(e.target.value)}
+                        placeholder="Search title, keyword, author..."
+                        className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B]"
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                      {(['ALL', 'PUBLISHED', 'DRAFT'] as const).map((status) => (
+                        <button
+                          key={status}
+                          onClick={() => setBlogStatusFilter(status)}
+                          className={`px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                            blogStatusFilter === status
+                              ? 'bg-[#13362B] text-[#C8AA7A] shadow-xs'
+                              : 'bg-[#FAF8F4] text-gray-600 border border-[#E2DDD6] hover:border-gray-400'
+                          }`}
+                        >
+                          {status}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Blog Cards List */}
                   <div className="space-y-4">
-                    {blogs.map((b) => (
-                      <div key={b.id} className="p-6 rounded-3xl bg-white border border-[#E2DDD6] space-y-4 shadow-xs">
-                        <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-3">
-                          <div className="flex items-center gap-3">
-                            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-mono font-bold uppercase">
-                              {b.status}
-                            </span>
-                            <h5 className="font-serif text-xl font-bold text-[#1A1917]">{b.title}</h5>
+                    {blogs
+                      .filter((b) => {
+                        const q = blogSearchQuery.toLowerCase().trim();
+                        const matchesSearch = !q ||
+                          b.title.toLowerCase().includes(q) ||
+                          b.author.toLowerCase().includes(q) ||
+                          (b.primaryKeyword && b.primaryKeyword.toLowerCase().includes(q)) ||
+                          b.category.toLowerCase().includes(q);
+                        const matchesStatus = blogStatusFilter === 'ALL' || b.status === blogStatusFilter;
+                        return matchesSearch && matchesStatus;
+                      })
+                      .map((b) => (
+                        <div key={b.id} className="p-6 rounded-3xl bg-white border border-[#E2DDD6] space-y-4 shadow-xs hover:border-[#13362B]/40 transition-all">
+                          <div className="flex flex-col md:flex-row gap-5 items-start justify-between">
+                            <div className="flex flex-col sm:flex-row gap-4 items-start">
+                              <div className="w-full sm:w-40 h-28 rounded-2xl overflow-hidden border border-[#E2DDD6] bg-gray-100 shrink-0">
+                                <img
+                                  src={b.image}
+                                  alt={b.title}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                />
+                              </div>
+
+                              <div className="space-y-1.5">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span
+                                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
+                                      b.status === 'PUBLISHED'
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : 'bg-amber-100 text-amber-800'
+                                    }`}
+                                  >
+                                    {b.status}
+                                  </span>
+                                  <span className="px-2.5 py-0.5 rounded-full bg-[#FAF8F4] border border-[#E2DDD6] text-[10px] font-mono text-[#8C6D3B]">
+                                    {b.category}
+                                  </span>
+                                  <span className="text-[11px] font-mono text-gray-500">
+                                    {b.publishedDate || (b as any).date} • {b.readTime}
+                                  </span>
+                                </div>
+
+                                <h5 className="font-serif text-xl font-bold text-[#1A1917] leading-snug">
+                                  {b.title}
+                                </h5>
+
+                                <p className="text-xs text-[#5A5852] font-light line-clamp-2">
+                                  {b.excerpt}
+                                </p>
+
+                                <div className="text-[11px] font-mono text-gray-500">
+                                  <span>By <strong className="text-[#13362B]">{b.author}</strong></span>
+                                  {b.primaryKeyword && (
+                                    <span className="ml-3">SEO Keyword: <strong className="text-[#8C6D3B]">{b.primaryKeyword}</strong></span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex sm:flex-col gap-2 w-full sm:w-auto shrink-0">
+                              <button
+                                onClick={() => {
+                                  setEditingBlog(b);
+                                  setBlogEditorTab('write');
+                                }}
+                                className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917] hover:bg-gray-50 cursor-pointer flex items-center justify-center gap-1.5"
+                              >
+                                <Edit3 className="w-3.5 h-3.5 text-[#13362B]" />
+                                <span>Edit Article</span>
+                              </button>
+
+                              <a
+                                href={`#/blog/${b.slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#13362B] hover:bg-white cursor-pointer flex items-center justify-center gap-1.5"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5 text-[#8C6D3B]" />
+                                <span>Live View</span>
+                              </a>
+
+                              <button
+                                onClick={() => handleDeleteBlog(b.id, b.title)}
+                                className="p-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 cursor-pointer flex items-center justify-center"
+                                title="Delete Article"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
 
-                          <button
-                            onClick={() => setEditingBlog(b)}
-                            className="px-4 py-2 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono text-[#1A1917] hover:bg-gray-50 cursor-pointer flex items-center gap-1"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                            <span>Edit Article</span>
-                          </button>
+                          {/* GOOGLE SEARCH PREVIEW SNIPPET */}
+                          <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-[#DADCE0] space-y-1">
+                            <span className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-wider block">
+                              Google Search Result Preview
+                            </span>
+                            <span className="text-xs text-[#202124] block font-sans">
+                              https://deinterio.com/#/blog/{b.slug}
+                            </span>
+                            <h6 className="text-base text-[#1a0dab] font-sans hover:underline font-medium cursor-pointer">
+                              {b.metaTitle || b.title}
+                            </h6>
+                            <p className="text-xs text-[#4d5156] font-sans line-clamp-2">
+                              {b.metaDescription || b.excerpt}
+                            </p>
+                          </div>
                         </div>
+                      ))}
 
-                        {/* GOOGLE SEARCH PREVIEW SNIPPET (#17) */}
-                        <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-[#DADCE0] space-y-1">
-                          <span className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-wider block">Google Search Preview</span>
-                          <span className="text-xs text-[#202124] block font-sans">https://deinterio.com/#/blog/{b.slug}</span>
-                          <h6 className="text-base text-[#1a0dab] font-sans hover:underline font-medium cursor-pointer">{b.metaTitle}</h6>
-                          <p className="text-xs text-[#4d5156] font-sans line-clamp-2">{b.metaDescription}</p>
-                        </div>
+                    {blogs.length === 0 && (
+                      <div className="p-12 text-center bg-white rounded-3xl border border-[#E2DDD6] space-y-3">
+                        <BookOpen className="w-8 h-8 text-gray-400 mx-auto" />
+                        <h5 className="font-serif text-lg font-bold text-[#1A1917]">No Articles Found</h5>
+                        <p className="text-xs font-mono text-gray-500">Create your first blog post to publish architectural insights.</p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               )}
@@ -1870,54 +2067,647 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
         </div>
       )}
 
-      {/* EDIT BLOG MODAL */}
+      {/* ========================================================================= */}
+      {/* EDIT BLOG & EDITORIAL ARTICLE MODAL                                        */}
+      {/* ========================================================================= */}
       {editingBlog && (
-        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4">
-          <form onSubmit={handleSaveBlog} className="relative w-full max-w-lg rounded-3xl bg-white border border-[#E2DDD6] p-6 space-y-4 text-[#1A1917] max-h-[85vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-3">
-              <h4 className="font-serif text-xl font-bold">Blog Article Editor</h4>
-              <button type="button" onClick={() => setEditingBlog(null)} className="p-1 rounded-full bg-gray-100">
-                <X className="w-4 h-4" />
-              </button>
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="relative w-full max-w-5xl rounded-3xl bg-[#FAF8F4] border border-[#E2DDD6] shadow-2xl p-6 sm:p-8 space-y-6 max-h-[92vh] overflow-y-auto text-[#1A1917] my-auto">
+            {/* Modal Header */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#E2DDD6] pb-4 gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#13362B] text-[#C8AA7A] text-[10px] font-mono font-bold uppercase tracking-wider">
+                    EDITORIAL CMS
+                  </span>
+                  <span className="text-xs font-mono text-gray-500">
+                    {editingBlog.id ? 'Edit Existing Article' : 'Compose New Architectural Article'}
+                  </span>
+                </div>
+                <h4 className="font-serif text-2xl sm:text-3xl font-bold text-[#1A1917] mt-1">
+                  {editingBlog.title || 'Untitled Article'}
+                </h4>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                <div className="flex rounded-xl bg-white border border-[#E2DDD6] p-1">
+                  <button
+                    type="button"
+                    onClick={() => setBlogEditorTab('write')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                      blogEditorTab === 'write'
+                        ? 'bg-[#13362B] text-[#C8AA7A] shadow-xs'
+                        : 'text-gray-600 hover:text-black'
+                    }`}
+                  >
+                    ✍️ Write & Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBlogEditorTab('preview')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                      blogEditorTab === 'preview'
+                        ? 'bg-[#13362B] text-[#C8AA7A] shadow-xs'
+                        : 'text-gray-600 hover:text-black'
+                    }`}
+                  >
+                    👁️ Reader Preview
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingBlog(null);
+                    setInArticleImg('');
+                    setInArticleCaption('');
+                  }}
+                  className="p-2 rounded-full bg-white hover:bg-gray-100 border border-[#E2DDD6] text-gray-600 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-mono font-bold block">Article Title</label>
-              <input
-                type="text"
-                value={editingBlog.title || ''}
-                onChange={(e) => setEditingBlog({ ...editingBlog, title: e.target.value })}
-                required
-                className="w-full px-3 py-2 rounded-xl border border-[#E2DDD6] text-xs font-mono"
-              />
-            </div>
+            {/* TAB 1: WRITE & EDIT MODE */}
+            {blogEditorTab === 'write' && (
+              <form onSubmit={handleSaveBlog} className="space-y-6">
+                {/* 1. Core Article Identification */}
+                <div className="p-6 rounded-3xl bg-white border border-[#E2DDD6] space-y-4 shadow-xs">
+                  <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-[#8C6D3B] flex items-center gap-1.5">
+                    <FileText className="w-4 h-4" />
+                    <span>Article Identification & URL</span>
+                  </h5>
 
-            <div className="space-y-1">
-              <label className="text-xs font-mono font-bold block">Meta Description (SEO)</label>
-              <textarea
-                value={editingBlog.metaDescription || ''}
-                onChange={(e) => setEditingBlog({ ...editingBlog, metaDescription: e.target.value })}
-                rows={2}
-                className="w-full px-3 py-2 rounded-xl border border-[#E2DDD6] text-xs font-mono"
-              />
-            </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-mono font-bold block text-[#1A1917]">
+                      Article Headline / Title <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={editingBlog.title || ''}
+                      onChange={(e) => {
+                        const title = e.target.value;
+                        const autoSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                        setEditingBlog({
+                          ...editingBlog,
+                          title,
+                          slug: editingBlog.slug || autoSlug,
+                          metaTitle: editingBlog.metaTitle || (title ? `${title} • Deinterio` : ''),
+                        });
+                      }}
+                      required
+                      placeholder="e.g. 2026 Luxury Interior Design Trends in Kolkata: Italian Minimalism Meets Heritage Vastu"
+                      className="w-full px-4 py-3 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-sm font-serif font-bold text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
+                    />
+                  </div>
 
-            <div>
-              <ImageUploader
-                label="Article Featured Cover Image"
-                value={editingBlog.image || ''}
-                onChange={(photo) => setEditingBlog({ ...editingBlog, image: photo })}
-                helperText="Upload blog cover image from gallery or take instant photo"
-              />
-            </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-mono font-bold block text-[#1A1917]">
+                          URL Slug / Permalinks
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (editingBlog.title) {
+                              const autoSlug = editingBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                              setEditingBlog({ ...editingBlog, slug: autoSlug });
+                            }
+                          }}
+                          className="text-[10px] font-mono text-[#8C6D3B] hover:underline cursor-pointer"
+                        >
+                          Auto-Generate from Title
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-gray-400">
+                          #/blog/
+                        </span>
+                        <input
+                          type="text"
+                          value={editingBlog.slug || ''}
+                          onChange={(e) => setEditingBlog({ ...editingBlog, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                          placeholder="kolkata-interior-trends-2026"
+                          className="w-full pl-18 pr-4 py-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
+                        />
+                      </div>
+                    </div>
 
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl bg-[#13362B] text-[#C8AA7A] font-mono font-bold text-xs uppercase tracking-wider cursor-pointer shadow-md"
-            >
-              Save & Publish Article
-            </button>
-          </form>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-bold block text-[#1A1917]">
+                        Category
+                      </label>
+                      <select
+                        value={editingBlog.category || 'Design Trends'}
+                        onChange={(e) => setEditingBlog({ ...editingBlog, category: e.target.value })}
+                        className="w-full px-3 py-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
+                      >
+                        <option value="Design Trends">Design Trends</option>
+                        <option value="Material Guides">Material Guides</option>
+                        <option value="Architecture & Vastu">Architecture & Vastu</option>
+                        <option value="Modular Kitchen">Modular Kitchen</option>
+                        <option value="False Ceiling & Lighting">False Ceiling & Lighting</option>
+                        <option value="Turnkey Interior">Turnkey Interior</option>
+                        <option value="Cost & Budgeting">Cost & Budgeting</option>
+                        <option value="Luxury Villa Renovation">Luxury Villa Renovation</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-[#E2DDD6]">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-bold block text-[#1A1917]">
+                        Publication Status
+                      </label>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setEditingBlog({ ...editingBlog, status: 'PUBLISHED' })}
+                          className={`flex-1 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
+                            (editingBlog.status || 'PUBLISHED') === 'PUBLISHED'
+                              ? 'bg-emerald-700 text-white shadow-xs'
+                              : 'bg-[#FAF8F4] text-gray-600 border border-[#E2DDD6]'
+                          }`}
+                        >
+                          PUBLISHED
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingBlog({ ...editingBlog, status: 'DRAFT' })}
+                          className={`flex-1 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
+                            editingBlog.status === 'DRAFT'
+                              ? 'bg-amber-600 text-white shadow-xs'
+                              : 'bg-[#FAF8F4] text-gray-600 border border-[#E2DDD6]'
+                          }`}
+                        >
+                          DRAFT
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-bold block text-[#1A1917]">
+                        Author Name & Title
+                      </label>
+                      <input
+                        type="text"
+                        value={editingBlog.author || ''}
+                        onChange={(e) => setEditingBlog({ ...editingBlog, author: e.target.value })}
+                        placeholder="e.g. Ananya Mukherjee, Principal Architect"
+                        className="w-full px-3 py-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-bold block text-[#1A1917]">
+                        Published Date
+                      </label>
+                      <input
+                        type="text"
+                        value={editingBlog.publishedDate || ''}
+                        onChange={(e) => setEditingBlog({ ...editingBlog, publishedDate: e.target.value })}
+                        placeholder="e.g. Aug 15, 2026"
+                        className="w-full px-3 py-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Cover Photo Section */}
+                <div className="p-6 rounded-3xl bg-white border border-[#E2DDD6] space-y-4 shadow-xs">
+                  <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-[#8C6D3B] flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4" />
+                    <span>Featured Hero Cover Image</span>
+                  </h5>
+
+                  <ImageUploader
+                    label="Article Cover Photograph"
+                    value={editingBlog.image || ''}
+                    onChange={(photo) => setEditingBlog({ ...editingBlog, image: photo })}
+                    helperText="Upload cover image from desktop, mobile gallery, or capture live site photograph"
+                  />
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-mono font-bold block text-[#1A1917]">
+                      Cover Photo Caption (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={editingBlog.imageCaption || ''}
+                      onChange={(e) => setEditingBlog({ ...editingBlog, imageCaption: e.target.value })}
+                      placeholder="e.g. Luxury New Town Penthouse Living Lounge with Concealed Cove Lighting"
+                      className="w-full px-3 py-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-mono font-bold block text-[#1A1917]">
+                      Short Article Summary / Excerpt Quote
+                    </label>
+                    <textarea
+                      value={editingBlog.excerpt || ''}
+                      onChange={(e) => setEditingBlog({ ...editingBlog, excerpt: e.target.value })}
+                      rows={2}
+                      placeholder="e.g. Explore how top luxury penthouses in New Town and villas in Ballygunge are blending fluted teak joinery with acoustic concealed LED coves."
+                      className="w-full px-3 py-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                {/* 3. In-Article Photo Studio & Quick Insert Tool */}
+                <div className="p-6 rounded-3xl bg-[#F0F7F4] border border-[#13362B]/30 space-y-4 shadow-xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] font-mono text-[#13362B] uppercase tracking-wider font-bold block">
+                        IN-ARTICLE MEDIA STUDIO
+                      </span>
+                      <h5 className="font-serif text-lg font-bold text-[#13362B]">
+                        Upload & Insert Photos Inside Article Body
+                      </h5>
+                    </div>
+                    <span className="text-xs font-mono text-[#6B6560]">
+                      Upload from Desktop or Gallery → Click Insert
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                    <ImageUploader
+                      label="Select or Snap In-Article Photo"
+                      value={inArticleImg}
+                      onChange={setInArticleImg}
+                      helperText="Choose a photo from your computer or camera to embed into the text"
+                    />
+
+                    <div className="space-y-3">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-mono font-bold text-[#13362B] block">
+                          Photo Caption (Displayed beneath the image in article)
+                        </label>
+                        <input
+                          type="text"
+                          value={inArticleCaption}
+                          onChange={(e) => setInArticleCaption(e.target.value)}
+                          placeholder="e.g. Precision soft-close drawer architecture and pantry pullouts"
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-[#13362B]/20 text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B]"
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleInsertInArticleImage}
+                        disabled={!inArticleImg}
+                        className={`w-full py-3 rounded-xl font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs ${
+                          inArticleImg
+                            ? 'bg-[#13362B] hover:bg-[#0E271F] text-[#C8AA7A] hover:text-white'
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        }`}
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Insert Photo Into Article Body</span>
+                      </button>
+
+                      <p className="text-[11px] font-mono text-gray-500">
+                        Inserts <code className="bg-white px-1.5 py-0.5 rounded border border-gray-200 text-[#13362B]">![caption](photo)</code> into your article text below.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Markdown Article Body & Toolbar */}
+                <div className="p-6 rounded-3xl bg-white border border-[#E2DDD6] space-y-4 shadow-xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-[#8C6D3B] flex items-center gap-1.5">
+                      <FileCode className="w-4 h-4" />
+                      <span>Article Content & Markdown Body</span>
+                    </h5>
+
+                    <div className="flex items-center gap-3 text-xs font-mono text-gray-500">
+                      <span>Words: <strong className="text-[#13362B]">{(editingBlog.content || '').trim().split(/\s+/).filter(Boolean).length}</strong></span>
+                      <span>Chars: <strong className="text-[#13362B]">{(editingBlog.content || '').length}</strong></span>
+                    </div>
+                  </div>
+
+                  {/* Formatting Toolbar */}
+                  <div className="flex flex-wrap items-center gap-1.5 p-2 bg-[#FAF8F4] border border-[#E2DDD6] rounded-2xl">
+                    <button
+                      type="button"
+                      onClick={() => insertMarkdownSnippet('## ')}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-[#E2DDD6] text-xs font-mono hover:bg-gray-100 cursor-pointer"
+                      title="Insert Heading 2"
+                    >
+                      H2 Heading
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertMarkdownSnippet('### ')}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-[#E2DDD6] text-xs font-mono hover:bg-gray-100 cursor-pointer"
+                      title="Insert Heading 3"
+                    >
+                      H3 Subheading
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertMarkdownSnippet('**', '**')}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-[#E2DDD6] text-xs font-mono hover:bg-gray-100 cursor-pointer font-bold"
+                      title="Insert Bold"
+                    >
+                      Bold
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertMarkdownSnippet('*', '*')}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-[#E2DDD6] text-xs font-mono hover:bg-gray-100 cursor-pointer italic"
+                      title="Insert Italic"
+                    >
+                      Italic
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertMarkdownSnippet('> ')}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-[#E2DDD6] text-xs font-mono hover:bg-gray-100 cursor-pointer"
+                      title="Insert Blockquote"
+                    >
+                      Quote
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertMarkdownSnippet('- ')}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-[#E2DDD6] text-xs font-mono hover:bg-gray-100 cursor-pointer"
+                      title="Insert Bullet Point"
+                    >
+                      Bullet
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertMarkdownSnippet('\n---\n')}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-[#E2DDD6] text-xs font-mono hover:bg-gray-100 cursor-pointer"
+                      title="Insert Divider"
+                    >
+                      Divider
+                    </button>
+                  </div>
+
+                  <textarea
+                    value={editingBlog.content || ''}
+                    onChange={(e) => setEditingBlog({ ...editingBlog, content: e.target.value })}
+                    rows={12}
+                    placeholder="Write article body in markdown. Use ### for subheadings, > for quote blocks, - for bullet points, and the In-Article Media Studio above to embed photos."
+                    className="w-full px-4 py-3 rounded-2xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono leading-relaxed text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
+                  />
+                </div>
+
+                {/* 5. SEO & Google SERP Preview */}
+                <div className="p-6 rounded-3xl bg-white border border-[#E2DDD6] space-y-4 shadow-xs">
+                  <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-[#8C6D3B] flex items-center gap-1.5">
+                    <Globe className="w-4 h-4" />
+                    <span>Search Engine Optimization (Google SEO)</span>
+                  </h5>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-bold block text-[#1A1917]">
+                        Primary Focus Keyword
+                      </label>
+                      <input
+                        type="text"
+                        value={editingBlog.primaryKeyword || ''}
+                        onChange={(e) => setEditingBlog({ ...editingBlog, primaryKeyword: e.target.value })}
+                        placeholder="e.g. interior design trends Kolkata"
+                        className="w-full px-3 py-2 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between">
+                        <label className="text-xs font-mono font-bold block text-[#1A1917]">
+                          Meta Title (Recommended: 50–60 chars)
+                        </label>
+                        <span className="text-[10px] font-mono text-gray-400">
+                          {(editingBlog.metaTitle || '').length} chars
+                        </span>
+                      </div>
+                      <input
+                        type="text"
+                        value={editingBlog.metaTitle || ''}
+                        onChange={(e) => setEditingBlog({ ...editingBlog, metaTitle: e.target.value })}
+                        placeholder="e.g. 2026 Luxury Interior Design Trends in Kolkata • Deinterio"
+                        className="w-full px-3 py-2 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between">
+                      <label className="text-xs font-mono font-bold block text-[#1A1917]">
+                        Meta Description (Recommended: 120–160 chars)
+                      </label>
+                      <span className="text-[10px] font-mono text-gray-400">
+                        {(editingBlog.metaDescription || '').length} chars
+                      </span>
+                    </div>
+                    <textarea
+                      value={editingBlog.metaDescription || ''}
+                      onChange={(e) => setEditingBlog({ ...editingBlog, metaDescription: e.target.value })}
+                      rows={2}
+                      placeholder="e.g. Discover how Kolkata penthouses and luxury villas blend fluted teak wood, Italian marble, and Vastu spatial proportions."
+                      className="w-full px-3 py-2 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs font-mono text-[#1A1917] focus:outline-none focus:border-[#13362B] focus:bg-white"
+                    />
+                  </div>
+
+                  {/* Realtime Google SERP Snippet Preview */}
+                  <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-[#DADCE0] space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-wider block">
+                      Live Google Search Snippet Preview
+                    </span>
+                    <span className="text-xs text-[#202124] block font-sans">
+                      https://deinterio.com/#/blog/{editingBlog.slug || 'your-article-slug'}
+                    </span>
+                    <h6 className="text-base text-[#1a0dab] font-sans hover:underline font-medium cursor-pointer">
+                      {editingBlog.metaTitle || editingBlog.title || 'Your Article Title'}
+                    </h6>
+                    <p className="text-xs text-[#4d5156] font-sans line-clamp-2">
+                      {editingBlog.metaDescription || editingBlog.excerpt || 'Article summary description snippet will display here in search results.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Form Action Buttons */}
+                <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingBlog(null);
+                      setInArticleImg('');
+                      setInArticleCaption('');
+                    }}
+                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white border border-[#E2DDD6] text-xs font-mono font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-50 cursor-pointer text-center"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      setEditingBlog({ ...editingBlog, status: 'DRAFT' });
+                      setTimeout(() => {
+                        const fakeEvent = { preventDefault: () => {} } as any;
+                        handleSaveBlog(fakeEvent);
+                      }, 50);
+                    }}
+                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-900 text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer text-center"
+                  >
+                    Save as Draft
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#13362B] hover:bg-[#0E271F] text-[#C8AA7A] hover:text-white font-mono font-bold text-xs uppercase tracking-widest shadow-md transition-all cursor-pointer text-center"
+                  >
+                    Save & Publish Live Article
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* TAB 2: LIVE READER PREVIEW MODE */}
+            {blogEditorTab === 'preview' && (
+              <div className="space-y-6">
+                <div className="p-4 rounded-2xl bg-white border border-[#E2DDD6] flex items-center justify-between">
+                  <span className="text-xs font-mono text-[#8C6D3B] font-bold uppercase">
+                    Live Client & Reader Visual Preview
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setBlogEditorTab('write')}
+                    className="px-4 py-2 rounded-xl bg-[#13362B] text-white text-xs font-mono font-bold uppercase cursor-pointer"
+                  >
+                    ← Back to Editor
+                  </button>
+                </div>
+
+                <article className="max-w-3xl mx-auto space-y-6 bg-white p-6 sm:p-10 rounded-3xl border border-[#E2DDD6] shadow-xs text-[#1A1917]">
+                  {/* Cover Image */}
+                  {editingBlog.image && (
+                    <div className="rounded-2xl overflow-hidden border border-[#E2DDD6] h-64 sm:h-96">
+                      <img
+                        src={editingBlog.image}
+                        alt={editingBlog.title || 'Cover'}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {editingBlog.imageCaption && (
+                    <p className="text-center text-xs font-mono text-[#6B6560] italic -mt-2">
+                      {editingBlog.imageCaption}
+                    </p>
+                  )}
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="px-3 py-1 rounded-full bg-[#13362B] text-[#C8AA7A] text-[10px] font-mono font-bold uppercase">
+                        {editingBlog.category || 'Design Trends'}
+                      </span>
+                      <span className="text-xs font-mono text-gray-500">
+                        {editingBlog.publishedDate || 'Today'} • {editingBlog.readTime || '5 Min Read'}
+                      </span>
+                    </div>
+
+                    <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#1A1917] leading-snug">
+                      {editingBlog.title || 'Article Headline'}
+                    </h1>
+
+                    <p className="text-xs font-mono text-gray-500">
+                      Written by <strong className="text-[#13362B]">{editingBlog.author || 'Deinterio Principal Architect'}</strong>
+                    </p>
+                  </div>
+
+                  {editingBlog.excerpt && (
+                    <p className="font-normal text-[#1A1917] text-base leading-relaxed italic border-l-4 border-[#A88B57] pl-4 bg-[#FAF8F4] py-3 rounded-r-xl">
+                      "{editingBlog.excerpt}"
+                    </p>
+                  )}
+
+                  {/* Rendered Markdown Content */}
+                  <div className="space-y-4 pt-4 border-t border-[#E2DDD6]">
+                    {(editingBlog.content || '').split('\n\n').map((rawParagraph, idx) => {
+                      const paragraph = rawParagraph.trim();
+                      if (!paragraph) return null;
+
+                      // In-Article Image
+                      const imgMatch = paragraph.match(/^!\[(.*?)\]\((.*?)\)$/);
+                      if (imgMatch) {
+                        const altText = imgMatch[1];
+                        const imgUrl = imgMatch[2];
+                        return (
+                          <figure key={idx} className="my-6 rounded-2xl overflow-hidden border border-[#E2DDD6] bg-[#FAF8F4] shadow-xs">
+                            <img
+                              src={imgUrl}
+                              alt={altText}
+                              className="w-full h-auto max-h-[450px] object-cover"
+                            />
+                            {altText && (
+                              <figcaption className="p-3 text-center text-xs font-mono text-[#6B6560] italic border-t border-[#E2DDD6] bg-white">
+                                {altText}
+                              </figcaption>
+                            )}
+                          </figure>
+                        );
+                      }
+
+                      // H2
+                      if (paragraph.startsWith('## ')) {
+                        return (
+                          <h2 key={idx} className="font-serif text-2xl font-bold text-[#13362B] pt-4 border-b border-[#E2DDD6] pb-1">
+                            {paragraph.replace(/^##\s+/, '')}
+                          </h2>
+                        );
+                      }
+
+                      // H3
+                      if (paragraph.startsWith('###')) {
+                        return (
+                          <h3 key={idx} className="font-serif text-xl font-bold text-[#13362B] pt-3">
+                            {paragraph.replace(/^###\s+/, '')}
+                          </h3>
+                        );
+                      }
+
+                      // Blockquote
+                      if (paragraph.startsWith('>')) {
+                        return (
+                          <blockquote key={idx} className="border-l-4 border-[#13362B] pl-4 italic text-sm text-[#13362B] bg-[#F0F7F4] p-3 rounded-r-xl">
+                            {paragraph.replace(/^>\s*/, '')}
+                          </blockquote>
+                        );
+                      }
+
+                      // Bullet List
+                      if (paragraph.startsWith('- ') || paragraph.startsWith('* ')) {
+                        const items = paragraph.split('\n').map(line => line.replace(/^[-*]\s*/, '').trim());
+                        return (
+                          <ul key={idx} className="list-disc list-inside space-y-1 pl-2 text-sm text-[#3A3832]">
+                            {items.map((it, itemIdx) => (
+                              <li key={itemIdx}>{it}</li>
+                            ))}
+                          </ul>
+                        );
+                      }
+
+                      // Standard Paragraph
+                      return (
+                        <p key={idx} className="text-sm font-light leading-relaxed text-[#3A3832] whitespace-pre-line">
+                          {paragraph}
+                        </p>
+                      );
+                    })}
+                  </div>
+                </article>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

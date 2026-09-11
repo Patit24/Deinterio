@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, Sparkles, Lock, Home, User, DollarSign, Calendar, ShieldCheck, Award, Users, ChevronDown, ExternalLink, Play, MessageSquare } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, Sparkles, Lock, Home, User, DollarSign, Calendar, ShieldCheck, Award, Users, ChevronDown, ExternalLink, Play, MessageSquare, MessageCircle } from 'lucide-react';
 import { dataStore } from '../services/dataStore';
 
 export const ContactSection: React.FC = () => {
@@ -107,7 +107,7 @@ export const ContactSection: React.FC = () => {
                   <Phone className="w-4 h-4 text-[#C8AA7A] shrink-0" />
                   <div>
                     <span className="font-bold text-white">Direct Line:</span>
-                    <a href="tel:+919830000000" className="text-[#C8AA7A] hover:underline ml-2">+91 98300 00000</a>
+                    <a href="tel:+917980202221" className="text-[#C8AA7A] hover:underline ml-2">+91 79802 02221</a>
                   </div>
                 </div>
 
@@ -134,18 +134,28 @@ export const ContactSection: React.FC = () => {
                   href={directionsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 py-3 px-4 rounded-xl bg-[#C8AA7A] hover:bg-[#B89A6A] text-[#13362B] text-xs font-mono font-bold uppercase tracking-wider text-center transition-all shadow-md flex items-center justify-center gap-2"
+                  className="flex-1 min-w-[140px] py-3 px-4 rounded-xl bg-[#C8AA7A] hover:bg-[#B89A6A] text-[#13362B] text-xs font-mono font-bold uppercase tracking-wider text-center transition-all shadow-md flex items-center justify-center gap-2"
                 >
                   <span>Get GPS Directions</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
 
                 <a
-                  href="tel:+919830000000"
+                  href="tel:+917980202221"
                   className="py-3 px-4 rounded-xl border border-white/30 hover:bg-white/10 text-white text-xs font-mono font-bold uppercase tracking-wider text-center transition-all flex items-center justify-center gap-2"
                 >
                   <Phone className="w-3.5 h-3.5 text-[#C8AA7A]" />
                   <span>Call Architect</span>
+                </a>
+
+                <a
+                  href="https://wa.me/917980202221?text=Hello%20Deinterio,%20I%20would%20like%20to%20consult%20an%20architect%20about%20my%20interior%20project."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-mono font-bold uppercase tracking-wider text-center transition-all flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 text-emerald-200" />
+                  <span>WhatsApp</span>
                 </a>
               </div>
             </div>
@@ -242,7 +252,7 @@ export const ContactSection: React.FC = () => {
                       <input
                         required
                         type="tel"
-                        placeholder="+91 98300 XXXXX"
+                        placeholder="+91 79802 XXXXX"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="w-full pl-10 pr-4 py-3 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-xs text-[#1A1917] placeholder:text-[#8C8377] focus:outline-none focus:border-[#13362B] transition-colors font-mono"

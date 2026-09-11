@@ -81,7 +81,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
         "latitude": 22.5312,
         "longitude": 88.3619
       },
-      "telephone": "+919830000000",
+      "telephone": "+917980202221",
       "priceRange": "₹₹₹₹",
       "openingHoursSpecification": [
         {

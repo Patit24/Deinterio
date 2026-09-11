@@ -525,7 +525,7 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
       quotationId: quotationId || `DQ-${Date.now().toString().slice(-6)}`,
       date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
       clientName: userDetails.name || 'Valued Client',
-      clientPhone: userDetails.phone || '+91 98300 00000',
+      clientPhone: userDetails.phone || '+91 79802 02221',
       clientEmail: userDetails.email || 'client@deinterio.com',
       city: userDetails.city || 'Kolkata, WB',
       bhkType: `${roomCount} Room Residence`,
@@ -1583,7 +1583,7 @@ export const AICostCalculator: React.FC<AICostCalculatorProps> = ({ onOpenBookin
                         <Phone className="w-4 h-4 text-[#8C6D3B] absolute left-4 top-1/2 -translate-y-1/2" />
                         <input
                           type="tel"
-                          placeholder="e.g. 98300 12345"
+                          placeholder="e.g. 79802 02221"
                           value={userDetails.phone}
                           onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value })}
                           className={`w-full pl-11 pr-4 py-3 rounded-2xl bg-white border text-xs font-mono text-[#1A1917] focus:outline-none transition-all ${

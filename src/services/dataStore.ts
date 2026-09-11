@@ -193,6 +193,26 @@ export interface ClientStory {
   featured?: boolean;
 }
 
+export interface BlogArticle {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category: string;
+  status: 'PUBLISHED' | 'DRAFT';
+  publishedDate: string;
+  readTime: string;
+  author: string;
+  image: string;
+  imageCaption?: string;
+  primaryKeyword?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  tags?: string[];
+  lastModified?: string;
+}
+
 // Initial Seed Data
 const DEFAULT_WORK_ITEMS: WorkItem[] = [
   {
@@ -326,7 +346,7 @@ const INITIAL_CLIENTS: ClientAccount[] = [
     projectCode: 'DENTORIO LIVE TRACKER #D-402',
     location: 'Action Area I, New Town, Kolkata',
     manager: 'Sourav Banerjee',
-    managerPhone: '+91 98300 11223',
+    managerPhone: '+91 79802 02221',
     progress: 72,
     currentPhase: 'Modular Kitchen Assembly & Master Bedroom Wardrobe Fitting',
     paidMilestone: '₹18,50,000',
@@ -376,7 +396,7 @@ const INITIAL_CLIENTS: ClientAccount[] = [
     projectCode: 'DENTORIO LIVE TRACKER #D-108',
     location: 'Ballygunge Circular Road, South Kolkata',
     manager: 'Ananya Mukherjee',
-    managerPhone: '+91 98300 55443',
+    managerPhone: '+91 79802 02221',
     progress: 100,
     currentPhase: 'Handover Completed — Warranty Active',
     paidMilestone: '₹48,00,000',
@@ -832,6 +852,96 @@ const INITIAL_CLIENT_STORIES: ClientStory[] = [
   },
 ];
 
+const INITIAL_BLOGS: BlogArticle[] = [
+  {
+    id: 'blog-1',
+    slug: 'kolkata-interior-trends-2026',
+    title: '2026 Luxury Interior Design Trends in Kolkata: Italian Minimalism Meets Heritage Vastu',
+    excerpt: 'Explore how top luxury penthouses in New Town and villas in Ballygunge are blending fluted teak joinery with acoustic concealed LED coves.',
+    category: 'Design Trends',
+    status: 'PUBLISHED',
+    publishedDate: 'Aug 15, 2026',
+    readTime: '6 Min Read',
+    author: 'Ananya Mukherjee, Principal Architect',
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=80',
+    imageCaption: 'Minimalist penthouse living room designed with fluted acoustic panelling and warm 3000K indirect coves',
+    primaryKeyword: 'interior design trends Kolkata',
+    metaTitle: '2026 Luxury Interior Design Trends in Kolkata • Deinterio',
+    metaDescription: 'Complete 2026 Kolkata home interior trend guide: Italian Statuario marble, fluted teak louvers, and Vastu spatial proportions.',
+    tags: ['Luxury', 'Vastu', 'Interior Trends', 'Kolkata Architecture'],
+    lastModified: 'Aug 15, 2026',
+    content: `Kolkata's luxury residential market is experiencing a profound architectural shift in 2026. Homeowners in Alipore, Ballygunge, and New Town penthouses are moving away from heavy gilded traditional woodwork toward clean, Italian minimalist lines infused with Vastu harmony.
+
+### 1. Fluted Teak & Integrated Lighting Slots
+Ceiling slots with concealed 3000K warm LED channels are replacing bulky dropped false ceilings. When combined with vertical fluted teak wood paneling, spaces achieve visually expansive vertical proportion.
+
+![Concealed 3000K warm cove architectural lighting in living lounge](https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=80)
+
+### 2. Precision Soft-Close & Acrylic Kitchen Architecture
+Indian cooking involves heavy spice roasting and heat. Precision soft-close hardware from Hafele and Hettich combined with quartz countertops ensures zero stain absorption and lifetime smooth door motion.
+
+### 3. Vastu Alignment Without Aesthetic Compromise
+By utilizing advanced 3D laser spatial scan software, structural columns are gracefully masked behind fluted marble walls while maintaining perfect North-East prayer sanctuaries and South-East kitchen placements.`,
+  },
+  {
+    id: 'blog-2',
+    slug: 'modular-kitchen-buying-guide',
+    title: 'The Ultimate Modular Kitchen Buyer’s Guide: Plywood Grades, Hardware & Countertops',
+    excerpt: 'Avoid bubbling laminates and rusting hinges. A complete technical breakdown of CenturyPly BWP 710 marine plywood and Hafele tandem boxes.',
+    category: 'Material Guides',
+    status: 'PUBLISHED',
+    publishedDate: 'Jul 28, 2026',
+    readTime: '8 Min Read',
+    author: 'Siddharth Banerjee, Joinery Director',
+    image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1000&q=80',
+    imageCaption: 'Modern island modular kitchen with quartz counter and high-gloss acrylic finishes',
+    primaryKeyword: 'modular kitchen buying guide India',
+    metaTitle: 'Modular Kitchen Buyer Guide: Plywood & Fittings • Deinterio',
+    metaDescription: 'Technical breakdown of marine plywood BWP 710, Hafele soft-close hardware, and quartz heat-resistant countertops for Indian kitchens.',
+    tags: ['Modular Kitchen', 'BWP Marine Ply', 'Hafele', 'Countertops'],
+    lastModified: 'Jul 28, 2026',
+    content: `Choosing the right materials for an Indian modular kitchen determines whether your investment lasts 3 years or 25 years. Here is our architectural breakdown of plywood grades and fittings.
+
+### Why BWP 710 Marine Plywood is Mandatory
+Commercial grade ply (MR grade) warps under humidity and steam exposure near sink areas. CenturyPly Club Prime BWP 710 marine plywood is boiling water proof and termite resistant.
+
+![Tandem box soft-close drawer architecture and pantry pullouts](https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=1000&q=80)
+
+### Hardware: Blum vs Hafele vs Hettich
+For heavy Indian kadhais and pressure cookers, choose 60kg rated tandem drawers with lifetime warranty damping systems to prevent hinge sagging.
+
+### Countertops: Nano White vs Quartz vs Granite
+Engineered quartz offers 99.9% non-porosity, meaning haldi (turmeric) and oil splatters wipe away effortlessly without permanent discoloration.`,
+  },
+  {
+    id: 'blog-3',
+    slug: 'vastu-compliant-modern-homes',
+    title: 'Harmonizing Vastu Principles with Ultra-Modern Luxury Apartments',
+    excerpt: 'How to position your kitchen island, master bed orientation, and entrance foyers without sacrificing sleek contemporary aesthetics.',
+    category: 'Architecture & Vastu',
+    status: 'PUBLISHED',
+    publishedDate: 'Jun 20, 2026',
+    readTime: '5 Min Read',
+    author: 'Vikramaditya Roy, Spatial Engineer',
+    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=80',
+    imageCaption: 'Harmonious Vastu-compliant bedroom master suite with natural timber and warm earth tones',
+    primaryKeyword: 'vastu interior design Kolkata',
+    metaTitle: 'Vastu Architecture for Luxury Homes • Deinterio',
+    metaDescription: 'How to position your kitchen island, master bed orientation, and entrance foyers without sacrificing sleek contemporary aesthetics.',
+    tags: ['Vastu Shastra', 'Spatial Architecture', 'Luxury Living'],
+    lastModified: 'Jun 20, 2026',
+    content: `Vastu compliance does not require sacrificing clean modern lines. By utilizing 3D laser spatial scan software, we optimize kitchen placement in the South-East zone while concealing structural columns behind fluted marble walls.
+
+### Master Bedroom Orientation
+Position your bed headboard toward the South or East to align with natural geomagnetic flows, ensuring restful sleep and mental clarity.
+
+![Vastu balanced spatial bedroom layout with acoustic fluted backdrop](https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1000&q=80)
+
+### Foyer & Positive Energy Thresholds
+Create a distinct, well-lit transition threshold between the external corridor and private residence to filter clutter and induce tranquil psychological calm.`,
+  },
+];
+
 class DataStoreService {
   private getStorage<T>(key: string, defaultVal: T): T {
     try {
@@ -897,6 +1007,12 @@ class DataStoreService {
   deleteClient(id: string): void {
     const clients = this.getClients().filter(c => c.id !== id);
     this.saveClients(clients);
+    if (typeof window !== 'undefined') {
+      const activeClientId = localStorage.getItem('deinterio_active_client_id');
+      if (activeClientId === id) {
+        localStorage.removeItem('deinterio_active_client_id');
+      }
+    }
   }
 
   // --- SERVICES CMS ---
@@ -1018,7 +1134,7 @@ class DataStoreService {
       projectCode: `DENTORIO LIVE TRACKER #D-${Math.floor(100 + Math.random() * 900)}`,
       location: lead.city || 'Kolkata, West Bengal',
       manager: 'Sourav Banerjee',
-      managerPhone: '+91 98300 11223',
+      managerPhone: '+91 79802 02221',
       progress: 10,
       currentPhase: 'Discovery Consultation & Site Measurement',
       paidMilestone: '₹0',
@@ -1114,6 +1230,31 @@ class DataStoreService {
   deleteClientStory(id: string | number): void {
     const list = this.getClientStories().filter((s) => s.id !== id);
     this.setStorage('deinterio_client_stories', list);
+  }
+
+  // --- BLOGS & EDITORIAL CMS ---
+  getBlogs(): BlogArticle[] {
+    return this.getStorage<BlogArticle[]>('deinterio_blogs', INITIAL_BLOGS);
+  }
+
+  saveBlogs(blogs: BlogArticle[]): void {
+    this.setStorage('deinterio_blogs', blogs);
+  }
+
+  saveBlog(blog: BlogArticle): void {
+    const list = this.getBlogs();
+    const idx = list.findIndex((b) => b.id === blog.id || b.slug === blog.slug);
+    if (idx >= 0) {
+      list[idx] = blog;
+    } else {
+      list.unshift(blog);
+    }
+    this.saveBlogs(list);
+  }
+
+  deleteBlog(id: string): void {
+    const list = this.getBlogs().filter((b) => b.id !== id && b.slug !== id);
+    this.saveBlogs(list);
   }
 }
 

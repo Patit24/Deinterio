@@ -129,7 +129,7 @@ export const ConsultationBooking: React.FC<ConsultationBookingProps> = ({ isOpen
                   <label className="text-xs uppercase font-mono text-[#5A5852] block mb-1">Phone Number</label>
                   <input
                     type="tel"
-                    placeholder="+91 98300 00000"
+                    placeholder="+91 79802 02221"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full p-3.5 rounded-xl bg-white border border-[#1A1917]/10 text-xs text-[#1A1917] focus:outline-none focus:border-[#A88B57]"

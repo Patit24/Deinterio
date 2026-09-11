@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-[#C8AA7A] shrink-0" />
-                <span>Direct Line: +91 98300 00000</span>
+                <a href="tel:+917980202221" className="hover:text-white transition-colors">Direct Line: +91 79802 02221</a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#C8AA7A] shrink-0" />
