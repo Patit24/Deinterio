@@ -825,12 +825,12 @@ export const DesignIdeasPage: React.FC<DesignIdeasPageProps> = ({ categorySlug, 
       {/* DETAILED INSPECTION MODAL */}
       <AnimatePresence>
         {activeModalItem && (
-          <div className="fixed inset-0 z-50 bg-[#1A1917]/85 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="fixed inset-0 z-50 bg-[#1A1917]/85 backdrop-blur-xl overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-4xl rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 shadow-2xl overflow-hidden my-auto text-[#1A1917]"
+              className="relative w-full max-w-4xl my-4 sm:my-8 rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 shadow-2xl overflow-hidden text-[#1A1917]"
             >
               {/* Modal Header */}
               <div className="flex items-center justify-between p-6 border-b border-[#E2DDD6] bg-white">

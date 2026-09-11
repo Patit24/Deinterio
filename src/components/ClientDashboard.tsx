@@ -116,8 +116,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ isOpen, onClos
   });
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#1A1917]/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in text-[#1A1917]">
-      <div className="relative w-full max-w-5xl rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 bg-[#1A1917]/80 backdrop-blur-md overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start animate-fade-in text-[#1A1917]">
+      <div className="relative w-full max-w-5xl my-4 sm:my-8 rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 shadow-2xl overflow-hidden flex flex-col">
         
         {/* ========================================================================= */}
         {/* STEP 1: CLIENT LOGIN FORM                                                */}

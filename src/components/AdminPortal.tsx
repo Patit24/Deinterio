@@ -28,6 +28,9 @@ import {
   TrendingUp, 
   AlertCircle,
   Construction,
+  Database,
+  HardDrive,
+  UploadCloud,
   Video,
   Play,
   Star,
@@ -59,7 +62,7 @@ interface AdminPortalProps {
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose, isStandalonePage = false }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
-    return localStorage.getItem('deinterio_admin_authenticated') === 'true';
+    return sessionStorage.getItem('deinterio_admin_authenticated') === 'true';
   });
   const [adminPassword, setAdminPassword] = useState('');
   const [showAdminPassword, setShowAdminPassword] = useState(false);
@@ -128,7 +131,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
     const validPassword = dataStore.getAdminPassword();
     if (adminPassword === validPassword || adminPassword === 'admin' || adminPassword === 'admin123') {
       setIsAdminAuthenticated(true);
-      localStorage.setItem('deinterio_admin_authenticated', 'true');
+      sessionStorage.setItem('deinterio_admin_authenticated', 'true');
     } else {
       setAdminLoginError('Invalid admin password. Please try again.');
     }
@@ -526,6 +529,46 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
     refresh();
   };
 
+  const [dbStatusMsg, setDbStatusMsg] = useState('');
+
+  const handleExportDatabase = async () => {
+    try {
+      const jsonStr = await dataStore.exportDatabase();
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Deinterio_Database_Backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setDbStatusMsg('Database backup JSON successfully downloaded.');
+      setTimeout(() => setDbStatusMsg(''), 4000);
+    } catch (err) {
+      alert('Failed to export database: ' + String(err));
+    }
+  };
+
+  const handleImportDatabase = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const success = await dataStore.importDatabase(text);
+      if (success) {
+        setTrackerProjects(dataStore.getTrackerProjects());
+        setClientStories(dataStore.getClientStories());
+        refresh();
+        setDbStatusMsg('Database restored successfully from backup JSON!');
+        setTimeout(() => setDbStatusMsg(''), 5000);
+      } else {
+        alert('Invalid database backup JSON format.');
+      }
+    } catch (err) {
+      alert('Error restoring database: ' + String(err));
+    }
+  };
+
   const handleDeleteClientStory = (id: string | number) => {
     if (window.confirm('Are you sure you want to delete this client story?')) {
       dataStore.deleteClientStory(id);
@@ -537,11 +580,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
   return (
     <div className={isStandalonePage 
       ? "min-h-screen bg-[#F8F6F0] pt-20 pb-16 px-4 sm:px-6 lg:px-8 text-[#1A1917]"
-      : "fixed inset-0 z-50 bg-[#1A1917]/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in text-[#1A1917]"
+      : "fixed inset-0 z-50 bg-[#1A1917]/85 backdrop-blur-md overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start animate-fade-in text-[#1A1917]"
     }>
       <div className={isStandalonePage
         ? "max-w-7xl mx-auto rounded-3xl bg-[#FAF8F4] border border-[#E2DDD6] shadow-xl overflow-hidden flex flex-col min-h-[85vh] w-full"
-        : "relative w-full max-w-6xl rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col"
+        : "relative w-full max-w-6xl my-4 sm:my-8 rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 shadow-2xl overflow-hidden flex flex-col"
       }>
         
         {/* ========================================================================= */}
@@ -653,7 +696,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                 <button
                   onClick={() => {
                     setIsAdminAuthenticated(false);
-                    localStorage.removeItem('deinterio_admin_authenticated');
+                    sessionStorage.removeItem('deinterio_admin_authenticated');
                     setAdminPassword('');
                   }}
                   className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#C8AA7A] text-xs font-mono font-bold transition-colors cursor-pointer"
@@ -794,6 +837,93 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                         <FileSpreadsheet className="w-4 h-4" />
                         <span>Export Leads CSV</span>
                       </button>
+                    </div>
+                  </div>
+
+                  {/* Database Engine & Cloud Persistence Panel */}
+                  <div className="bg-white rounded-3xl p-6 border border-[#E2DDD6] space-y-4 shadow-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#E2DDD6] pb-3 gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-[#13362B] text-[#C8AA7A] flex items-center justify-center shadow-xs">
+                          <Database className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-serif text-lg font-bold text-[#1A1917]">Deinterio Architectural Database Engine</h4>
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold uppercase flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                              Active & Persistent (IndexedDB)
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#6B6560] font-mono">Structured transactional storage replacing 5MB localStorage limits. Unlimited high-res photo capacity.</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleExportDatabase}
+                          className="px-3.5 py-2 rounded-xl bg-[#13362B] text-[#C8AA7A] text-xs font-mono font-bold uppercase flex items-center gap-1.5 hover:bg-[#0E271F] cursor-pointer shadow-xs"
+                          title="Export full database snapshot as JSON"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Export Database JSON</span>
+                        </button>
+
+                        <label className="px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-[#1A1917] text-xs font-mono font-bold uppercase flex items-center gap-1.5 cursor-pointer border border-[#E2DDD6]">
+                          <UploadCloud className="w-3.5 h-3.5 text-[#13362B]" />
+                          <span>Restore Database</span>
+                          <input
+                            type="file"
+                            accept=".json"
+                            onChange={handleImportDatabase}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    {dbStatusMsg && (
+                      <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-mono flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>{dbStatusMsg}</span>
+                      </div>
+                    )}
+
+                    {/* Database Table Breakdown Badges */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+                      <div className="p-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-center">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase block">Clients</span>
+                        <strong className="text-sm font-serif text-[#13362B]">{clients.length}</strong>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-center">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase block">Leads</span>
+                        <strong className="text-sm font-serif text-[#13362B]">{leads.length}</strong>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-center">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase block">Portfolio</span>
+                        <strong className="text-sm font-serif text-[#13362B]">{projects.length}</strong>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-center">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase block">Tracker</span>
+                        <strong className="text-sm font-serif text-[#13362B]">{trackerProjects.length}</strong>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-center">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase block">Stories</span>
+                        <strong className="text-sm font-serif text-[#13362B]">{clientStories.length}</strong>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-center">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase block">Blogs</span>
+                        <strong className="text-sm font-serif text-[#13362B]">{blogs.length}</strong>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-center">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase block">Services</span>
+                        <strong className="text-sm font-serif text-[#13362B]">{services.length}</strong>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#FAF8F4] border border-[#E2DDD6] text-center">
+                        <span className="text-[10px] font-mono text-gray-500 uppercase block">Pricing Tiers</span>
+                        <strong className="text-sm font-serif text-[#13362B]">{pricing.length}</strong>
+                      </div>
                     </div>
                   </div>
 
@@ -1725,14 +1855,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
       {/* EDIT WORK ITEMS MODAL FOR CLIENT                                          */}
       {/* ========================================================================= */}
       {editingWorkItemsClient && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-          <div className="relative w-full max-w-4xl rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 shadow-2xl p-6 sm:p-8 space-y-6 my-auto text-[#1A1917]">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start">
+          <div className="relative w-full max-w-4xl my-4 sm:my-8 rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 shadow-2xl p-6 sm:p-8 space-y-6 text-[#1A1917]">
             <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-4">
               <div>
                 <span className="text-xs font-mono font-bold text-[#8C6D3B] uppercase">WORK LIST EDITOR</span>
                 <h3 className="font-serif text-2xl font-bold">{editingWorkItemsClient.projectName}</h3>
               </div>
-              <button onClick={() => setEditingWorkItemsClient(null)} className="p-2 rounded-full bg-gray-200">
+              <button onClick={() => setEditingWorkItemsClient(null)} className="p-2 rounded-full bg-gray-200 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1750,7 +1880,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
               </button>
             </div>
 
-            <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
               {editingWorkItemsClient.workItems.map((w) => (
                 <div key={w.id} className="p-4 rounded-2xl bg-white border border-[#E2DDD6] flex items-center justify-between gap-3">
                   <div>
@@ -1780,8 +1910,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
 
       {/* EDIT SINGLE WORK ITEM MODAL (With required completion photo #14) */}
       {editingWorkItem && (
-        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4">
-          <form onSubmit={handleSaveWorkItem} className="relative w-full max-w-lg rounded-3xl bg-white border border-[#E2DDD6] p-6 space-y-4 text-[#1A1917]">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start">
+          <form onSubmit={handleSaveWorkItem} className="relative w-full max-w-lg my-4 sm:my-8 rounded-3xl bg-white border border-[#E2DDD6] p-6 space-y-4 text-[#1A1917] shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-3">
               <h4 className="font-serif text-xl font-bold">Update Work Item Status</h4>
               <button type="button" onClick={() => setEditingWorkItem(null)} className="p-1.5 rounded-full bg-gray-100">
@@ -1903,10 +2033,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
 
       {/* CHANGE ADMIN PASSWORD MODAL */}
       {isChangePasswordOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start animate-fade-in">
           <form
             onSubmit={handleChangePasswordSubmit}
-            className="relative w-full max-w-md rounded-3xl bg-white border border-[#E2DDD6] p-6 space-y-4 text-[#1A1917] max-h-[85vh] overflow-y-auto shadow-2xl"
+            className="relative w-full max-w-md my-4 sm:my-8 rounded-3xl bg-white border border-[#E2DDD6] p-6 space-y-4 text-[#1A1917] shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-3">
               <div className="flex items-center gap-2.5">
@@ -2002,11 +2132,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
 
       {/* EDIT CLIENT MODAL */}
       {editingClient && (
-        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4">
-          <form onSubmit={handleSaveClient} className="relative w-full max-w-lg rounded-3xl bg-white border border-[#E2DDD6] p-6 space-y-4 text-[#1A1917] max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start">
+          <form onSubmit={handleSaveClient} className="relative w-full max-w-lg my-4 sm:my-8 rounded-3xl bg-white border border-[#E2DDD6] p-6 space-y-4 text-[#1A1917] shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-3">
               <h4 className="font-serif text-xl font-bold">Edit Client Credentials & Project</h4>
-              <button type="button" onClick={() => setEditingClient(null)} className="p-1 rounded-full bg-gray-100">
+              <button type="button" onClick={() => setEditingClient(null)} className="p-1 rounded-full bg-gray-100 cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -2057,12 +2187,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
               />
             </div>
 
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl bg-[#13362B] text-[#C8AA7A] font-mono font-bold text-xs uppercase tracking-wider cursor-pointer shadow-md"
-            >
-              Save Client Account
-            </button>
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#E2DDD6]">
+              <button
+                type="button"
+                onClick={() => setEditingClient(null)}
+                className="px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-xs font-mono font-bold text-gray-700 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2.5 rounded-xl bg-[#13362B] text-[#C8AA7A] font-mono font-bold text-xs uppercase tracking-wider cursor-pointer shadow-md"
+              >
+                Save Client Account
+              </button>
+            </div>
           </form>
         </div>
       )}
@@ -2071,8 +2210,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
       {/* EDIT BLOG & EDITORIAL ARTICLE MODAL                                        */}
       {/* ========================================================================= */}
       {editingBlog && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-          <div className="relative w-full max-w-5xl rounded-3xl bg-[#FAF8F4] border border-[#E2DDD6] shadow-2xl p-6 sm:p-8 space-y-6 max-h-[92vh] overflow-y-auto text-[#1A1917] my-auto">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start">
+          <div className="relative w-full max-w-5xl my-4 sm:my-8 rounded-3xl bg-[#FAF8F4] border border-[#E2DDD6] shadow-2xl p-6 sm:p-8 space-y-6 text-[#1A1917]">
             {/* Modal Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#E2DDD6] pb-4 gap-4">
               <div>
@@ -2534,7 +2673,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
                 </div>
 
                 {/* Form Action Buttons */}
-                <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
+                <div className="sticky bottom-0 bg-[#FAF8F4] -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 p-4 sm:p-6 rounded-b-3xl border-t border-[#E2DDD6] flex flex-col sm:flex-row items-center justify-end gap-3 z-20 shadow-md">
                   <button
                     type="button"
                     onClick={() => {
@@ -2715,8 +2854,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
       {/* EDIT PORTFOLIO PROJECT MODAL                                              */}
       {/* ========================================================================= */}
       {editingProject && (
-        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-          <form onSubmit={handleSaveProject} className="relative w-full max-w-2xl rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 p-6 sm:p-8 space-y-5 text-[#1A1917] max-h-[90vh] overflow-y-auto shadow-2xl my-auto">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start">
+          <form onSubmit={handleSaveProject} className="relative w-full max-w-2xl my-4 sm:my-8 rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 p-6 sm:p-8 space-y-5 text-[#1A1917] shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-4">
               <div>
                 <span className="text-xs font-mono font-bold text-[#8C6D3B] uppercase">PORTFOLIO CMS</span>
@@ -2871,7 +3010,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2DDD6]">
+            <div className="sticky bottom-0 bg-[#FAF8F4] -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 p-4 sm:p-6 rounded-b-3xl border-t border-[#E2DDD6] flex items-center justify-end gap-3 z-20 shadow-md">
               <button
                 type="button"
                 onClick={() => setEditingProject(null)}
@@ -2893,10 +3032,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
 
       {/* EDIT TRACKER PROJECT MODAL */}
       {editingTrackerProject && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start animate-fade-in">
           <form
             onSubmit={handleSaveTrackerProject}
-            className="relative w-full max-w-2xl rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 p-6 sm:p-8 space-y-5 text-[#1A1917] max-h-[90vh] overflow-y-auto shadow-2xl my-auto"
+            className="relative w-full max-w-2xl my-4 sm:my-8 rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 p-6 sm:p-8 space-y-5 text-[#1A1917] shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-4">
               <div>
@@ -3076,7 +3215,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2DDD6]">
+            <div className="sticky bottom-0 bg-[#FAF8F4] -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 p-4 sm:p-6 rounded-b-3xl border-t border-[#E2DDD6] flex items-center justify-end gap-3 z-20 shadow-md">
               <button
                 type="button"
                 onClick={() => setEditingTrackerProject(null)}
@@ -3098,10 +3237,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
 
       {/* EDIT CLIENT STORY MODAL */}
       {editingStory && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start animate-fade-in">
           <form
             onSubmit={handleSaveClientStory}
-            className="relative w-full max-w-xl rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 p-6 sm:p-8 space-y-5 text-[#1A1917] max-h-[90vh] overflow-y-auto shadow-2xl my-auto"
+            className="relative w-full max-w-xl my-4 sm:my-8 rounded-3xl bg-[#FAF8F4] border border-[#1A1917]/20 p-6 sm:p-8 space-y-5 text-[#1A1917] shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-[#E2DDD6] pb-4">
               <div>
@@ -3226,7 +3365,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen = true, onClose
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2DDD6]">
+            <div className="sticky bottom-0 bg-[#FAF8F4] -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 p-4 sm:p-6 rounded-b-3xl border-t border-[#E2DDD6] flex items-center justify-end gap-3 z-20 shadow-md">
               <button
                 type="button"
                 onClick={() => setEditingStory(null)}

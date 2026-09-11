@@ -1,4 +1,5 @@
 import React from 'react';
+import { appDB, DB_STORES } from './db';
 
 export interface WorkItem {
   id: string;
@@ -943,42 +944,145 @@ Create a distinct, well-lit transition threshold between the external corridor a
 ];
 
 class DataStoreService {
-  private getStorage<T>(key: string, defaultVal: T): T {
+  private memoryCache = {
+    clients: INITIAL_CLIENTS,
+    leads: INITIAL_LEADS,
+    projects: INITIAL_PROJECTS,
+    services: INITIAL_SERVICES,
+    pricing: INITIAL_PRICING,
+    blogs: INITIAL_BLOGS,
+    trackerProjects: INITIAL_TRACKER_PROJECTS,
+    clientStories: INITIAL_CLIENT_STORIES,
+    adminPassword: 'admin',
+  };
+
+  private isInitialized = false;
+
+  constructor() {
+    this.bootDatabase();
+  }
+
+  /**
+   * Initializes the IndexedDB database and seamlessly migrates any legacy localStorage data.
+   */
+  private async bootDatabase(): Promise<void> {
+    if (typeof window === 'undefined') return;
+
     try {
-      const stored = localStorage.getItem(key);
-      return stored ? JSON.parse(stored) : defaultVal;
-    } catch {
-      return defaultVal;
+      // 1. Initial quick load from legacy localStorage if available (for instant 0ms render before DB async resolves)
+      try {
+        const lsClients = localStorage.getItem('deinterio_clients');
+        if (lsClients) this.memoryCache.clients = JSON.parse(lsClients);
+
+        const lsLeads = localStorage.getItem('deinterio_leads');
+        if (lsLeads) this.memoryCache.leads = JSON.parse(lsLeads);
+
+        const lsProjects = localStorage.getItem('deinterio_projects');
+        if (lsProjects) this.memoryCache.projects = JSON.parse(lsProjects);
+
+        const lsServices = localStorage.getItem('deinterio_services');
+        if (lsServices) this.memoryCache.services = JSON.parse(lsServices);
+
+        const lsPricing = localStorage.getItem('deinterio_pricing');
+        if (lsPricing) this.memoryCache.pricing = JSON.parse(lsPricing);
+
+        const lsBlogs = localStorage.getItem('deinterio_blogs');
+        if (lsBlogs) this.memoryCache.blogs = JSON.parse(lsBlogs);
+
+        const lsTracker = localStorage.getItem('deinterio_tracker_projects');
+        if (lsTracker) this.memoryCache.trackerProjects = JSON.parse(lsTracker);
+
+        const lsStories = localStorage.getItem('deinterio_client_stories');
+        if (lsStories) this.memoryCache.clientStories = JSON.parse(lsStories);
+
+        const lsPass = localStorage.getItem('deinterio_admin_password');
+        if (lsPass) this.memoryCache.adminPassword = lsPass;
+      } catch (e) {
+        console.warn('[DataStore] Legacy localStorage pre-check notice:', e);
+      }
+
+      // 2. Query IndexedDB
+      const dbClients = await appDB.getAll<ClientAccount>(DB_STORES.CLIENTS);
+      const dbLeads = await appDB.getAll<LeadItem>(DB_STORES.LEADS);
+      const dbProjects = await appDB.getAll<ProjectItem>(DB_STORES.PROJECTS);
+      const dbServices = await appDB.getAll<ServiceItem>(DB_STORES.SERVICES);
+      const dbPricing = await appDB.getAll<PricingTierItem>(DB_STORES.PRICING);
+      const dbBlogs = await appDB.getAll<BlogArticle>(DB_STORES.BLOGS);
+      const dbTracker = await appDB.getAll<TrackerProject>(DB_STORES.TRACKER_PROJECTS);
+      const dbStories = await appDB.getAll<ClientStory>(DB_STORES.CLIENT_STORIES);
+      const dbPass = await appDB.getSetting<string>('admin_password', '');
+
+      // Check if DB already has records
+      const hasDbData = dbClients.length > 0 || dbProjects.length > 0 || dbBlogs.length > 0;
+
+      if (hasDbData) {
+        // Hydrate in-memory cache directly from IndexedDB
+        if (dbClients.length > 0) this.memoryCache.clients = dbClients;
+        if (dbLeads.length > 0) this.memoryCache.leads = dbLeads;
+        if (dbProjects.length > 0) this.memoryCache.projects = dbProjects;
+        if (dbServices.length > 0) this.memoryCache.services = dbServices;
+        if (dbPricing.length > 0) this.memoryCache.pricing = dbPricing;
+        if (dbBlogs.length > 0) this.memoryCache.blogs = dbBlogs;
+        if (dbTracker.length > 0) this.memoryCache.trackerProjects = dbTracker;
+        if (dbStories.length > 0) this.memoryCache.clientStories = dbStories;
+        if (dbPass) this.memoryCache.adminPassword = dbPass;
+      } else {
+        // DB is empty: Seed database with current cache (which includes any migrated localStorage data)
+        await appDB.setAll(DB_STORES.CLIENTS, this.memoryCache.clients);
+        await appDB.setAll(DB_STORES.LEADS, this.memoryCache.leads);
+        await appDB.setAll(DB_STORES.PROJECTS, this.memoryCache.projects);
+        await appDB.setAll(DB_STORES.SERVICES, this.memoryCache.services);
+        await appDB.setAll(DB_STORES.PRICING, this.memoryCache.pricing);
+        await appDB.setAll(DB_STORES.BLOGS, this.memoryCache.blogs);
+        await appDB.setAll(DB_STORES.TRACKER_PROJECTS, this.memoryCache.trackerProjects);
+        await appDB.setAll(DB_STORES.CLIENT_STORIES, this.memoryCache.clientStories);
+        await appDB.setSetting('admin_password', this.memoryCache.adminPassword);
+
+        // Remove bulky items from legacy localStorage to avoid quota errors
+        try {
+          localStorage.removeItem('deinterio_clients');
+          localStorage.removeItem('deinterio_projects');
+          localStorage.removeItem('deinterio_blogs');
+          localStorage.removeItem('deinterio_tracker_projects');
+          localStorage.removeItem('deinterio_client_stories');
+          localStorage.removeItem('deinterio_leads');
+        } catch {}
+      }
+
+      this.isInitialized = true;
+      this.notifyUpdate('database_bootstrapped');
+    } catch (err) {
+      console.error('[DataStore] Database bootstrap error:', err);
     }
   }
 
-  private setStorage<T>(key: string, value: T): void {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('deinterio_datastore_updated', { detail: { key } }));
-      }
-    } catch (err) {
-      console.error('Error writing dataStore to localStorage:', err);
+  private notifyUpdate(key: string): void {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('deinterio_datastore_updated', { detail: { key } }));
     }
   }
 
   // --- ADMIN SECURITY & AUTH ---
   getAdminPassword(): string {
-    return this.getStorage<string>('deinterio_admin_password', 'admin123');
+    return this.memoryCache.adminPassword || 'admin';
   }
 
   setAdminPassword(newPass: string): void {
-    this.setStorage('deinterio_admin_password', newPass.trim() || 'admin123');
+    const cleanPass = newPass.trim() || 'admin';
+    this.memoryCache.adminPassword = cleanPass;
+    appDB.setSetting('admin_password', cleanPass);
+    this.notifyUpdate('admin_password');
   }
 
   // --- CLIENT ACCOUNTS ---
   getClients(): ClientAccount[] {
-    return this.getStorage<ClientAccount[]>('deinterio_clients', INITIAL_CLIENTS);
+    return this.memoryCache.clients;
   }
 
   saveClients(clients: ClientAccount[]): void {
-    this.setStorage('deinterio_clients', clients);
+    this.memoryCache.clients = [...clients];
+    appDB.setAll(DB_STORES.CLIENTS, this.memoryCache.clients);
+    this.notifyUpdate('clients');
   }
 
   authenticateClient(usernameOrEmail: string, pass: string): ClientAccount | null {
@@ -994,7 +1098,7 @@ class DataStoreService {
   }
 
   saveClient(client: ClientAccount): void {
-    const clients = this.getClients();
+    const clients = [...this.getClients()];
     const idx = clients.findIndex(c => c.id === client.id);
     if (idx >= 0) {
       clients[idx] = client;
@@ -1008,24 +1112,26 @@ class DataStoreService {
     const clients = this.getClients().filter(c => c.id !== id);
     this.saveClients(clients);
     if (typeof window !== 'undefined') {
-      const activeClientId = localStorage.getItem('deinterio_active_client_id');
+      const activeClientId = sessionStorage.getItem('deinterio_active_client_id');
       if (activeClientId === id) {
-        localStorage.removeItem('deinterio_active_client_id');
+        sessionStorage.removeItem('deinterio_active_client_id');
       }
     }
   }
 
   // --- SERVICES CMS ---
   getServices(): ServiceItem[] {
-    return this.getStorage<ServiceItem[]>('deinterio_services', INITIAL_SERVICES);
+    return this.memoryCache.services;
   }
 
   saveServices(services: ServiceItem[]): void {
-    this.setStorage('deinterio_services', services);
+    this.memoryCache.services = [...services];
+    appDB.setAll(DB_STORES.SERVICES, this.memoryCache.services);
+    this.notifyUpdate('services');
   }
 
   saveService(service: ServiceItem): void {
-    const list = this.getServices();
+    const list = [...this.getServices()];
     const idx = list.findIndex(s => s.id === service.id);
     if (idx >= 0) {
       list[idx] = service;
@@ -1042,15 +1148,17 @@ class DataStoreService {
 
   // --- PROJECTS CMS ---
   getProjects(): ProjectItem[] {
-    return this.getStorage<ProjectItem[]>('deinterio_projects', INITIAL_PROJECTS);
+    return this.memoryCache.projects;
   }
 
   saveProjects(projects: ProjectItem[]): void {
-    this.setStorage('deinterio_projects', projects);
+    this.memoryCache.projects = [...projects];
+    appDB.setAll(DB_STORES.PROJECTS, this.memoryCache.projects);
+    this.notifyUpdate('projects');
   }
 
   saveProject(project: ProjectItem): void {
-    const list = this.getProjects();
+    const list = [...this.getProjects()];
     const idx = list.findIndex(p => p.id === project.id);
     if (idx >= 0) {
       list[idx] = project;
@@ -1067,15 +1175,17 @@ class DataStoreService {
 
   // --- PRICING CMS ---
   getPricing(): PricingTierItem[] {
-    return this.getStorage<PricingTierItem[]>('deinterio_pricing', INITIAL_PRICING);
+    return this.memoryCache.pricing;
   }
 
   savePricing(pricing: PricingTierItem[]): void {
-    this.setStorage('deinterio_pricing', pricing);
+    this.memoryCache.pricing = [...pricing];
+    appDB.setAll(DB_STORES.PRICING, this.memoryCache.pricing);
+    this.notifyUpdate('pricing');
   }
 
   savePricingTier(tier: PricingTierItem): void {
-    const list = this.getPricing();
+    const list = [...this.getPricing()];
     const idx = list.findIndex(t => t.id === tier.id);
     if (idx >= 0) {
       list[idx] = tier;
@@ -1087,15 +1197,17 @@ class DataStoreService {
 
   // --- LEADS ---
   getLeads(): LeadItem[] {
-    return this.getStorage<LeadItem[]>('deinterio_leads', INITIAL_LEADS);
+    return this.memoryCache.leads;
   }
 
   saveLeads(leads: LeadItem[]): void {
-    this.setStorage('deinterio_leads', leads);
+    this.memoryCache.leads = [...leads];
+    appDB.setAll(DB_STORES.LEADS, this.memoryCache.leads);
+    this.notifyUpdate('leads');
   }
 
   addLead(lead: Omit<LeadItem, 'id' | 'date' | 'status'> & { status?: LeadItem['status'] }): void {
-    const leads = this.getLeads();
+    const leads = [...this.getLeads()];
     const newLead: LeadItem = {
       ...lead,
       status: lead.status || 'NEW',
@@ -1103,11 +1215,11 @@ class DataStoreService {
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
     };
     leads.unshift(newLead);
-    this.setStorage('deinterio_leads', leads);
+    this.saveLeads(leads);
   }
 
   updateLeadStatus(leadId: string, status: LeadItem['status'], notes?: string): void {
-    const leads = this.getLeads();
+    const leads = [...this.getLeads()];
     const idx = leads.findIndex(l => l.id === leadId);
     if (idx >= 0) {
       leads[idx].status = status;
@@ -1174,22 +1286,24 @@ class DataStoreService {
 
   // --- TRACKER PROJECTS (ONGOING & COMPLETED) ---
   getTrackerProjects(): TrackerProject[] {
-    return this.getStorage<TrackerProject[]>('deinterio_tracker_projects', INITIAL_TRACKER_PROJECTS);
+    return this.memoryCache.trackerProjects;
   }
 
   saveTrackerProject(proj: TrackerProject): void {
-    const list = this.getTrackerProjects();
+    const list = [...this.getTrackerProjects()];
     const idx = list.findIndex((p) => p.id === proj.id);
     if (idx >= 0) {
       list[idx] = proj;
     } else {
       list.unshift(proj);
     }
-    this.setStorage('deinterio_tracker_projects', list);
+    this.memoryCache.trackerProjects = list;
+    appDB.setAll(DB_STORES.TRACKER_PROJECTS, list);
+    this.notifyUpdate('tracker_projects');
   }
 
   markTrackerProjectComplete(id: string): void {
-    const list = this.getTrackerProjects();
+    const list = [...this.getTrackerProjects()];
     const item = list.find((p) => p.id === id);
     if (item) {
       item.status = 'COMPLETED';
@@ -1197,22 +1311,26 @@ class DataStoreService {
       item.progress = 100;
       item.currentStage = 'Handover Completed';
       item.completedDate = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      this.setStorage('deinterio_tracker_projects', list);
+      this.memoryCache.trackerProjects = list;
+      appDB.setAll(DB_STORES.TRACKER_PROJECTS, list);
+      this.notifyUpdate('tracker_projects');
     }
   }
 
   deleteTrackerProject(id: string): void {
     const list = this.getTrackerProjects().filter((p) => p.id !== id);
-    this.setStorage('deinterio_tracker_projects', list);
+    this.memoryCache.trackerProjects = list;
+    appDB.setAll(DB_STORES.TRACKER_PROJECTS, list);
+    this.notifyUpdate('tracker_projects');
   }
 
   // --- CLIENT STORIES (AUTO-ROLL) ---
   getClientStories(): ClientStory[] {
-    return this.getStorage<ClientStory[]>('deinterio_client_stories', INITIAL_CLIENT_STORIES);
+    return this.memoryCache.clientStories;
   }
 
   saveClientStory(story: ClientStory): void {
-    let list = this.getClientStories();
+    let list = [...this.getClientStories()];
     const idx = list.findIndex((s) => s.id === story.id);
     if (idx >= 0) {
       list[idx] = story;
@@ -1224,25 +1342,31 @@ class DataStoreService {
         list = list.slice(0, 4);
       }
     }
-    this.setStorage('deinterio_client_stories', list);
+    this.memoryCache.clientStories = list;
+    appDB.setAll(DB_STORES.CLIENT_STORIES, list);
+    this.notifyUpdate('client_stories');
   }
 
   deleteClientStory(id: string | number): void {
     const list = this.getClientStories().filter((s) => s.id !== id);
-    this.setStorage('deinterio_client_stories', list);
+    this.memoryCache.clientStories = list;
+    appDB.setAll(DB_STORES.CLIENT_STORIES, list);
+    this.notifyUpdate('client_stories');
   }
 
   // --- BLOGS & EDITORIAL CMS ---
   getBlogs(): BlogArticle[] {
-    return this.getStorage<BlogArticle[]>('deinterio_blogs', INITIAL_BLOGS);
+    return this.memoryCache.blogs;
   }
 
   saveBlogs(blogs: BlogArticle[]): void {
-    this.setStorage('deinterio_blogs', blogs);
+    this.memoryCache.blogs = [...blogs];
+    appDB.setAll(DB_STORES.BLOGS, this.memoryCache.blogs);
+    this.notifyUpdate('blogs');
   }
 
   saveBlog(blog: BlogArticle): void {
-    const list = this.getBlogs();
+    const list = [...this.getBlogs()];
     const idx = list.findIndex((b) => b.id === blog.id || b.slug === blog.slug);
     if (idx >= 0) {
       list[idx] = blog;
@@ -1256,6 +1380,28 @@ class DataStoreService {
     const list = this.getBlogs().filter((b) => b.id !== id && b.slug !== id);
     this.saveBlogs(list);
   }
+
+  // --- DATABASE TOOLS ---
+  async exportDatabase(): Promise<string> {
+    return await appDB.exportAll();
+  }
+
+  async importDatabase(jsonContent: string): Promise<boolean> {
+    const success = await appDB.importAll(jsonContent);
+    if (success) {
+      await this.bootDatabase();
+    }
+    return success;
+  }
+
+  async getDatabaseStats(): Promise<Record<string, number>> {
+    return await appDB.getStats();
+  }
+
+  isReady(): boolean {
+    return this.isInitialized;
+  }
 }
 
 export const dataStore = new DataStoreService();
+

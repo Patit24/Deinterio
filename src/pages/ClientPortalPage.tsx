@@ -69,7 +69,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
   // Load persistent session on mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    const savedUserId = localStorage.getItem('deinterio_active_client_id');
+    const savedUserId = sessionStorage.getItem('deinterio_active_client_id');
     if (savedUserId) {
       const clients = dataStore.getClients();
       const found = clients.find((c) => c.id === savedUserId);
@@ -85,7 +85,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
     const account = dataStore.authenticateClient(username, password);
     if (account) {
       setActiveAccount(account);
-      localStorage.setItem('deinterio_active_client_id', account.id);
+      sessionStorage.setItem('deinterio_active_client_id', account.id);
     } else {
       setLoginError('Invalid credentials. Please enter a valid username/email and password.');
     }
@@ -93,7 +93,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
 
   const handleLogout = () => {
     setActiveAccount(null);
-    localStorage.removeItem('deinterio_active_client_id');
+    sessionStorage.removeItem('deinterio_active_client_id');
     setUsername('');
     setPassword('');
   };
@@ -189,7 +189,7 @@ export const ClientPortalPage: React.FC<ClientPortalPageProps> = ({ onOpenBookin
 
     dataStore.saveClient(newClient);
     setActiveAccount(newClient);
-    localStorage.setItem('deinterio_active_client_id', newClient.id);
+    sessionStorage.setItem('deinterio_active_client_id', newClient.id);
     setRegSuccess(`Account successfully created! Your username is "${cleanUser}" and default password is "password123".`);
   };
 

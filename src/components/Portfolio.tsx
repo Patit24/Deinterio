@@ -148,8 +148,8 @@ export const Portfolio: React.FC<PortfolioProps> = ({ onOpenBooking }) => {
 
       {/* Interactive Project Detail & Before/After Modal */}
       {activeProject && (
-        <div className="fixed inset-0 z-50 bg-[#1A1917]/80 backdrop-blur-2xl flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in">
-          <div className="relative w-full max-w-5xl rounded-3xl bg-[#F9F8F3] border border-[#1A1917]/20 shadow-2xl overflow-hidden my-auto text-[#1A1917]">
+        <div className="fixed inset-0 z-50 bg-[#1A1917]/80 backdrop-blur-2xl overflow-y-auto overscroll-contain p-3 sm:p-6 flex justify-center items-start animate-fade-in">
+          <div className="relative w-full max-w-5xl my-4 sm:my-8 rounded-3xl bg-[#F9F8F3] border border-[#1A1917]/20 shadow-2xl overflow-hidden text-[#1A1917]">
             
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-[#1A1917]/10 bg-white">
